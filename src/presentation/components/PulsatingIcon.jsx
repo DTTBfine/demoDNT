@@ -37,7 +37,7 @@ const PulsatingIcon = (props) => {
             ...props.style,
             ...scaleStyle,
         }}>
-            <Icon name="thumbs-up" size={150} color="#3498db" />
+            <Icon name="thumbs-up" size={150} color="white" />
         </Animated.View>
     ); x
 };

@@ -1,18 +1,18 @@
 import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from 'react-native'
 import React from 'react'
-import FuncBox from '../components/func';
 import Icon from 'react-native-vector-icons/FontAwesome'
+import FuncBox from '../../components/func';
 
-const HomeScreen = () => {
-    const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
-    const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
+const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
+const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
+const StudentScreen = () => {
     return (
         <ScrollView>
             <View style={styles.infoBox}>
                 <View style={{ flex: 1 }}>
                     <Image
-                        source={require('../../../assets/default-avatar.jpg')}
+                        source={require('../../../../assets/default-avatar.jpg')}
                         style={{
                             width: 40,
                             height: 40,
@@ -33,28 +33,22 @@ const HomeScreen = () => {
             </View>
             <View style={styles.funcList}>
                 <FuncBox
+                    iconName='user-plus'
+                    name='Đăng ký'
+                    infor='Đăng ký lớp học'
+                    routeName='registerClass'
+                />
+                <FuncBox
                     iconName='group'
                     name='Lớp học'
-                    infor='Đăng ký, quản lý lớp học, lịch học'
-                    routeName='class'
+                    infor='Thông tin các lớp của sinh viên'
+                    routeName='classNavigationForStudent'
                 />
                 <FuncBox
                     iconName='flask'
                     name='Bài tập'
                     infor='Thông tin về các bài tập'
                     routeName='assignment'
-                />
-                <FuncBox
-                    iconName='bell-o'
-                    name='Điểm danh'
-                    infor='Điểm danh sinh viên, xin phép nghỉ học'
-                    routeName='class'
-                />
-                <FuncBox
-                    iconName='folder-open-o'
-                    name='Tài liệu'
-                    infor='Tài liệu học tập'
-                    routeName='class'
                 />
                 <FuncBox
                     iconName='newspaper-o'
@@ -98,4 +92,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HomeScreen
+export default StudentScreen

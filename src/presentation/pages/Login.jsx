@@ -1,32 +1,142 @@
-import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions } from 'react-native'
+import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import PulsatingIcon from '../components/PulsatingIcon';
+
+const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
+const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
 
 const LoginScreen = () => {
+    const [visible, setVisible] = useState(false)
+    const [invalidFields, setInvalidFields] = useState([]) //mảng chứa những trường không hợp lệ
+    const [payload, setPayload] = useState({
+        email: '',
+        password: ''
+    })
+    const [focusField, setFocusField] = useState('')
+
+    const handleSubmit = async () => {
+        //console.log(payload)
+        let invalids = validate(payload)
+        if (invalids === 0) {
+            setVisible(true)
+            //handle check data
+            //lấy tạm cái này thử đã
+            setTimeout(() => {
+                if (payload.password === '123456') navigation.replace("student")
+                if (payload.password === '654321') navigation.replace("teacher")
+            }, 2000)
+        }
+        console.log(invalids)
+    }
+
+    const validateEmail = (email) => {
+        var regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+        return regex.test(email);
+    }
+
+    const validate = (payload) => {
+        let invalids = 0 //đếm số trường không hợp lệ
+        let fields = Object.entries(payload) //hàm chuyển 1 object thành mảng
+
+        const pattern = /^\d{10}$/;
+
+        fields.forEach(item => {
+            if (item[1] === '') {
+                setInvalidFields(prev => [...prev, {
+                    name: item[0],
+                    message: 'Không được bỏ trống !'
+                }])
+                invalids++
+            }
+        })
+        fields.forEach(item => {
+            switch (item[0]) {
+                case 'password':
+                    if (item[1].length < 6) {
+                        setInvalidFields(prev => [...prev, {
+                            name: item[0],
+                            message: 'Mật khẩu phải có tối thiểu 6 ký tự !'
+                        }])
+                        invalids++
+                    }
+                    break
+                case 'email':
+                    if (!validateEmail(item[1])) {
+                        setInvalidFields(prev => [...prev, {
+                            name: item[0],
+                            message: 'Email không hợp lệ !'
+                        }])
+                        invalids++
+                    }
+                    break
+                default:
+                    break
+            }
+        })
+
+        return invalids
+    }
+
     const navigation = useNavigation()
     return (
         <View style={styles.container}>
+            {
+                visible && <PulsatingIcon style={{
+                    backgroundColor: 'transparent',
+                    position: 'absolute',
+                    width: 150,
+                    height: 150,
+                    top: height / 2 - 75, // canh giữa theo chiều dọc
+                    left: width / 2 - 75, // canh giữa theo chiều ngang,
+                    zIndex: 100
+                }} />
+            }
             <View style={styles.titleBox}>
                 <Text style={styles.title1}>HUST</Text>
                 <Text style={styles.title2}> Đăng nhập với tài khoản QLĐT</Text>
             </View>
             <View style={styles.inputBox}>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, { borderColor: focusField === 'email' ? '#00CCFF' : '#CCCCCC' }]}
                     placeholder='Email hoặc mã số SV/CB'
                     placeholderTextColor="#CCCCCC"
+                    value={payload.email}
+                    onChangeText={(text) => setPayload(prev => ({ ...prev, 'email': text }))}
+                    onFocus={() => {
+                        setFocusField('email')
+                        setInvalidFields([])
+                    }}
                 />
+                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'email') && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.find(i => i.name === 'email')?.message}
+                </Text>}
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, { borderColor: focusField === 'password' ? '#00CCFF' : '#CCCCCC' }]}
                     placeholder='Mật khẩu'
                     placeholderTextColor="#CCCCCC"
+                    value={payload.password}
+                    onChangeText={(text) => setPayload(prev => ({ ...prev, 'password': text }))}
+                    onFocus={() => {
+                        setFocusField('password')
+                        setInvalidFields([])
+                    }}
                 />
+                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'password') && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.find(i => i.name === 'password')?.message}
+                </Text>}
                 <View>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => {
-                            navigation.replace("inapp")
-                        }}>
+                        onPress={handleSubmit}>
                         <Text style={{ color: "#AA0000", fontSize: 20, fontWeight: 'bold', alignSelf: 'center', }}>ĐĂNG NHẬP</Text>
                     </TouchableOpacity>
                 </View>
@@ -69,7 +179,6 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1,
-        borderColor: '#CCCCCC',
         borderRadius: 20,
         paddingVertical: 10,
         paddingHorizontal: 20,

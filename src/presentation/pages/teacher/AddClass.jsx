@@ -101,11 +101,15 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#BB0000',
         borderRadius: 20,
+        color: 'white'
     },
     pickerItem: {
         color: 'gray',
         fontSize: 13,
         flex: 1,
+        borderWidth: 1,
+        borderColor: '#BB0000',
+        borderRadius: 20,
     },
     button: {
         backgroundColor: '#BB0000',

@@ -12,16 +12,22 @@ const RegisterScreen = () => {
                 <Text style={styles.title2}> Welcome to AIIHust</Text>
             </View>
             <View style={styles.inputBox}>
-                <TextInput
-                    style={styles.input}
-                    placeholder='Họ'
-                    placeholderTextColor="white"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder='Tên'
-                    placeholderTextColor="white"
-                />
+                <View style={{
+                    flexDirection: "row",
+                    gap: 10
+                }}>
+                    <TextInput
+                        style={[styles.input, { flex: 1 }]}
+                        placeholder='Họ'
+                        placeholderTextColor="white"
+                    />
+                    <TextInput
+                        style={[styles.input, { flex: 1 }]}
+                        placeholder='Tên'
+                        placeholderTextColor="white"
+                    />
+
+                </View>
                 <TextInput
                     style={styles.input}
                     placeholder='Email'
