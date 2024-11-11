@@ -1,8 +1,11 @@
 import { View, Text, StyleSheet, Image } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/Octicons'
+import { useNavigation } from '@react-navigation/native'
 
 const CustomHeader = () => {
+    const navigate = useNavigation()
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -23,7 +26,11 @@ const CustomHeader = () => {
                     position: "absolute",
                     right: 20,
                     top: 45
-                }} />
+                }}
+                onPress={() => {
+                    navigate.navigate("notification")
+                }}
+            />
         </View>
     )
 }

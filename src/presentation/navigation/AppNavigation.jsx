@@ -20,6 +20,7 @@ import ClassRegister from '../pages/student/ClassRegister';
 import AssignmentList from '../pages/student/AssignmentList';
 import AbsenceRequest from '../pages/student/AbsenceRequest';
 import StudentClasses from '../pages/student/StudentClasses';
+import Notification from '../pages/Notification';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -32,6 +33,7 @@ const AppNavigation = () => {
                 <Stack.Screen name="student" component={StudentRoute} />
                 <Stack.Screen name="teacher" component={TeacherRoute} />
                 {/* <Stack.Screen name="inapp" component={InapNavigation} /> */}
+                <Stack.Screen name="notification" component={Note} />
             </Stack.Navigator>
         </NavigationContainer>
     )
@@ -42,6 +44,28 @@ const AuthNavigation = () => {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="login" component={LoginScreen} />
             <Stack.Screen name="register" component={RegisterScreen} />
+        </Stack.Navigator>
+    )
+}
+
+const Note = () => {
+    return (
+        <Stack.Navigator screenOptions={{
+            headerTitle: () => {
+                return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>Thông báo</Text>
+            },
+            headerStyle: {
+                backgroundColor: '#BB0000',
+                height: 80,
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+                fontWeight: '500',
+                fontSize: 18,
+            },
+            headerTitleAlign: 'center'
+        }}>
+            <Stack.Screen name="note" component={Notification} />
         </Stack.Navigator>
     )
 }

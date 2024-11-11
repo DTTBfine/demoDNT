@@ -5,11 +5,14 @@ import { useNavigation } from '@react-navigation/native'
 
 const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
     const navigate = useNavigation()
-    const [isExpanded, setIsExpanded] = useState(false)
+    //const [isExpanded, setIsExpanded] = useState(false)
+
     return (
-        <View style={[styles.container, { borderWidth: 2, borderColor: isExpanded ? '#AA0000' : '#DDDDDD' }]}>
+        <View style={[styles.container, { borderWidth: 2, borderColor: currentId === id ? '#AA0000' : '#DDDDDD' }]}>
             <TouchableOpacity style={styles.titleBox} onPress={() => {
-                setIsExpanded(!isExpanded)
+                //setIsExpanded(!isExpanded)
+                setCurrentId(id)
+                if (currentId === id) setCurrentId('0')
             }}>
                 <View style={{
                     width: 55,
@@ -38,7 +41,7 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
                     }}> {teacher}</Text>
                 </View>
             </TouchableOpacity>
-            {isExpanded && <View style={{
+            {currentId === id && <View style={{
                 borderTopColor: '#CCCCCC',
                 borderTopWidth: 1,
             }}>
