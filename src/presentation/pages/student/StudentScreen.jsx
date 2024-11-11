@@ -54,13 +54,13 @@ const StudentScreen = () => {
                     iconName='newspaper-o'
                     name='Thông báo tin tức'
                     infor='Các thông báo quan trọng'
-                    routeName='class'
+                    routeName='classNavigationForStudent'
                 />
                 <FuncBox
                     iconName='bar-chart'
                     name='Khảo sát'
                     infor='Khảo sát và form'
-                    routeName='class'
+                    routeName='classNavigationForStudent'
                 />
             </View>
         </ScrollView>

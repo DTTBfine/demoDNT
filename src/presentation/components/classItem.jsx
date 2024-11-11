@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
-import { classNameCode, getRandomBasicColor, getRandomColor } from '../../utils/constant'
+import { classNameCode, getColorForId, getRandomBasicColor, getRandomColor } from '../../utils/constant'
 import { useNavigation } from '@react-navigation/native'
 
 const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
@@ -18,7 +18,7 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
                     width: 55,
                     height: 55,
                     borderRadius: 10,
-                    backgroundColor: getRandomColor(),
+                    backgroundColor: getColorForId(id),
                     justifyContent: 'center'
                 }}>
                     <Text style={{

@@ -150,3 +150,14 @@ export const getRandomBasicColor = () => {
     const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange',];
     return colors[Math.floor(Math.random() * colors.length)];
 };
+
+const colorMap = new Map();
+
+export const getColorForId = (id) => {
+    if (!colorMap.has(id)) {
+        const colors = ['#FF6347', '#4682B4', '#32CD32', '#FFD700', '#6A5ACD', '#FF4500', '#2E8B57', '#FF69B4'];
+        const color = colors[colorMap.size % colors.length]; // Chọn màu từ danh sách
+        colorMap.set(id, color);
+    }
+    return colorMap.get(id);
+};

@@ -5,6 +5,7 @@ const AbsenceRequest = () => {
     return (
         <View>
             <Text>AbsenceRequest</Text>
+            <Text>Giao diện làm như ở drive tuần 7</Text>
         </View>
     )
 }

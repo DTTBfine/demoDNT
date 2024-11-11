@@ -176,7 +176,7 @@ const AssignmentList = () => {
         </ScrollView>
       </View>
 
-      <View style={{
+      {/* <View style={{
         position: 'absolute',
         bottom: 50,
         right: 30,
@@ -192,7 +192,7 @@ const AssignmentList = () => {
             navigate.navigate("addSurvey")
           }}
         />
-      </View>
+      </View> */}
     </View>
   )
 }

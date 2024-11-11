@@ -159,7 +159,6 @@ const StudentRoute = () => {
             <Stack.Screen name="registerClass" component={RegisterClass} />
             <Stack.Screen name="classNavigationForStudent" component={ClassNavigationForStudent} />
             <Stack.Screen name="assignment" component={AssignmentList} />
-            <Stack.Screen name="absenceRequest" component={AbsenceRequest} />
         </Stack.Navigator>
     )
 }
@@ -236,7 +235,7 @@ const ClassNavigationForStudent = () => {
             screenOptions={({ route }) => ({
                 headerTitle: () => {
                     let titleName
-                    if (route.name === "classRegister") titleName = 'Đăng ký lớp học'
+                    if (route.name === "absenceRequest") titleName = 'Nghỉ phép'
                     else if (route.name === "myClasses") titleName = 'Lớp của tôi'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
@@ -253,6 +252,7 @@ const ClassNavigationForStudent = () => {
             }
             )}>
             <Stack.Screen name="myClasses" component={StudentClasses} />
+            <Stack.Screen name="absenceRequest" component={AbsenceRequest} />
         </Stack.Navigator>
     )
 }
