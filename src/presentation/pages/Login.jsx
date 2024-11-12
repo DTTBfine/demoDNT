@@ -6,9 +6,11 @@ import { authEndpoints } from '../../constants/endpoints';
 import { responseCodes } from '../../constants/responseCodes';
 import axios from 'axios';
 import uuid from 'react-native-uuid'
+import { saveValue } from '../../utils/localStorage';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
+
 
 const login = async (payload) => {
     const response = await axios.post(authEndpoints.login, {
@@ -22,7 +24,12 @@ const login = async (payload) => {
     }
     if (response.data.status_code !== responseCodes.statusOK) {
         console.error("login failed: " + response.data.message);
-        return false
+        return false;
+    }
+    if (response.data.data.token) {
+        saveValue('token', response.data.data.token);
+    } else {
+        console.error("cannot get token from response");
     }
     return true;
 }
