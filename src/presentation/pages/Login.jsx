@@ -2,9 +2,30 @@ import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import PulsatingIcon from '../components/PulsatingIcon';
+import { authEndpoints } from '../../constants/endpoints';
+import { responseCodes } from '../../constants/responseCodes';
+import axios from 'axios';
+import uuid from 'react-native-uuid'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
+
+const login = async (payload) => {
+    const response = await axios.post(authEndpoints.login, {
+        email: payload.email,
+        password: payload.password,
+        deviceId: uuid.v4()
+    })
+    if (response.status !== 200) {
+        console.error("login failed with status code: " + response.status);
+        return false;
+    }
+    if (response.data.status_code !== responseCodes.statusOK) {
+        console.error("login failed: " + response.data.message);
+        return false
+    }
+    return true;
+}
 
 const LoginScreen = () => {
     const [visible, setVisible] = useState(false)
@@ -18,16 +39,23 @@ const LoginScreen = () => {
     const handleSubmit = async () => {
         //console.log(payload)
         let invalids = validate(payload)
-        if (invalids === 0) {
-            setVisible(true)
+        if (invalids !== 0) {
+            console.log(invalids);
+            return;
+        }
+        setVisible(true);
+        const isAuthenticated = await login(payload);
             //handle check data
             //lấy tạm cái này thử đã
             setTimeout(() => {
-                if (payload.password === '123456') navigation.replace("student")
+                // if (payload.password === '123456') navigation.replace("student")
+                
+                if (isAuthenticated) {
+                    console.log("login successfully");
+                    navigation.replace("student");
+                }
                 if (payload.password === '654321') navigation.replace("teacher")
             }, 2000)
-        }
-        console.log(invalids)
     }
 
     const validateEmail = (email) => {
@@ -136,7 +164,9 @@ const LoginScreen = () => {
                 <View>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={handleSubmit}>
+                        onPress={async () => {
+                            await handleSubmit();
+                        }}>
                         <Text style={{ color: "#AA0000", fontSize: 20, fontWeight: 'bold', alignSelf: 'center', }}>ĐĂNG NHẬP</Text>
                     </TouchableOpacity>
                 </View>

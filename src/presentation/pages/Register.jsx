@@ -2,9 +2,97 @@ import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity } from 'rea
 import React from 'react'
 import { Picker } from '@react-native-picker/picker'
 import { useNavigation } from '@react-navigation/native'
+import { useState } from 'react'
+import axios from '../../../axiosConfig'
+import { useRef } from 'react'
+import uuid from 'react-native-uuid'
+// import DeviceInfo from 'react-native-device-info'
+import DropdownAlert, {
+    DropdownAlertData,
+    DropdownAlertType,
+  } from 'react-native-dropdownalert';
+
+const signUpEndpoint = '/it4788/signup';
+const checkVerifyCodeEndpoint = '/it4788/check_verify_code';
+
+const checkVerifyCode = async (email, code) => {
+    try {
+        const response = await axios.post(checkVerifyCodeEndpoint, {
+            email: email,
+            verify_code: code
+        });
+        return response.data.code === 1000
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+const signUp = async (payload) => {
+    try {
+        const response = await axios.post(signUpEndpoint, {
+            "ho": payload.ho,
+            "ten": payload.ten,
+            "email": payload.email,
+            "password": payload.password,
+            "role": payload.role,
+            "uuid": uuid.v4()
+        });
+        return response;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
 
 const RegisterScreen = () => {
-    const navigate = useNavigation()
+    const navigate = useNavigation();
+    const [invalidFields, setInvalidFields] = useState([]);
+    const dropdownAlertRef = useRef(null);
+    const [payload, setPayload] = useState({
+        'ho': '',
+        'ten': '',
+        'email': '',
+        'password': '',
+        'role': ''
+    });
+
+    const handleRoleChange = (value) => {
+        setPayload((prevPayload) => ({
+            ...prevPayload,
+            'role': value
+        }));
+    };
+    
+    const handleSubmit = async () => {
+        try {
+            const response = await signUp(payload);
+            console.log(response.data);
+            // const data = JSON.parse(response.data);
+            if (response.data.status_code !== 1000) {
+                console.error("register failed: " + response.data.message)
+    
+                dropdownAlertRef.current.alertWithType(
+                    DropdownAlertType.Error,
+                    'Register Failed',
+                    data.message
+                );
+                return;
+            }
+            console.log("register successfully");
+            const isAuthenticated = await checkVerifyCode(payload.email, response.data.verify_code);
+            if (!isAuthenticated) {
+                console.log("verify account failed");
+                return;
+            }
+            navigate.replace('login');
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+        
+    }
     return (
         <View style={styles.container}>
             <View style={styles.titleBox}>
@@ -20,40 +108,50 @@ const RegisterScreen = () => {
                         style={[styles.input, { flex: 1 }]}
                         placeholder='Họ'
                         placeholderTextColor="white"
+                        value={payload.ho}
+                        onChangeText={(text) => setPayload(prev => ({ ...prev, 'ho': text }))}
                     />
                     <TextInput
                         style={[styles.input, { flex: 1 }]}
                         placeholder='Tên'
                         placeholderTextColor="white"
+                        value={payload.ten}
+                        onChangeText={(text) => setPayload(prev => ({ ...prev, 'ten': text }))}
                     />
-
                 </View>
                 <TextInput
                     style={styles.input}
                     placeholder='Email'
                     placeholderTextColor="white"
+                    value={payload.email}
+                        onChangeText={(text) => setPayload(prev => ({ ...prev, 'email': text }))}
                 />
                 <TextInput
                     style={styles.input}
                     placeholder='Password'
                     placeholderTextColor="white"
+                    value={payload.password}
+                        onChangeText={(text) => setPayload(prev => ({ ...prev, 'password': text }))}
                 />
                 <View style={styles.picker}>
                     <Picker
                         style={styles.picker}
+                        onValueChange={handleRoleChange}
                     >
                         <Picker.Item label="Role" value="" />
-                        <Picker.Item label="Sinh viên" value="student" />
-                        <Picker.Item label="Giảng viên" value="lecture" />
+                        <Picker.Item label="Sinh viên" value="STUDENT" />
+                        <Picker.Item label="Giảng viên" value="LECTURE" />
                     </Picker>
                 </View>
                 <View>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => {
-
+                        onPress={async () => {
+                            await handleSubmit();
                         }}>
-                        <Text style={{ color: "#AA0000", fontSize: 20, fontWeight: 'bold', alignSelf: 'center', }}>SIGN UP</Text>
+                        <Text style={{ color: "#AA0000", fontSize: 20, fontWeight: 'bold', alignSelf: 'center', }} onPress={handleSubmit}>
+                            SIGN UP
+                        </Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.titleBox}>
@@ -63,6 +161,8 @@ const RegisterScreen = () => {
                         }}>Username/ Password</Text> </Text>
                 </View>
             </View>
+
+            <DropdownAlert ref={dropdownAlertRef} />
         </View>
     )
 }
@@ -118,3 +218,5 @@ const styles = StyleSheet.create({
     }
 })
 export default RegisterScreen
+
+//todo: verify input data before requesting to server
