@@ -7,32 +7,12 @@ import { responseCodes } from '../../constants/responseCodes';
 import axios from 'axios';
 import uuid from 'react-native-uuid'
 import { saveValue } from '../../utils/localStorage';
+import { loginRequest } from '../../data/api/login';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
 
 
-const login = async (payload) => {
-    const response = await axios.post(authEndpoints.login, {
-        email: payload.email,
-        password: payload.password,
-        deviceId: uuid.v4()
-    })
-    if (response.status !== 200) {
-        console.error("login failed with status code: " + response.status);
-        return false;
-    }
-    if (response.data.status_code !== responseCodes.statusOK) {
-        console.error("login failed: " + response.data.message);
-        return false;
-    }
-    if (response.data.data.token) {
-        saveValue('token', response.data.data.token);
-    } else {
-        console.error("cannot get token from response");
-    }
-    return true;
-}
 
 const LoginScreen = () => {
     const [visible, setVisible] = useState(false)
@@ -51,17 +31,33 @@ const LoginScreen = () => {
             return;
         }
         setVisible(true);
-        const isAuthenticated = await login(payload);
+        const response = await loginRequest(payload);
+        const statusCode = response.data.status_code;
+        if (!statusCode) {
+            console.error("failed to login with status code: " + response.status);
+            return;
+        }
             //handle check data
             //lấy tạm cái này thử đã
             setTimeout(() => {
-                // if (payload.password === '123456') navigation.replace("student")
                 
-                if (isAuthenticated) {
-                    console.log("login successfully");
-                    navigation.replace("student");
+                if (statusCode === responseCodes.statusOK) {
+                    const data = response.data.data
+
+                    //save user token and id
+                    saveValue("token", data.token);
+                    saveValue("userId", String(data.id));
+
+                    console.log("role: ", data.role);
+                    if (data.role === 'STUDENT') {
+                        console.log("hello");
+                        navigation.replace('student');
+                    } else {
+                        navigation.replace('teacher');
+                    }
+                } else {
+                    console.error("failed to login: " + response.data.message)
                 }
-                if (payload.password === '654321') navigation.replace("teacher")
             }, 2000)
     }
 

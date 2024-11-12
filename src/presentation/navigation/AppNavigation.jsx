@@ -7,7 +7,6 @@ import { Text } from 'react-native';
 import CustomHeader from '../components/customHeader';
 import LoginScreen from '../pages/Login';
 import RegisterScreen from '../pages/Register';
-import VerifyAccountScreen from '../pages/VerifyAccount';
 import ProfileScreen from '../pages/Profile';
 import SettingScreen from '../pages/Setting';
 
@@ -45,7 +44,6 @@ const AuthNavigation = () => {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="login" component={LoginScreen} />
             <Stack.Screen name="register" component={RegisterScreen} />
-            <Stack.Screen name="verify_account" component={VerifyAccountScreen} />
         </Stack.Navigator>
     )
 }
