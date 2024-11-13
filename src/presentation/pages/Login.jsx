@@ -1,70 +1,56 @@
 import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import PulsatingIcon from '../components/PulsatingIcon';
-import { authEndpoints } from '../../utils/constants/endpoints';
-import { responseCodes } from '../../utils/constants/responseCodes';
-import { saveValue } from '../../utils/localStorage';
-import { loginRequest } from '../../data/api/auth';
-import { validateEmail } from '../../utils/validate';
+import { useDispatch, useSelector } from 'react-redux';
+import * as actions from '../redux/actions'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
 
-
-
 const LoginScreen = () => {
+    const dispatch = useDispatch()
+    const navigate = useNavigation()
     const [visible, setVisible] = useState(false)
     const [invalidFields, setInvalidFields] = useState([]) //mảng chứa những trường không hợp lệ
+    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const [payload, setPayload] = useState({
         email: '',
         password: ''
     })
     const [focusField, setFocusField] = useState('')
 
+    useEffect(() => {
+        if (isLoggedIn) {
+            dispatch(actions.getUserInfo({
+                token,
+                userId
+            }))
+            if (role === 'STUDENT') navigate.navigate("student")
+            else navigate.navigate("teacher")
+            console.log("token: " + token)
+            console.log("userId: " + userId)
+        }
+    }, [isLoggedIn])
+
+    useEffect(() => {
+        msg && setInvalidFields(prev => [...prev, {
+            name: 'password',
+            message: 'User not found or wrong password !'
+        }])
+    }, [msg, update])
+
     const handleSubmit = async () => {
+
         //console.log(payload)
         let invalids = validate(payload)
         if (invalids !== 0) {
             console.log(invalids);
             return;
         }
+        console.log(payload)
+        dispatch(actions.login(payload))
         //setVisible(true);
-        const response = await loginRequest(payload);
-        const statusCode = response.data.status_code;
-        if (!statusCode) {
-            console.error("failed to login with status code: " + response.status);
-            return;
-        }
-        //handle check data
-        //lấy tạm cái này thử đã
-        setTimeout(() => {
-
-            if (statusCode === responseCodes.statusOK) {
-                const data = response.data.data
-
-                //save user token and id
-                saveValue("token", data.token);
-                saveValue("userId", String(data.id));
-
-                if (data.role === 'STUDENT') {
-                    navigation.replace('student');
-                } else {
-                    navigation.replace('teacher');
-                }
-
-            }
-            // if (statusCode === responseCodes.userNotValidated) {
-            //     setInvalidFields(prev => [...prev, {
-            //         name: 'password',
-            //         message: response.data.message
-            //     }])
-            //     invalids++
-            // }
-            else {
-                console.error("failed to login: " + response.data.message)
-            }
-        }, 2000)
     }
 
 
