@@ -68,8 +68,6 @@ const LoginScreen = () => {
     }
 
 
-    
-
     const validate = (payload) => {
         let invalids = 0 //đếm số trường không hợp lệ
         let fields = Object.entries(payload) //hàm chuyển 1 object thành mảng

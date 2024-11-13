@@ -7,10 +7,6 @@ import axios from '../../../axiosConfig'
 import { useRef } from 'react'
 import uuid from 'react-native-uuid'
 // import DeviceInfo from 'react-native-device-info'
-import DropdownAlert, {
-    DropdownAlertData,
-    DropdownAlertType,
-} from 'react-native-dropdownalert';
 
 const signUpEndpoint = '/it4788/signup';
 const checkVerifyCodeEndpoint = '/it4788/check_verify_code';
