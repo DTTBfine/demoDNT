@@ -10,7 +10,7 @@ import uuid from 'react-native-uuid'
 import DropdownAlert, {
     DropdownAlertData,
     DropdownAlertType,
-  } from 'react-native-dropdownalert';
+} from 'react-native-dropdownalert';
 
 const signUpEndpoint = '/it4788/signup';
 const checkVerifyCodeEndpoint = '/it4788/check_verify_code';
@@ -45,7 +45,6 @@ const signUp = async (payload) => {
     }
 };
 
-
 const RegisterScreen = () => {
     const navigate = useNavigation();
     const [invalidFields, setInvalidFields] = useState([]);
@@ -64,7 +63,50 @@ const RegisterScreen = () => {
             'role': value
         }));
     };
-    
+
+    const validate = (payload) => {
+        let invalids = 0 //đếm số trường không hợp lệ
+        let fields = Object.entries(payload) //hàm chuyển 1 object thành mảng
+
+        const pattern = /^\d{10}$/;
+
+        fields.forEach(item => {
+            if (item[1] === '') {
+                setInvalidFields(prev => [...prev, {
+                    name: item[0],
+                    message: 'Không được bỏ trống !'
+                }])
+                invalids++
+            }
+        })
+        fields.forEach(item => {
+            switch (item[0]) {
+                case 'password':
+                    if (item[1].length < 6) {
+                        setInvalidFields(prev => [...prev, {
+                            name: item[0],
+                            message: 'Mật khẩu phải có tối thiểu 6 ký tự !'
+                        }])
+                        invalids++
+                    }
+                    break
+                case 'email':
+                    if (!validateEmail(item[1])) {
+                        setInvalidFields(prev => [...prev, {
+                            name: item[0],
+                            message: 'Email không hợp lệ !'
+                        }])
+                        invalids++
+                    }
+                    break
+                default:
+                    break
+            }
+        })
+
+        return invalids
+    }
+
     const handleSubmit = async () => {
         try {
             const response = await signUp(payload);
@@ -72,7 +114,7 @@ const RegisterScreen = () => {
             // const data = JSON.parse(response.data);
             if (response.data.status_code !== 1000) {
                 console.error("register failed: " + response.data.message)
-    
+
                 dropdownAlertRef.current.alertWithType(
                     DropdownAlertType.Error,
                     'Register Failed',
@@ -91,7 +133,7 @@ const RegisterScreen = () => {
             console.error(error);
             throw error;
         }
-        
+
     }
     return (
         <View style={styles.container}>
@@ -124,7 +166,7 @@ const RegisterScreen = () => {
                     placeholder='Email'
                     placeholderTextColor="white"
                     value={payload.email}
-                        onChangeText={(text) => setPayload(prev => ({ ...prev, 'email': text }))}
+                    onChangeText={(text) => setPayload(prev => ({ ...prev, 'email': text }))}
                 />
                 <TextInput
                     secureTextEntry={true}
@@ -132,7 +174,7 @@ const RegisterScreen = () => {
                     placeholder='Password'
                     placeholderTextColor="white"
                     value={payload.password}
-                        onChangeText={(text) => setPayload(prev => ({ ...prev, 'password': text }))}
+                    onChangeText={(text) => setPayload(prev => ({ ...prev, 'password': text }))}
                 />
                 <View style={styles.picker}>
                     <Picker
@@ -163,7 +205,7 @@ const RegisterScreen = () => {
                 </View>
             </View>
 
-            <DropdownAlert ref={dropdownAlertRef} />
+            {/* <DropdownAlert ref={dropdownAlertRef} /> */}
         </View>
     )
 }

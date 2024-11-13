@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
-import { classNameCode, getColorForId, getRandomBasicColor, getRandomColor } from '../../utils/constant'
+import { classNameCode, getColorForId, getRandomBasicColor, getRandomColor } from '../../utils/format'
 import { useNavigation } from '@react-navigation/native'
 
 const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {

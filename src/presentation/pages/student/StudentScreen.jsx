@@ -4,8 +4,8 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
 import { useState, useEffect } from 'react';
 import { getValue } from '../../../utils/localStorage';
-import { getUserInfoRequest } from '../../../data/api/getUserInfo';
-import { responseCodes } from '../../../constants/responseCodes';
+import { getUserInfoRequest } from '../../../data/api/user';
+import { responseCodes } from '../../../utils/constants/responseCodes';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 
@@ -14,20 +14,24 @@ const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta tru
 
 
 const getUserInfo = async () => {
+    const [token, user_id] = await Promise.all([
+        getValue('token'),
+        getValue('userId')
+    ]);
     const payload = {
-        token: await getValue('token'),
-        user_id: await getValue('userId')
-    };
+        token: token,
+        user_id: user_id
+    }
+
 
     const response = await getUserInfoRequest(payload);
     const code = response.data.code;
     if (!code) {
-        console.error('failed to get user info with status code: ' + response.status);
-        return;
-    } 
-    
+        return console.error('failed to get user info with status code: ' + response.status);
+    }
+
     if (code !== responseCodes.statusOK) {
-        console.error("failed to get user info: " + response.data.message)
+        return console.error("failed to get user info: " + response.data.message);
     }
 
     return response.data.data;
@@ -48,7 +52,7 @@ const StudentScreen = () => {
         };
 
         fetchUserInfo();
-    }, []); 
+    }, []);
     if (!userInfo) {
         return <Text>Loading...</Text>;
     }

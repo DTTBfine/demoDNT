@@ -2,12 +2,11 @@ import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import PulsatingIcon from '../components/PulsatingIcon';
-import { authEndpoints } from '../../constants/endpoints';
-import { responseCodes } from '../../constants/responseCodes';
-import axios from 'axios';
-import uuid from 'react-native-uuid'
+import { authEndpoints } from '../../utils/constants/endpoints';
+import { responseCodes } from '../../utils/constants/responseCodes';
 import { saveValue } from '../../utils/localStorage';
-import { loginRequest } from '../../data/api/login';
+import { loginRequest } from '../../data/api/auth';
+import { validateEmail } from '../../utils/validate';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -30,41 +29,46 @@ const LoginScreen = () => {
             console.log(invalids);
             return;
         }
-        setVisible(true);
+        //setVisible(true);
         const response = await loginRequest(payload);
         const statusCode = response.data.status_code;
         if (!statusCode) {
             console.error("failed to login with status code: " + response.status);
             return;
         }
-            //handle check data
-            //lấy tạm cái này thử đã
-            setTimeout(() => {
-                
-                if (statusCode === responseCodes.statusOK) {
-                    const data = response.data.data
+        //handle check data
+        //lấy tạm cái này thử đã
+        setTimeout(() => {
 
-                    //save user token and id
-                    saveValue("token", data.token);
-                    saveValue("userId", String(data.id));
+            if (statusCode === responseCodes.statusOK) {
+                const data = response.data.data
 
-                    console.log("role: ", data.role);
-                    if (data.role === 'STUDENT') {
-                        console.log("hello");
-                        navigation.replace('student');
-                    } else {
-                        navigation.replace('teacher');
-                    }
+                //save user token and id
+                saveValue("token", data.token);
+                saveValue("userId", String(data.id));
+
+                if (data.role === 'STUDENT') {
+                    navigation.replace('student');
                 } else {
-                    console.error("failed to login: " + response.data.message)
+                    navigation.replace('teacher');
                 }
-            }, 2000)
+
+            }
+            // if (statusCode === responseCodes.userNotValidated) {
+            //     setInvalidFields(prev => [...prev, {
+            //         name: 'password',
+            //         message: response.data.message
+            //     }])
+            //     invalids++
+            // }
+            else {
+                console.error("failed to login: " + response.data.message)
+            }
+        }, 2000)
     }
 
-    const validateEmail = (email) => {
-        var regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-        return regex.test(email);
-    }
+
+    
 
     const validate = (payload) => {
         let invalids = 0 //đếm số trường không hợp lệ
