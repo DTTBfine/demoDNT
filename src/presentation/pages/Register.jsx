@@ -127,6 +127,7 @@ const RegisterScreen = () => {
                         onChangeText={(text) => setPayload(prev => ({ ...prev, 'email': text }))}
                 />
                 <TextInput
+                    secureTextEntry={true}
                     style={styles.input}
                     placeholder='Password'
                     placeholderTextColor="white"

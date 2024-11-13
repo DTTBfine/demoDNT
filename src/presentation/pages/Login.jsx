@@ -147,6 +147,7 @@ const LoginScreen = () => {
                 }}> {invalidFields.find(i => i.name === 'email')?.message}
                 </Text>}
                 <TextInput
+                    secureTextEntry={true}
                     style={[styles.input, { borderColor: focusField === 'password' ? '#00CCFF' : '#CCCCCC' }]}
                     placeholder='Mật khẩu'
                     placeholderTextColor="#CCCCCC"
