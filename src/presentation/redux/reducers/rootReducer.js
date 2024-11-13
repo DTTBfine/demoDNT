@@ -1,5 +1,5 @@
 // RootReducer.js
-import authReducer from "./authReducers";
+import authReducer from "./authReducer";
 import { combineReducers } from "redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import autoMergeLevel2 from "redux-persist/es/stateReconciler/autoMergeLevel2";
@@ -13,7 +13,7 @@ const commonConfig = {
 const authConfig = {
     ...commonConfig,
     key: 'auth',
-    whitelist: ['token'],
+    //whitelist: ['token', 'isLoggedIn'],
 };
 
 const rootReducer = combineReducers({

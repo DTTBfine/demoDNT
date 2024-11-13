@@ -1,12 +1,16 @@
-import axios from "axios";
-import { authEndpoints } from "../../utils/constants/endpoints";
+import axiosConfig from '../../../axiosConfig'
 import uuid from 'react-native-uuid'
 
-export const loginRequest = async (payload) => {
-    const response = await axios.post(authEndpoints.login, {
-        email: payload.email,
-        password: payload.password,
-        deviceId: uuid.v4()
-    });
+export const apiLogin = async (payload) => {
+    const response = await axiosConfig(
+        {
+            method: 'post',
+            url: '/it4788/login',
+            data: {
+                email: payload.email,
+                password: payload.password,
+                deviceId: uuid.v4()
+            }
+        });
     return response;
 }
