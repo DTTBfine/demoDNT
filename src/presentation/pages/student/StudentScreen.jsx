@@ -3,55 +3,29 @@ import React from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
 import { useState, useEffect } from 'react';
-import { getValue } from '../../../utils/localStorage';
-import { getUserInfoRequest } from '../../../data/api/user';
-import { responseCodes } from '../../../utils/constants/responseCodes';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-
+import { useDispatch, useSelector } from 'react-redux';
+import * as actions from '../../redux/actions'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
-
-const getUserInfo = async () => {
-    const payload = {
-        token: await getValue('token'),
-        user_id: await getValue('userId')
-    };
-
-    const response = await getUserInfoRequest(payload);
-    const code = response.data.code;
-    if (!code) {
-        console.error('failed to get user info with status code: ' + response.status);
-        return;
-    }
-
-    if (code !== responseCodes.statusOK) {
-        console.error("failed to get user info: " + response.data.message)
-    }
-
-    return response.data.data;
-
-}
-
 const StudentScreen = () => {
-    const [userInfo, setUserInfo] = useState(null);
+    const dispatch = useDispatch()
+    const { userInfo } = useSelector(state => state.user)
+    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 
     useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const data = await getUserInfo();
-                setUserInfo(data);
-            } catch (error) {
-                console.error("Error fetching user info:", error);
-            }
-        };
+        dispatch(actions.getUserInfo({
+            token,
+            userId
+        }))
+    }, [])
 
-        fetchUserInfo();
-    }, []);
-    if (!userInfo) {
-        return <Text>Loading...</Text>;
-    }
+    console.log(JSON.stringify(userInfo))
+
+    // if (!userInfo) {
+    //     return <Text>Loading...</Text>;
+    // }
 
     return (
         <ScrollView>
@@ -67,7 +41,7 @@ const StudentScreen = () => {
                     />
                 </View>
                 <View style={{ flex: 4 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text>
+                    {/* <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text> */}
                     <Text style={{ fontSize: 13 }}>CNTT: Khoa học máy tính</Text>
                 </View>
                 <View style={{ flex: 1 }}>

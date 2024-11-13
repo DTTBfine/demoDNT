@@ -21,8 +21,16 @@ const LoginScreen = () => {
     const [focusField, setFocusField] = useState('')
 
     useEffect(() => {
-        isLoggedIn && role === 'STUDENT' && navigate.navigate("student")
-        isLoggedIn && role === 'TEACHER' && navigate.navigate("teacher")
+        if (isLoggedIn) {
+            dispatch(actions.getUserInfo({
+                token,
+                userId
+            }))
+            if (role === 'STUDENT') navigate.navigate("student")
+            else navigate.navigate("teacher")
+            console.log("token: " + token)
+            console.log("userId: " + userId)
+        }
     }, [isLoggedIn])
 
     useEffect(() => {

@@ -1,10 +1,15 @@
-import axios from "axios";
-import { authEndpoints } from "../../utils/constants/endpoints";
+import axiosConfig from '../../../axiosConfig'
 
-export const getUserInfoRequest = async (payload) => {
-    const response = await axios.post(authEndpoints.getUserInfo, {
-        token: payload.token,
-        user_id: payload.userId
-    });
+export const apiGetUserInfo = () => async (payload) => {
+    console.log(payload)
+    const response = await axiosConfig(
+        {
+            method: 'post',
+            url: '/it4788/get_user_info',
+            data: {
+                token: payload.token,
+                userId: payload.userId
+            }
+        });
     return response;
-};
+}

@@ -34,6 +34,17 @@ const authReducer = (state = initState, action) => {
                 update: !state.update
             }
 
+        case actionTypes.LOGOUT:
+            return {
+                ...state,
+                isLoggedIn: false,
+                token: null,
+                userId: '',
+                role: '',
+                msg: '',
+                update: false
+            }
+
         default:
             return state;
     }
