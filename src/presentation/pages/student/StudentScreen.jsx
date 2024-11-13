@@ -4,8 +4,8 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
 import { useState, useEffect } from 'react';
 import { getValue } from '../../../utils/localStorage';
-import { getUserInfoRequest } from '../../../data/api/getUserInfo';
-import { responseCodes } from '../../../constants/responseCodes';
+import { getUserInfoRequest } from '../../../data/api/user';
+import { responseCodes } from '../../../utils/constants/responseCodes';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 
@@ -24,8 +24,8 @@ const getUserInfo = async () => {
     if (!code) {
         console.error('failed to get user info with status code: ' + response.status);
         return;
-    } 
-    
+    }
+
     if (code !== responseCodes.statusOK) {
         console.error("failed to get user info: " + response.data.message)
     }
@@ -48,7 +48,7 @@ const StudentScreen = () => {
         };
 
         fetchUserInfo();
-    }, []); 
+    }, []);
     if (!userInfo) {
         return <Text>Loading...</Text>;
     }

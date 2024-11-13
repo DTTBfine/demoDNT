@@ -1,5 +1,5 @@
 import axios from "axios";
-import { authEndpoints } from "../../constants/endpoints";
+import { authEndpoints } from "../../utils/constants/endpoints";
 import uuid from 'react-native-uuid'
 
 export const loginRequest = async (payload) => {

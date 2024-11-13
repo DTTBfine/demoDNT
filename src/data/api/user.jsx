@@ -1,5 +1,5 @@
 import axios from "axios";
-import { authEndpoints } from "../../constants/endpoints";
+import { authEndpoints } from "../../utils/constants/endpoints";
 
 export const getUserInfoRequest = async (payload) => {
     const response = await axios.post(authEndpoints.getUserInfo, {
