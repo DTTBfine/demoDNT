@@ -27,7 +27,7 @@ const authReducer = (state = initState, action) => {
             return {
                 ...state,
                 isLoggedIn: false,
-                msg: action.data,
+                msg: '',
                 token: null,
                 userId: '',
                 role: '',
@@ -35,14 +35,14 @@ const authReducer = (state = initState, action) => {
             }
 
         case actionTypes.LOGOUT:
+            console.log('Logging out, resetting state...');
             return {
                 ...state,
                 isLoggedIn: false,
                 token: null,
                 userId: '',
                 role: '',
-                msg: '',
-                update: false
+                msg: ''
             }
 
         default:

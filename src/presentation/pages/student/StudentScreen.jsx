@@ -14,18 +14,11 @@ const StudentScreen = () => {
     const { userInfo } = useSelector(state => state.user)
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 
-    useEffect(() => {
-        dispatch(actions.getUserInfo({
-            token,
-            userId
-        }))
-    }, [])
-
     console.log(JSON.stringify(userInfo))
 
-    // if (!userInfo) {
-    //     return <Text>Loading...</Text>;
-    // }
+    if (!userInfo) {
+        return <Text>Loading...</Text>;
+    }
 
     return (
         <ScrollView>
@@ -41,7 +34,7 @@ const StudentScreen = () => {
                     />
                 </View>
                 <View style={{ flex: 4 }}>
-                    {/* <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text> */}
+                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text>
                     <Text style={{ fontSize: 13 }}>CNTT: Khoa học máy tính</Text>
                 </View>
                 <View style={{ flex: 1 }}>

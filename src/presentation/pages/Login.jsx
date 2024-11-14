@@ -28,8 +28,6 @@ const LoginScreen = () => {
             }))
             if (role === 'STUDENT') navigate.navigate("student")
             else navigate.navigate("teacher")
-            console.log("token: " + token)
-            console.log("userId: " + userId)
         }
     }, [isLoggedIn])
 
