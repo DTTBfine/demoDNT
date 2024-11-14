@@ -2,11 +2,14 @@ import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from 'react-nat
 import React from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
+import { useSelector } from 'react-redux';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
 const TeacherScreen = () => {
+    const { userInfo } = useSelector(state => state.user)
+
     return (
         <ScrollView>
             <View style={styles.infoBox}>
@@ -21,8 +24,8 @@ const TeacherScreen = () => {
                     />
                 </View>
                 <View style={{ flex: 4 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}> Nguyễn Văn A </Text>
-                    <Text style={{ fontSize: 13 }}>CNTT: Khoa học máy tính</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`} </Text>
+                    <Text style={{ fontSize: 13 }}>Giảng viên</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                     <Icon name='calendar' size={18} color="#BB0000" />

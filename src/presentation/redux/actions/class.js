@@ -18,3 +18,21 @@ export const getClassList = (payload) => async (dispatch) => {
         })
     }
 }
+
+export const getClassInfo = (payload) => async (dispatch) => {
+    const response = await apis.apiGetClassInfo(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_CLASS_INFO,
+            data: response.data.data
+        })
+    }
+    else {
+        console.log('failed to get class info with status code: " + response.status')
+        dispatch({
+            type: actionTypes.GET_CLASS_INFO,
+            data: null
+        })
+    }
+}
+

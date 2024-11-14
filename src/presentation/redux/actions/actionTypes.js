@@ -11,7 +11,8 @@ const actionTypes = {
 
     GET_USER_INFO: 'GET_USER_INFO',
 
-    GET_CLASS_LIST: 'GET_CLASS_LIST'
+    GET_CLASS_LIST: 'GET_CLASS_LIST',
+    GET_CLASS_INFO: 'GET_CLASS_INFO'
 }
 
 export default actionTypes
