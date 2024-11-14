@@ -11,9 +11,10 @@ const { store, persistor } = reduxStore();
 export default function App() {
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <AppNavigation />
+      {/* <PersistGate loading={null} persistor={persistor}>
         <AppNavigation />
-      </PersistGate>
+      </PersistGate> */}
     </Provider>
   );
 }

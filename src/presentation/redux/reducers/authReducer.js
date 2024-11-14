@@ -14,6 +14,7 @@ const authReducer = (state = initState, action) => {
         //case actionTypes.REGISTER_SUCCESS:
         case actionTypes.LOGIN_WITH_STUDENT_SUCCESS:
         case actionTypes.LOGIN_WITH_TEACHER_SUCCESS:
+            console.log('Đã đăng nhập vào rùi')
             return {
                 ...state,
                 isLoggedIn: true,
@@ -27,7 +28,7 @@ const authReducer = (state = initState, action) => {
             return {
                 ...state,
                 isLoggedIn: false,
-                msg: '',
+                msg: action.message,
                 token: null,
                 userId: '',
                 role: '',

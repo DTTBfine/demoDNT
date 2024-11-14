@@ -20,21 +20,33 @@ const LoginScreen = () => {
     })
     const [focusField, setFocusField] = useState('')
 
+    console.log('isLoggedIn: ' + isLoggedIn)
     useEffect(() => {
         if (isLoggedIn) {
             dispatch(actions.getUserInfo({
                 token,
                 userId
             }))
+            dispatch(actions.getClassList({
+                token: token,
+                role: role,
+                account_id: userId
+            }))
             if (role === 'STUDENT') navigate.navigate("student")
             else navigate.navigate("teacher")
         }
     }, [isLoggedIn])
 
+    console.log('msg: ' + msg)
+
     useEffect(() => {
-        msg && setInvalidFields(prev => [...prev, {
+        msg === 'password is incorrect' && setInvalidFields(prev => [...prev, {
             name: 'password',
-            message: 'User not found or wrong password !'
+            message: msg
+        }])
+        msg === 'email not existed' && setInvalidFields(prev => [...prev, {
+            name: 'email',
+            message: msg
         }])
     }, [msg, update])
 

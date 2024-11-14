@@ -1,0 +1,114 @@
+import axiosConfig from '../../../axiosConfig'
+
+export const apiGetClassList = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/get_class_list',
+        data: {
+            token: payload.token,
+            role: payload.role,
+            account_id: payload.account_id
+        }
+    })
+    return response
+}
+
+export const apiGetClassInfo = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/get_class_info',
+        data: {
+            token: payload.token,
+            role: payload.role,
+            account_id: payload.account_id,
+            class_id: payload.class_id
+        }
+    })
+    return response
+}
+
+export const apiCreateClass = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/create_class',
+        data: {
+            token: payload.token,
+            class_id: payload.class_id,
+            class_name: payload.class_name,
+            class_type: payload.class_type,
+            start_date: payload.start_date,
+            end_date: payload.end_date,
+            max_student_amount: payload.max_student_amount
+        }
+    })
+    return response
+}
+
+export const apiEditClass = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/edit_class',
+        data: {
+            token: payload.token,
+            class_id: payload.class_id,
+            class_name: payload.class_name,
+            status: payload.status, //ACTIVE, COMPLETED, UPCOMING
+            start_date: payload.start_date,
+            end_date: payload.end_date
+        }
+    })
+    return response
+}
+
+export const apiDeleteClass = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/delete_class',
+        data: {
+            token: payload.token,
+            role: payload.role,
+            account_id: payload.account_id,
+            class_id: payload.class_id
+        }
+    })
+    return response
+}
+
+export const apiAddStudent = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/add_student',
+        data: {
+            token: payload.token,
+            class_id: payload.class_id,
+            account_id: payload.account_id
+        }
+    })
+    return response
+}
+
+export const apiRegisterClass = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/register_class',
+        data: {
+            token: payload.token,
+            class_id: payload.class_id //mảng các class_id vd: [699216, 000002, 000010]
+        }
+    })
+    return response
+}
+
+export const apiGetBasicClassInfo = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/get_basic_class_info',
+        data: {
+            token: payload.token,
+            role: payload.role,
+            account_id: payload.account_id,
+            class_id: payload.class_id
+        }
+    })
+    return response
+}

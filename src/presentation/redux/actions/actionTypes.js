@@ -9,7 +9,9 @@ const actionTypes = {
 
     LOGOUT: 'LOGOUT',
 
-    GET_USER_INFO: 'GET_USER_INFO'
+    GET_USER_INFO: 'GET_USER_INFO',
+
+    GET_CLASS_LIST: 'GET_CLASS_LIST'
 }
 
 export default actionTypes
