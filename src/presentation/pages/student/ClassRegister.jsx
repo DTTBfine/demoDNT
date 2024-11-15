@@ -1,7 +1,20 @@
 import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native'
 import React from 'react'
+import ClassBasicInfoItem from '../../components/classBasicInfoItem'
+import { useSelector } from 'react-redux'
 
 const ClassRegister = () => {
+    //const { classList } = useSelector(state => state.learning)
+    // const HeaderItem = {
+    //     class_id: 'Mã lớp',
+    //     class_name: 'Tên lớp',
+    //     attached_code: 'Mã lớp kèm',
+    //     class_type: 'Loại lớp',
+    //     student_count: 'Số lượng sinh viên',
+    //     status: 'Trạng thái lớp',
+    // }
+    //console.log(JSON.stringify(classList[0]))
+
     return (
         <ScrollView style={styles.container}>
             <View style={{
@@ -35,14 +48,40 @@ const ClassRegister = () => {
                 </TouchableOpacity>
             </View>
 
-            <View style={{
-                borderWidth: 1,
-                borderColor: '#BB0000',
-                height: 300
-            }}>
-                <Text>Mã lớp - Mã lớp kèm - Tên lớp</Text>
-                <Text>Cái bảng danh sách lớp đăng ký</Text>
-                <Text>Chưa đăng ký cái nào thì ghi: Sinh viên chưa đăng ký lớp nào</Text>
+            <View>
+                <ScrollView horizontal={true}>
+                    <View style={{
+                        gap: 10
+                    }}>
+                        {/* <ClassBasicInfoItem isHeader classItem={HeaderItem} /> */}
+                        <View style={{
+                            width: '100%',
+                            height: 300,
+                            borderWidth: 1,
+                            borderColor: "#AA0000"
+                        }}>
+                            <ScrollView>
+                                {/* {classList?.length === 0 && <Text style={{
+                                    fontStyle: 'italic',
+                                    color: 'gray',
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 10
+                                }}>Không có lớp phù hợp</Text>}
+                                {classList?.length > 0 && classList.map((item) => {
+                                    return (
+                                        <View key={item.class_id}>
+                                            <ClassBasicInfoItem
+                                                classItem={item}
+                                                isChoosed={isChoosed}
+                                                setIsChoosed={setIsChoosed}
+                                            />
+                                        </View>
+                                    )
+                                })} */}
+                            </ScrollView>
+                        </View>
+                    </View>
+                </ScrollView>
             </View>
 
             <View style={{

@@ -22,6 +22,7 @@ import AbsenceRequest from '../pages/student/AbsenceRequest';
 import StudentClasses from '../pages/student/StudentClasses';
 import Notification from '../pages/Notification';
 import EditClass from '../pages/teacher/EditClass';
+import ClassScreen from '../pages/student/ClassScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -255,6 +256,7 @@ const ClassNavigationForStudent = () => {
             }
             )}>
             <Stack.Screen name="myClasses" component={StudentClasses} />
+            <Stack.Screen name="classScreen" component={ClassScreen} />
             <Stack.Screen name="absenceRequest" component={AbsenceRequest} />
         </Stack.Navigator>
     )

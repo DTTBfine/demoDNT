@@ -45,8 +45,12 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
                 borderTopColor: '#CCCCCC',
                 borderTopWidth: 1,
             }}>
-                <Text style={styles.textBar}> Bài tập </Text>
-                <Text style={styles.textBar}> Tài liệu</Text>
+                <Text style={styles.textBar} onPress={() => {
+                    navigate.navigate('classScreen')
+                }}> Bài tập </Text>
+                <Text style={styles.textBar} onPress={() => {
+                    navigate.navigate('classScreen')
+                }}> Tài liệu</Text>
                 <Text style={styles.textBar} onPress={() => {
                     navigate.navigate('absenceRequest')
                 }}> Xin phép nghỉ học</Text>
