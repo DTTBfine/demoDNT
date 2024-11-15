@@ -27,17 +27,24 @@ const LoginScreen = () => {
                 token,
                 userId
             }))
+            dispatch(actions.getClassList({
+                token: token,
+                role: role,
+                account_id: userId
+            }))
             if (role === 'STUDENT') navigate.navigate("student")
             else navigate.navigate("teacher")
-            console.log("token: " + token)
-            console.log("userId: " + userId)
         }
     }, [isLoggedIn])
 
     useEffect(() => {
-        msg && setInvalidFields(prev => [...prev, {
+        msg === 'password is incorrect' && setInvalidFields(prev => [...prev, {
             name: 'password',
-            message: 'User not found or wrong password !'
+            message: msg
+        }])
+        msg === 'email not existed' && setInvalidFields(prev => [...prev, {
+            name: 'email',
+            message: msg
         }])
     }, [msg, update])
 

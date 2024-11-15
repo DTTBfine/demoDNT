@@ -3,9 +3,9 @@ import * as apis from '../../../data/api'
 import { responseCodes } from "../../../utils/constants/responseCodes";
 
 export const login = (payload) => async (dispatch) => {
-    const response = await apis.apiLogin(payload)
-    if (response?.status === 200) {
-        if (response?.data.status_code === responseCodes.statusOK) {
+    try {
+        const response = await apis.apiLogin(payload)
+        if (response?.data.code === responseCodes.statusOK) {
             if (response?.data.data.role === 'STUDENT') {
                 dispatch({
                     type: actionTypes.LOGIN_WITH_STUDENT_SUCCESS,
@@ -22,14 +22,17 @@ export const login = (payload) => async (dispatch) => {
         else {
             dispatch({
                 type: actionTypes.LOGIN_FAIL,
-                data: response.data.message
+                message: response.data.message
             })
         }
-    } else {
-        console.error("failed to login with status code: " + response.status)
+    } catch (error) {
         dispatch({
             type: actionTypes.LOGIN_FAIL,
-            data: null
+            message: error
         })
     }
 }
+
+export const logout = () => ({
+    type: actionTypes.LOGOUT
+})

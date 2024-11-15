@@ -53,12 +53,19 @@ const RegisterScreen = () => {
         'role': ''
     });
 
+    const [focusField, setFocusField] = useState('')
+
     const handleRoleChange = (value) => {
         setPayload((prevPayload) => ({
             ...prevPayload,
             'role': value
         }));
     };
+
+    const validateHustEmail = (email) => {
+        const regex = /^[a-zA-Z0-9._%+-]+@hust\.edu\.vn$/;
+        return regex.test(email);
+    }
 
     const validate = (payload) => {
         let invalids = 0 //đếm số trường không hợp lệ
@@ -87,10 +94,10 @@ const RegisterScreen = () => {
                     }
                     break
                 case 'email':
-                    if (!validateEmail(item[1])) {
+                    if (!validateHustEmail(item[1])) {
                         setInvalidFields(prev => [...prev, {
                             name: item[0],
-                            message: 'Email không hợp lệ !'
+                            message: 'Email không đúng định dạng @hust.edu.vn !'
                         }])
                         invalids++
                     }
@@ -104,6 +111,12 @@ const RegisterScreen = () => {
     }
 
     const handleSubmit = async () => {
+        let invalids = validate(payload)
+        if (invalids !== 0) {
+            console.log(invalids);
+            return;
+        }
+        console.log(payload)
         try {
             const response = await signUp(payload);
             console.log(response.data);
@@ -142,46 +155,104 @@ const RegisterScreen = () => {
                     flexDirection: "row",
                     gap: 10
                 }}>
-                    <TextInput
-                        style={[styles.input, { flex: 1 }]}
-                        placeholder='Họ'
-                        placeholderTextColor="white"
-                        value={payload.ho}
-                        onChangeText={(text) => setPayload(prev => ({ ...prev, 'ho': text }))}
-                    />
-                    <TextInput
-                        style={[styles.input, { flex: 1 }]}
-                        placeholder='Tên'
-                        placeholderTextColor="white"
-                        value={payload.ten}
-                        onChangeText={(text) => setPayload(prev => ({ ...prev, 'ten': text }))}
-                    />
+                    <View style={{ flex: 1 }}>
+                        <TextInput
+                            style={[styles.input, { borderColor: focusField === 'ho' ? '#00CCFF' : '#CCCCCC' }]}
+                            placeholder='Họ'
+                            placeholderTextColor="white"
+                            value={payload.ho}
+                            onChangeText={(text) => setPayload(prev => ({ ...prev, 'ho': text }))}
+                            onFocus={() => {
+                                setFocusField('ho')
+                                setInvalidFields([])
+                            }}
+                        />
+                        {invalidFields.length > 0 && invalidFields.some(i => i.name === 'ho') && <Text style={{
+                            paddingHorizontal: 15,
+                            fontStyle: 'italic',
+                            color: 'red',
+                            fontSize: 12
+                        }}> {invalidFields.find(i => i.name === 'ho')?.message}
+                        </Text>}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <TextInput
+                            style={[styles.input, { borderColor: focusField === 'ten' ? '#00CCFF' : '#CCCCCC' }]}
+                            placeholder='Tên'
+                            placeholderTextColor="white"
+                            value={payload.ten}
+                            onChangeText={(text) => setPayload(prev => ({ ...prev, 'ten': text }))}
+                            onFocus={() => {
+                                setFocusField('ten')
+                                setInvalidFields([])
+                            }}
+                        />
+                        {invalidFields.length > 0 && invalidFields.some(i => i.name === 'ten') && <Text style={{
+                            paddingHorizontal: 15,
+                            fontStyle: 'italic',
+                            color: 'red',
+                            fontSize: 12
+                        }}> {invalidFields.find(i => i.name === 'ten')?.message}
+                        </Text>}
+                    </View>
                 </View>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, { borderColor: focusField === 'email' ? '#00CCFF' : '#CCCCCC' }]}
                     placeholder='Email'
                     placeholderTextColor="white"
                     value={payload.email}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'email': text }))}
+                    onFocus={() => {
+                        setFocusField('email')
+                        setInvalidFields([])
+                    }}
                 />
+                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'email') && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.find(i => i.name === 'email')?.message}
+                </Text>}
                 <TextInput
-                    secureTextEntry={true}
-                    style={styles.input}
+                    style={[styles.input, { borderColor: focusField === 'password' ? '#00CCFF' : '#CCCCCC' }]}
                     placeholder='Password'
                     placeholderTextColor="white"
                     value={payload.password}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'password': text }))}
+                    onFocus={() => {
+                        setFocusField('password')
+                        setInvalidFields([])
+                    }}
                 />
-                <View style={styles.picker}>
+                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'password') && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.find(i => i.name === 'password')?.message}
+                </Text>}
+                <View style={[styles.picker, { borderColor: focusField === 'role' ? '#00CCFF' : '#CCCCCC' }]}>
                     <Picker
                         style={styles.picker}
                         onValueChange={handleRoleChange}
+                        onFocus={() => {
+                            setFocusField('role')
+                            setInvalidFields([])
+                        }}
                     >
                         <Picker.Item label="Role" value="" />
                         <Picker.Item label="Sinh viên" value="STUDENT" />
                         <Picker.Item label="Giảng viên" value="LECTURE" />
                     </Picker>
                 </View>
+                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'role') && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.find(i => i.name === 'role')?.message}
+                </Text>}
                 <View>
                     <TouchableOpacity
                         style={styles.button}

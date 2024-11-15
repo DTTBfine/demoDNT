@@ -1,6 +1,6 @@
 import axiosConfig from '../../../axiosConfig'
 
-export const apiGetUserInfo = () => async (payload) => {
+export const apiGetUserInfo = async (payload) => {
     console.log(payload)
     const response = await axiosConfig(
         {
