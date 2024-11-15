@@ -2,8 +2,9 @@ import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as actions from '../../redux/actions'
-
-
+import ClassBasicInfoItem from '../../components/classBasicInfoItem'
+import * as apis from '../../../data/api/index'
+import { responseCodes } from '../../../utils/constants/responseCodes'
 
 const ClassRegister = () => {
     const classIdErrorType = 'class_id_error'
@@ -16,8 +17,17 @@ const ClassRegister = () => {
         message: ''
     })
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
-    const {_, classInfo, classInfoErr, registerClassSuccess} = useSelector(state => state.learning)
     const [classesList, setClassesList] = useState([])
+    const [isChosen, setIsChosen] = useState('')
+    
+    const HeaderItem = {
+        class_id: 'Mã lớp',
+        class_name: 'Tên lớp',
+        attached_code: 'Mã lớp kèm',
+        class_type: 'Loại lớp',
+        student_count: 'Số lượng sinh viên',
+        status: 'Trạng thái lớp',
+    }
     
     const handleGetClassInfo = async () => {
         if (!classId) {
@@ -32,17 +42,33 @@ const ClassRegister = () => {
             type: '',
             message: ''
         })
-        dispatch(actions.getBasicClassInfo({
-            token: token,
+        
+
+
+        const response = await apis.apiGetBasicClassInfo({
+            token: token, 
             class_id: classId
-        }))
+        })
+        if (response?.data.meta.code !== responseCodes.statusOK) {
+            return setError({
+                type: classIdErrorType,
+                message: response.data.data
+            })
+        }
+        const classInfo = response.data.data
+        setClassesList(prevClassesList => {
+            const exists = prevClassesList.some(item => item.id === classInfo.id);
+            if (exists) {
+                return prevClassesList
+            }
+            return [...prevClassesList, classInfo]
+        });
+
         setClassId('')
     }
 
     const handleRegisterClass = async () => {
-        console.log("class list: " + classesList.length())
-        if (classesList.length() == 0) {
-            console.log("empty empty")
+        if (classesList?.length == 0) {
             setError({
                 type: registerClassErrorType,
                 message: "bạn chưa chọn đăng ký lớp nào"
@@ -53,47 +79,33 @@ const ClassRegister = () => {
             type: '',
             message: ''
         })
-        const classIds = classesList.map(item => item.class_id);
-        dispatch(actions.registerClass({
+        const classIds = classesList.map(item => String(item.class_id));
+        console.log("hehe " + JSON.stringify({
             token: token,
             class_ids: classIds
         }))
+        const response = await apis.apiRegisterClass({
+            token: token,
+            class_ids: classIds
+        })
+        if (response?.data.meta.code !== responseCodes.statusOK) {
+            return setError({
+                type: registerClassErrorType,
+                message: response?.data.meta.message
+            })
+        }
+
+        setError({
+            type: '',
+            message: ''
+        })
+        setRegisterClassInfo("đăng ký lớp thành công")
+        // dispatch(actions.registerClass({
+        //     token: token,
+        //     class_ids: classIds
+        // }))
         setClassesList([])
     }
-
-    useEffect(() => {
-        if (classInfo.id === 0) {
-            return
-        }
-        setClassesList(prevClassesList => {
-            const exists = prevClassesList.some(item => item.id === classInfo.id);
-            if (exists) {
-                return prevClassesList
-            }
-            return [...prevClassesList, classInfo]
-        });
-    }, [classInfo]); 
-
-    useEffect(() => {
-        if (!classInfoErr) {
-            return
-        }
-        setError({
-            type: classIdErrorType,
-            message: classInfoErr
-        })
-    }, [classInfoErr])
-
-    useEffect(() => {
-        if (!registerClassSuccess) {
-            setError({
-                type: registerClassErrorType,
-                message: "đăng ký lớp không thành công"
-            })
-            return
-        }
-        setRegisterClassInfo("đăng ký lớp thành công")
-    }, [])
    
     return (
         <ScrollView style={styles.container}>
@@ -136,21 +148,41 @@ const ClassRegister = () => {
                 </Text>
             )}
 
-            <View style={{
-                borderWidth: 1,
-                borderColor: '#BB0000',
-                height: 300
-            }}>
-                <Text>Mã lớp - Mã lớp kèm - Tên lớp</Text>
-                {classesList.length > 0 ? (
-                classesList.map((classItem, index) => (
-                    <Text key={index}>
-                        {classItem.class_id} - {classItem.attached_code} - {classItem.class_name}
-                    </Text>
-                ))
-            ) : (
-                <Text>Sinh viên chưa đăng ký lớp nào</Text>
-            )}
+
+            <View>
+                <ScrollView horizontal={true}>
+                    <View style={{
+                        gap: 10
+                    }}>
+                        <ClassBasicInfoItem isHeader classItem={HeaderItem} />
+                        <View style={{
+                            width: '100%',
+                            height: 300,
+                            borderWidth: 1,
+                            borderColor: "#AA0000"
+                        }}>
+                            <ScrollView>
+                                {classesList?.length === 0 && <Text style={{
+                                    fontStyle: 'italic',
+                                    color: 'gray',
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 10
+                                }}>Bạn chưa chọn đăng ký lớp nào</Text>}
+                                {classesList?.length > 0 && classesList.map((item) => {
+                                    return (
+                                        <View key={item.class_id}>
+                                            <ClassBasicInfoItem
+                                                classItem={item}
+                                                isChoosed={isChosen}
+                                                setIsChoosed={setIsChosen}
+                                            />
+                                        </View>
+                                    )
+                                })}
+                            </ScrollView>
+                        </View>
+                    </View>
+                </ScrollView>
             </View>
 
             <View style={{

@@ -29,27 +29,34 @@ export const apiLogin = async (payload) => {
 
             }
             return error.response
-        } else {
-            // Nếu không có response từ server (network error)
-            console.error("Network error or request was not completed:", error.message);
-        }
+        } 
+        // Nếu không có response từ server (network error)
+        console.error("Network error or request was not completed:", error.message);    
     }
 }
 
 export const apiSignUp = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it4788/signup',
-        data: {
-            ho: payload.ho,
-            ten: payload.ten,
-            email: payload.email,
-            password: payload.password,
-            uuid: uuid.v4(),
-            role: payload.role
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it4788/signup',
+            data: {
+                ho: payload.ho,
+                ten: payload.ten,
+                email: payload.email,
+                password: payload.password,
+                uuid: uuid.v4(),
+                role: payload.role
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("signup failed: " + error)
         }
-    })
-    return response
+        return error.response;
+    }
+    
 }
 
 export const apiCheckVerifyCode = async (payload) => {

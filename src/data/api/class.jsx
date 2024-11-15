@@ -94,7 +94,7 @@ export const apiRegisterClass = async (payload) => {
             url: '/it5023e/register_class',
             data: {
                 token: payload.token,
-                class_id: payload.class_id //mảng các class_id vd: [699216, 000002, 000010]
+                class_ids: payload.class_ids //mảng các class_id vd: [699216, 000002, 000010]
             }
         })
         return response
