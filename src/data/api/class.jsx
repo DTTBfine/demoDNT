@@ -88,27 +88,44 @@ export const apiAddStudent = async (payload) => {
 }
 
 export const apiRegisterClass = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/register_class',
-        data: {
-            token: payload.token,
-            class_id: payload.class_id //mảng các class_id vd: [699216, 000002, 000010]
+    try{
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/register_class',
+            data: {
+                token: payload.token,
+                class_ids: payload.class_ids //mảng các class_id vd: [699216, 000002, 000010]
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("register class failed: " + error)
         }
-    })
-    return response
+        console.log("error register class: " + JSON.stringify(error.response.data))
+        return error.response
+    }
+    
 }
 
 export const apiGetBasicClassInfo = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/get_basic_class_info',
-        data: {
-            token: payload.token,
-            role: payload.role,
-            account_id: payload.account_id,
-            class_id: payload.class_id
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/get_basic_class_info',
+            data: {
+                token: payload.token,
+                role: payload.role,
+                account_id: payload.account_id,
+                class_id: payload.class_id
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("get basic class info failed")
         }
-    })
-    return response
+        return error.response
+    }
+    
 }

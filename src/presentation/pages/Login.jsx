@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import PulsatingIcon from '../components/PulsatingIcon';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../redux/actions'
+import { validateEmail } from '../../utils/validate';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -20,7 +21,6 @@ const LoginScreen = () => {
     })
     const [focusField, setFocusField] = useState('')
 
-    console.log('isLoggedIn: ' + isLoggedIn)
     useEffect(() => {
         if (isLoggedIn) {
             dispatch(actions.getUserInfo({
@@ -36,8 +36,6 @@ const LoginScreen = () => {
             else navigate.navigate("teacher")
         }
     }, [isLoggedIn])
-
-    console.log('msg: ' + msg)
 
     useEffect(() => {
         msg === 'password is incorrect' && setInvalidFields(prev => [...prev, {
@@ -63,10 +61,6 @@ const LoginScreen = () => {
         //setVisible(true);
     }
 
-    const validateEmail = (email) => {
-        var regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-        return regex.test(email);
-    }
 
     const validate = (payload) => {
         let invalids = 0 //đếm số trường không hợp lệ
@@ -149,6 +143,7 @@ const LoginScreen = () => {
                 }}> {invalidFields.find(i => i.name === 'email')?.message}
                 </Text>}
                 <TextInput
+                    secureTextEntry={true}
                     style={[styles.input, { borderColor: focusField === 'password' ? '#00CCFF' : '#CCCCCC' }]}
                     placeholder='Mật khẩu'
                     placeholderTextColor="#CCCCCC"

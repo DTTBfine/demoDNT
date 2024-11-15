@@ -1,36 +1,12 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ClassItem from '../../components/classItem'
 import { useSelector } from 'react-redux'
 
-const testData = [
-    {
-        id: 1,
-        name: 'Đa nền tảng',
-        teacher: 'Nguyen Tien Thanh'
-    },
-    {
-        id: 2,
-        name: 'Lưu trữ và xử lý dữ liệu lớn',
-        teacher: 'Tran Viet Trung'
-    },
-    {
-        id: 3,
-        name: 'Học sâu và ứng dụng',
-        teacher: 'Trinh Anh Phuc'
-    },
-    {
-        id: 4,
-        name: 'Nhập môn Khoa học dữ liệu',
-        teacher: 'Pham Van Hai'
-    },
-]
-
 const StudentClasses = () => {
     const [currentId, setCurrentId] = useState('')
     const { myClasses } = useSelector(state => state.learning)
-    console.log('classList: ' + myClasses)
 
     return (
         <ScrollView style={styles.container}>

@@ -1,6 +1,7 @@
 import actionTypes from "./actionTypes";
 import * as apis from '../../../data/api'
 import { responseCodes } from "../../../utils/constants/responseCodes"
+import { days } from "../../../utils/format";
 
 export const getClassList = (payload) => async (dispatch) => {
     const response = await apis.apiGetClassList(payload)
@@ -51,6 +52,36 @@ export const getMaterialList = (payload) => async (dispatch) => {
             data: null
         })
     }
+}
+
+export const registerClass = (payload) => async (dispatch) => {
+    const response = await apis.apiRegisterClass(payload)
+    console.log("here here: " + response?.data.meta.code)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.REGISTER_CLASS_SUCCCESS
+        })
+        return
+    }
+    console.log("register failed")
+    dispatch({
+        type: actionTypes.REGISTER_CLASS_FAILED
+    })
+}
+
+export const getBasicClassInfo = (payload) => async (dispatch) => {
+    const response = await apis.apiGetBasicClassInfo(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_BASIC_CLASS_INFO_SUCCESS,
+            data: response.data.data
+        })
+        return
+    }
+    dispatch({
+        type: actionTypes.GET_BASIC_CLASS_INFO_FAILED,
+        data: response.data.data
+    })
 }
 
 
