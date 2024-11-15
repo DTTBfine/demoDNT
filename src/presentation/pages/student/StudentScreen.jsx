@@ -2,11 +2,24 @@ import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from 'react-nat
 import React from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import * as actions from '../../redux/actions'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
 const StudentScreen = () => {
+    const dispatch = useDispatch()
+    const { userInfo } = useSelector(state => state.user)
+    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+
+    console.log(JSON.stringify(userInfo))
+
+    if (!userInfo) {
+        return <Text>Loading...</Text>;
+    }
+
     return (
         <ScrollView>
             <View style={styles.infoBox}>
@@ -21,8 +34,8 @@ const StudentScreen = () => {
                     />
                 </View>
                 <View style={{ flex: 4 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}> Nguyễn Văn A </Text>
-                    <Text style={{ fontSize: 13 }}>CNTT: Khoa học máy tính</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text>
+                    <Text style={{ fontSize: 13 }}> Sinh viên </Text>
                 </View>
                 <View style={{ flex: 1 }}>
                     <Icon name='calendar' size={18} color="#BB0000" />

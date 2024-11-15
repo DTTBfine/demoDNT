@@ -7,7 +7,6 @@ import { Text } from 'react-native';
 import CustomHeader from '../components/customHeader';
 import LoginScreen from '../pages/Login';
 import RegisterScreen from '../pages/Register';
-import VerifyAccountScreen from '../pages/VerifyAccount';
 import ProfileScreen from '../pages/Profile';
 import SettingScreen from '../pages/Setting';
 
@@ -22,6 +21,7 @@ import AssignmentList from '../pages/student/AssignmentList';
 import AbsenceRequest from '../pages/student/AbsenceRequest';
 import StudentClasses from '../pages/student/StudentClasses';
 import Notification from '../pages/Notification';
+import EditClass from '../pages/teacher/EditClass';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -45,7 +45,6 @@ const AuthNavigation = () => {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="login" component={LoginScreen} />
             <Stack.Screen name="register" component={RegisterScreen} />
-            <Stack.Screen name="verify_account" component={VerifyAccountScreen} />
         </Stack.Navigator>
     )
 }
@@ -133,6 +132,7 @@ const ClassNavigationForTeacher = () => {
                 headerTitle: () => {
                     let titleName
                     if (route.name === "classManage") titleName = 'Quản lý lớp học'
+                    else if (route.name === "EditClass") titleName = 'Chỉnh sửa thông tin lớp'
                     else titleName = 'Tạo lớp'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
@@ -150,6 +150,7 @@ const ClassNavigationForTeacher = () => {
             )}>
             <Stack.Screen name="classManage" component={ClassManage} />
             <Stack.Screen name="AddClass" component={AddClass} />
+            <Stack.Screen name="EditClass" component={EditClass} />
         </Stack.Navigator>
     )
 }

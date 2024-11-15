@@ -1,9 +1,24 @@
 import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import { useSelector } from 'react-redux'
+import ClassBasicInfoItem from '../../components/classBasicInfoItem'
 
 const ClassManage = () => {
     const navigate = useNavigation()
+    const { myClasses } = useSelector(state => state.learning)
+    const [classList, setClassList] = useState(myClasses)
+    const [classId, setClassId] = useState('') //lấy classId của input lọc
+    const [isChoosed, setIsChoosed] = useState('') //id lớp để chọn chỉnh sửa
+
+    const HeaderItem = {
+        class_id: 'Mã lớp',
+        class_name: 'Tên lớp',
+        attached_code: 'Mã lớp kèm',
+        class_type: 'Loại lớp',
+        student_count: 'Số lượng sinh viên',
+        status: 'Trạng thái lớp',
+    }
 
     return (
         <ScrollView style={styles.container}>
@@ -22,6 +37,8 @@ const ClassManage = () => {
                     }}
                     placeholder='Mã lớp'
                     placeholderTextColor="gray"
+                    value={classId}
+                    onChangeText={(text) => setClassId(text)}
                 />
                 <TouchableOpacity
                     style={{
@@ -32,19 +49,46 @@ const ClassManage = () => {
                         borderRadius: 15
                     }}
                     onPress={() => {
-
+                        setClassList(myClasses.filter(classItem => classItem.class_id === classId))
                     }}>
                     <Text style={{ color: 'white', fontWeight: 'bold', fontStyle: 'italic', fontSize: 16 }}> Tìm kiếm</Text>
                 </TouchableOpacity>
             </View>
 
-            <View style={{
-                borderWidth: 1,
-                borderColor: '#BB0000',
-                height: 300
-            }}>
-                <Text>Mã lớp - Mã lớp kèm - Tên lớp</Text>
-                <Text>Cái này chắc là bảng các lớp của giảng viên, giảng viên không nhìn rõ nên chế ra nút tìm kiếm tìm cho dễ</Text>
+            <View>
+                <ScrollView horizontal={true}>
+                    <View style={{
+                        gap: 10
+                    }}>
+                        <ClassBasicInfoItem isHeader classItem={HeaderItem} />
+                        <View style={{
+                            width: '100%',
+                            height: 300,
+                            borderWidth: 1,
+                            borderColor: "#AA0000"
+                        }}>
+                            <ScrollView>
+                                {classList?.length === 0 && <Text style={{
+                                    fontStyle: 'italic',
+                                    color: 'gray',
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 10
+                                }}>Không có lớp phù hợp</Text>}
+                                {classList?.length > 0 && classList.map((item) => {
+                                    return (
+                                        <View key={item.class_id}>
+                                            <ClassBasicInfoItem
+                                                classItem={item}
+                                                isChoosed={isChoosed}
+                                                setIsChoosed={setIsChoosed}
+                                            />
+                                        </View>
+                                    )
+                                })}
+                            </ScrollView>
+                        </View>
+                    </View>
+                </ScrollView>
             </View>
 
             <View style={{
@@ -87,7 +131,9 @@ const ClassManage = () => {
                         paddingVertical: 10
                     }}
                     onPress={() => {
-
+                        console.log('class: ' + JSON.stringify(isChoosed))
+                        const data = JSON.stringify(isChoosed)
+                        navigate.navigate('EditClass', { isChoosed })
                     }}>
                     <Text style={{
                         color: 'white',
