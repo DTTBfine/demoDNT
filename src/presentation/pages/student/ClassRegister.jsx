@@ -9,7 +9,6 @@ import { responseCodes } from '../../../utils/constants/responseCodes'
 const ClassRegister = () => {
     const classIdErrorType = 'class_id_error'
     const registerClassErrorType = 'register_class_error'
-    const dispatch = useDispatch()
     const [classId, setClassId] = useState('')
     const [registerClassInfo, setRegisterClassInfo] = useState('')
     const [error, setError] = useState({
@@ -30,6 +29,10 @@ const ClassRegister = () => {
     }
     
     const handleGetClassInfo = async () => {
+        setError({
+            type: '',
+            message: ''
+        })
         if (!classId) {
             setError({
                 type: classIdErrorType,
@@ -37,11 +40,6 @@ const ClassRegister = () => {
             })
             return
         }
-
-        setError({
-            type: '',
-            message: ''
-        })
         
 
 
@@ -68,6 +66,11 @@ const ClassRegister = () => {
     }
 
     const handleRegisterClass = async () => {
+        setRegisterClassInfo('')
+        setError({
+            type: '',
+            message: ''
+        })
         if (classesList?.length == 0) {
             setError({
                 type: registerClassErrorType,
@@ -75,15 +78,7 @@ const ClassRegister = () => {
             })
             return
         }
-        setError({
-            type: '',
-            message: ''
-        })
         const classIds = classesList.map(item => String(item.class_id));
-        console.log("hehe " + JSON.stringify({
-            token: token,
-            class_ids: classIds
-        }))
         const response = await apis.apiRegisterClass({
             token: token,
             class_ids: classIds
@@ -94,16 +89,39 @@ const ClassRegister = () => {
                 message: response?.data.meta.message
             })
         }
+        
+        const info = response.data.data
+        let regSuccessClasses = []
+        let regFailedClasses = []
 
-        setError({
-            type: '',
-            message: ''
-        })
-        setRegisterClassInfo("đăng ký lớp thành công")
-        // dispatch(actions.registerClass({
-        //     token: token,
-        //     class_ids: classIds
-        // }))
+        info.forEach(item => {
+            const matchingClass = classesList.find(cls => cls.class_id === item.class_id);
+        
+            if (matchingClass) {
+                if (item.status.toUpperCase() === 'SUCCESS') {
+                    regSuccessClasses.push(matchingClass.class_name);
+                } else if (item.status.toUpperCase() === 'FAILED') {
+                    regFailedClasses.push(matchingClass.class_name);
+                }
+            }
+        });
+
+        if (regFailedClasses.length !== 0) {
+            setError({
+                type: registerClassErrorType,
+                message: "Đăng ký các lớp sau không thành công: " + regFailedClasses.join(', ')
+            })
+        } else {
+            setError({
+                type: '',
+                message: ''
+            })
+        }
+
+        if (regSuccessClasses.length !== 0) {
+            setRegisterClassInfo("Đăng ký các lớp sau thành công: " + regSuccessClasses.join(', '))
+        }
+
         setClassesList([])
     }
    
