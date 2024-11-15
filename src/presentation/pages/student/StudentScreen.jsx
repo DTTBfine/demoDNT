@@ -35,7 +35,7 @@ const StudentScreen = () => {
                 </View>
                 <View style={{ flex: 4 }}>
                     <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text>
-                    <Text style={{ fontSize: 13 }}>{`${userInfo.role === 'TEACHER' ? 'Giảng viên' : 'Sinh viên'}`} </Text>
+                    <Text style={{ fontSize: 13 }}> Sinh viên </Text>
                 </View>
                 <View style={{ flex: 1 }}>
                     <Icon name='calendar' size={18} color="#BB0000" />

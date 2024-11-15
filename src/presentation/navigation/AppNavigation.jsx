@@ -21,6 +21,7 @@ import AssignmentList from '../pages/student/AssignmentList';
 import AbsenceRequest from '../pages/student/AbsenceRequest';
 import StudentClasses from '../pages/student/StudentClasses';
 import Notification from '../pages/Notification';
+import EditClass from '../pages/teacher/EditClass';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -131,6 +132,7 @@ const ClassNavigationForTeacher = () => {
                 headerTitle: () => {
                     let titleName
                     if (route.name === "classManage") titleName = 'Quản lý lớp học'
+                    else if (route.name === "EditClass") titleName = 'Chỉnh sửa thông tin lớp'
                     else titleName = 'Tạo lớp'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
@@ -148,6 +150,7 @@ const ClassNavigationForTeacher = () => {
             )}>
             <Stack.Screen name="classManage" component={ClassManage} />
             <Stack.Screen name="AddClass" component={AddClass} />
+            <Stack.Screen name="EditClass" component={EditClass} />
         </Stack.Navigator>
     )
 }
