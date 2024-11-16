@@ -14,7 +14,6 @@ const StudentScreen = () => {
     const { userInfo } = useSelector(state => state.user)
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 
-    console.log(JSON.stringify(userInfo))
 
     if (!userInfo) {
         return <Text>Loading...</Text>;

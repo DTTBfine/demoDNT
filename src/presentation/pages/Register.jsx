@@ -10,6 +10,11 @@ import { responseCodes } from '../../utils/constants/responseCodes'
 const RegisterScreen = () => {
     const navigate = useNavigation();
     const [invalidFields, setInvalidFields] = useState([]);
+    const [error, setError] = useState({
+        type: '',
+        message: ''
+    })
+    const registerError = 'register_error'
     const [payload, setPayload] = useState({
         'ho': '',
         'ten': '',
@@ -76,6 +81,10 @@ const RegisterScreen = () => {
     }
 
     const handleSubmit = async () => {
+        setError({
+            type: '',
+            message: ''
+        })
         let invalids = validate(payload)
         if (invalids !== 0) {
             console.log(invalids);
@@ -84,7 +93,10 @@ const RegisterScreen = () => {
         let response = await apis.apiSignUp(payload)
         console.log(response.data.code) 
         if (response?.data.code !== responseCodes.statusOK) {
-            return console.log("register failed: " + response.data.message)
+            return setError({
+                type: registerError,
+                message: "Đăng ký không thành công: " + response?.data.message
+            })
         }
 
         response = await apis.apiCheckVerifyCode({
@@ -93,29 +105,14 @@ const RegisterScreen = () => {
         })
 
         if (response?.data.code !== responseCodes.statusOK) {
-            return console.log("register failed: " + response.data.message)
+            return setError({
+                type: registerError,
+                message: "Đăng ký không thành công: " + response?.data.message
+            })
         }
 
         navigate.replace("login")
 
-        // try {
-        //     const response = await signUp(payload);
-        //     console.log(response.data);
-        //     // const data = JSON.parse(response.data);
-        //     if (response.data.status_code !== 1000) {
-        //         return;
-        //     }
-        //     console.log("register successfully");
-        //     const isAuthenticated = await checkVerifyCode(payload.email, response.data.verify_code);
-        //     if (!isAuthenticated) {
-        //         console.log("verify account failed");
-        //         return;
-        //     }
-        //     navigate.replace('login');
-        // } catch (error) {
-        //     console.error(error);
-        //     throw error;
-        // }
     }
     return (
         <View style={styles.container}>
@@ -238,12 +235,19 @@ const RegisterScreen = () => {
                         </Text>
                     </TouchableOpacity>
                 </View>
+                
                 <View style={styles.titleBox}>
                     <Text style={{ color: "white" }}> Đăng nhập với <Text style={{ textDecorationLine: 'underline' }}
                         onPress={() => {
                             navigate.navigate("login")
                         }}>Username/ Password</Text> </Text>
                 </View>
+
+                {error.type === registerError && (
+                <Text style={{ color: 'red', marginBottom: 10 }}>
+                    {error.message}
+                </Text>
+                )}
             </View>
 
         </View>
