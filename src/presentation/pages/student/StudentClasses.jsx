@@ -3,9 +3,12 @@ import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ClassItem from '../../components/ClassItem'
 import { useSelector } from 'react-redux'
+import * as apis from '../../../data/api/index'
 
 const StudentClasses = () => {
     const [currentId, setCurrentId] = useState('')
+    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+
     const { myClasses } = useSelector(state => state.learning)
 
     return (

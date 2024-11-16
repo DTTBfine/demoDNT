@@ -128,14 +128,8 @@ export const classNameCode = (fullName) => {
     var nameParts = fullName.split(" ");
 
     // Lấy chữ cái đầu tiên của mỗi từ và nối lại
-    if (nameParts.length > 1) {
-        for (let i = 0; i < 2; i++) {
-            code += nameParts[i][0];
-        }
-    }
-    else {
-        code += nameParts[0][0]
-        code += nameParts[0][1]
+    for (let i = 0; i < nameParts.length; i++) {
+        code += nameParts[i][0];
     }
     // Chuyển đổi chữ cái thành chữ hoa
     code = code.toUpperCase();
