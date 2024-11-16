@@ -7,6 +7,8 @@ import * as apis from '../../../data/api/index'
 import { responseCodes } from '../../../utils/constants/responseCodes'
 
 const ClassRegister = () => {
+    const dispatch = useDispatch()
+
     const classIdErrorType = 'class_id_error'
     const registerClassErrorType = 'register_class_error'
     const [classId, setClassId] = useState('')
@@ -59,7 +61,7 @@ const ClassRegister = () => {
             if (exists) {
                 return prevClassesList
             }
-            return [...prevClassesList, {...classInfo, register_status: '...'}]
+            return [...prevClassesList, { ...classInfo, register_status: '...' }]
         });
 
         setClassId('')
@@ -103,10 +105,10 @@ const ClassRegister = () => {
                     regFailedClasses.push(matchingClass.class_name);
                 }
             }
-            setClassesList(prevClassesList => 
-                prevClassesList.map(cls => 
-                    cls.class_id === item.class_id 
-                        ? { ...cls, register_status: item.status } 
+            setClassesList(prevClassesList =>
+                prevClassesList.map(cls =>
+                    cls.class_id === item.class_id
+                        ? { ...cls, register_status: item.status }
                         : cls
                 )
             );
@@ -130,6 +132,11 @@ const ClassRegister = () => {
         setCheckedList(new Map())
 
         // setClassesList([])
+        dispatch(actions.getClassList({
+            token: token,
+            role: role,
+            account_id: userId
+        }))
     }
 
     const handleDeleteClass = async () => {
@@ -140,9 +147,9 @@ const ClassRegister = () => {
         })
         const classIds = [...checkedList?.keys()]
         if (classIds?.length === 0) {
-            return 
+            return
         }
-        
+
         let invalidClasses = [];
 
         for (let i = classesList.length - 1; i >= 0; i--) {
@@ -156,7 +163,7 @@ const ClassRegister = () => {
             }
             classesList.splice(i, 1)
         }
-    
+
 
         if (invalidClasses?.length > 0) {
             setError({
@@ -164,7 +171,7 @@ const ClassRegister = () => {
                 message: "Không thể xóa các lớp đã đăng ký thành công: " + invalidClasses.join(', ')
             })
         }
-        
+
     }
 
     return (

@@ -128,13 +128,20 @@ export const classNameCode = (fullName) => {
     var nameParts = fullName.split(" ");
 
     // Lấy chữ cái đầu tiên của mỗi từ và nối lại
-    for (let i = 0; i < 2; i++) {
-        code += nameParts[i][0];
+    if (nameParts.length > 1) {
+        for (let i = 0; i < 2; i++) {
+            code += nameParts[i][0];
+        }
+    }
+    else {
+        code += nameParts[0][0]
+        code += nameParts[0][1]
     }
     // Chuyển đổi chữ cái thành chữ hoa
     code = code.toUpperCase();
 
     return code
+
 }
 
 export const getRandomColor = () => {

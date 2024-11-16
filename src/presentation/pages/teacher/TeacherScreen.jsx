@@ -45,31 +45,31 @@ const TeacherScreen = () => {
                     iconName='flask'
                     name='Bài tập'
                     infor='Tạo và quản lý bài tập'
-                    routeName='assignment'
+                    routeName='survey'
                 />
                 <FuncBox
                     iconName='bell-o'
                     name='Điểm danh'
                     infor='Điểm danh sinh viên'
-                    routeName='class'
+                    routeName='survey'
                 />
                 <FuncBox
                     iconName='folder-open-o'
                     name='Tài liệu'
                     infor='Tài liệu học tập'
-                    routeName='class'
+                    routeName='survey'
                 />
                 <FuncBox
                     iconName='newspaper-o'
                     name='Thông báo tin tức'
                     infor='Các thông báo quan trọng'
-                    routeName='class'
+                    routeName='survey'
                 />
                 <FuncBox
                     iconName='bar-chart'
                     name='Khảo sát'
                     infor='Khảo sát và form'
-                    routeName='class'
+                    routeName='survey'
                 />
             </View>
         </ScrollView>

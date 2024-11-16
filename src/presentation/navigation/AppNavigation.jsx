@@ -24,6 +24,7 @@ import Notification from '../pages/Notification';
 import EditClass from '../pages/teacher/EditClass';
 import ClassScreen from '../pages/student/ClassScreen';
 import { classNameCode, getColorForId } from '../../utils/format';
+import TeacherClasses from '../pages/teacher/TeacherClasses';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -78,7 +79,7 @@ const TeacherRoute = () => {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="homepage" component={TeacherHomepage} />
             <Stack.Screen name="classNavigationForTeacher" component={ClassNavigationForTeacher} />
-            <Stack.Screen name="addSurvey" component={AddSurvey} />
+            <Stack.Screen name="survey" component={Survey} />
         </Stack.Navigator>
     )
 }
@@ -124,6 +125,34 @@ const TeacherHomepage = () => {
             <Tab.Screen name="profile" component={ProfileScreen} />
             <Tab.Screen name="setting" component={SettingScreen} />
         </Tab.Navigator>
+    )
+}
+
+const Survey = () => {
+    return (
+        <Stack.Navigator
+            screenOptions={({ route }) => ({
+                headerTitle: () => {
+                    let titleName
+                    if (route.name === "addSurvey") titleName = 'Tạo bài kiểm tra'
+                    else titleName = 'Lớp của bạn'
+                    return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
+                },
+                headerStyle: {
+                    backgroundColor: '#BB0000',
+                    height: 80,
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                    fontWeight: '500',
+                    fontSize: 18,
+                },
+                headerTitleAlign: 'center',
+            }
+            )}>
+            <Stack.Screen name="teacherClasses" component={TeacherClasses} />
+            <Stack.Screen name="addSurvey" component={AddSurvey} />
+        </Stack.Navigator>
     )
 }
 
@@ -294,7 +323,7 @@ const ClassNavigationForStudent = () => {
                     fontWeight: '500',
                     fontSize: 18,
                 },
-                headerTitleAlign: 'center',
+                headerTitleAlign: !(route.name === 'classScreen') && 'center',
             }
             )}>
             <Stack.Screen name="myClasses" component={StudentClasses} />

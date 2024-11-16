@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
-import ClassItem from '../../components/classItem'
+import ClassItem from '../../components/ClassItem'
 import { useSelector } from 'react-redux'
 
 const StudentClasses = () => {
@@ -20,15 +20,25 @@ const StudentClasses = () => {
                 <Text> icon </Text>
                 <Text>Tìm kiếm </Text>
             </View>
-            {myClasses.length > 0 && myClasses.map((item) => {
-                return (
-                    <View key={item.class_id} style={{
-                        padding: 10
-                    }}>
-                        <ClassItem id={item.class_id} name={item.class_name} teacher={item.lecturer_name} currentId={currentId} setCurrentId={setCurrentId} />
-                    </View>
-                )
-            })}
+            <View style={{
+                padding: 10
+            }}>
+                {myClasses.length === 0 && <Text style={{
+                    fontStyle: 'italic',
+                    color: 'gray',
+                    textAlign: 'center'
+                }}> Bạn chưa tham gia lớp học nào !</Text>}
+                {myClasses.length > 0 && myClasses.map((item) => {
+                    const { class_id, class_name, lecturer_name } = item
+                    return (
+                        <View key={item.class_id} style={{
+                            padding: 10
+                        }}>
+                            <ClassItem id={class_id} name={class_name} teacher={lecturer_name} currentId={currentId} setCurrentId={setCurrentId} />
+                        </View>
+                    )
+                })}
+            </View>
         </ScrollView>
     )
 }
