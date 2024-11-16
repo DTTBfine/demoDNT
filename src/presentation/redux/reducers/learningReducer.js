@@ -2,6 +2,7 @@ import actionTypes from '../actions/actionTypes'
 
 const initState = {
     myClasses: [],
+    classMaterial: [],
 }
 
 const learningReducer = (state = initState, action) => {
@@ -10,6 +11,11 @@ const learningReducer = (state = initState, action) => {
             return {
                 ...state,
                 myClasses: action.data || []
+            }
+        case actionTypes.GET_MATERIAL_LIST:
+            return {
+                ...state,
+                classMaterial: action.data || []
             }
         case actionTypes.LOGOUT:
             return {

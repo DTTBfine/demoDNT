@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome'
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import CustomHeader from '../components/customHeader';
 import LoginScreen from '../pages/Login';
 import RegisterScreen from '../pages/Register';
@@ -22,6 +22,8 @@ import AbsenceRequest from '../pages/student/AbsenceRequest';
 import StudentClasses from '../pages/student/StudentClasses';
 import Notification from '../pages/Notification';
 import EditClass from '../pages/teacher/EditClass';
+import ClassScreen from '../pages/student/ClassScreen';
+import { classNameCode, getColorForId } from '../../utils/format';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -237,6 +239,47 @@ const ClassNavigationForStudent = () => {
         <Stack.Navigator
             screenOptions={({ route }) => ({
                 headerTitle: () => {
+                    if (route.name === 'classScreen') {
+                        const { name, id, teacher } = route.params
+                        return (
+                            <View style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                gap: 8
+                            }}>
+                                <View style={{
+                                    width: 35,
+                                    height: 35,
+                                    borderRadius: 5,
+                                    backgroundColor: getColorForId(id),
+                                    justifyContent: 'center'
+                                }}>
+                                    <Text style={{
+                                        fontSize: 15,
+                                        fontWeight: '600',
+                                        textAlign: 'center',
+                                        color: 'white'
+                                    }}>{classNameCode(name)}</Text>
+                                </View>
+                                <View style={{
+                                    justifyContent: 'center'
+                                }}>
+                                    <Text style={{
+                                        fontSize: 16,
+                                        fontWeight: 500,
+                                        color: 'white'
+                                    }}> {name} </Text>
+                                    <Text style={{
+                                        fontSize: 12,
+                                        color: '#CCCCCC'
+                                    }}> {teacher}</Text>
+                                </View>
+
+                            </View>
+                        )
+                    }
+
                     let titleName
                     if (route.name === "absenceRequest") titleName = 'Nghỉ phép'
                     else if (route.name === "myClasses") titleName = 'Lớp của tôi'
@@ -255,6 +298,7 @@ const ClassNavigationForStudent = () => {
             }
             )}>
             <Stack.Screen name="myClasses" component={StudentClasses} />
+            <Stack.Screen name="classScreen" component={ClassScreen} />
             <Stack.Screen name="absenceRequest" component={AbsenceRequest} />
         </Stack.Navigator>
     )
