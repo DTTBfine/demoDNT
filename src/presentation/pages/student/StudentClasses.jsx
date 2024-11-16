@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
-import ClassItem from '../../components/ClassItem'
+import ClassItem from '../../components/classItem'
 import { useSelector } from 'react-redux'
 import * as apis from '../../../data/api/index'
 
