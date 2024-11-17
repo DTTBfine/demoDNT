@@ -8,7 +8,7 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
     //const [isExpanded, setIsExpanded] = useState(false)
     try {
         return (
-            <View style={[styles.container, { borderWidth: 2, borderColor: currentId === id ? '#AA0000' : '#DDDDDD' }]}>
+            <View style={[styles.container, { borderColor: currentId === id ? '#AA0000' : '#DDDDDD' }]}>
                 <TouchableOpacity style={styles.titleBox} onPress={() => {
                     //setIsExpanded(!isExpanded)
                     setCurrentId(id)
@@ -67,10 +67,13 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
 const styles = StyleSheet.create({
     container: {
         borderRadius: 15,
-        backgroundColor: '#DDDDDD',
+        backgroundColor: 'white',
         paddingHorizontal: 10,
         paddingVertical: 15,
-        gap: 10
+        gap: 10,
+        borderBottomWidth: 1,
+        borderRightWidth: 1,
+        elevation: 5,
     },
     titleBox: {
         flexDirection: 'row',
