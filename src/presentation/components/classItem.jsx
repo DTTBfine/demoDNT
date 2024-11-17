@@ -46,10 +46,10 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
                     borderTopWidth: 1,
                 }}>
                     <Text style={styles.textBar} onPress={() => {
-                        navigate.navigate('classScreen', { name: name, id: id, teacher: teacher, tabName: 'Bài tập' })
+                        navigate.navigate('studentClassScreen', { name: name, id: id, teacher: teacher, tabName: 'Bài tập' })
                     }}> Bài tập </Text>
                     <Text style={styles.textBar} onPress={() => {
-                        navigate.navigate('classScreen', { name: name, id: id, teacher: teacher, tabName: 'Tài liệu' })
+                        navigate.navigate('studentClassScreen', { name: name, id: id, teacher: teacher, tabName: 'Tài liệu' })
                     }}> Tài liệu</Text>
                     <Text style={styles.textBar} onPress={() => {
                         navigate.navigate('absenceRequest')
@@ -61,7 +61,7 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
     } catch (error) {
         console.log(error)
     }
-    
+
 };
 
 const styles = StyleSheet.create({

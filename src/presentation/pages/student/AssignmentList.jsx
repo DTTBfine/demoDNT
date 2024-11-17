@@ -175,24 +175,6 @@ const AssignmentList = () => {
           }
         </ScrollView>
       </View>
-
-      {/* <View style={{
-        position: 'absolute',
-        bottom: 50,
-        right: 30,
-        backgroundColor: '#CCCCCC',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-        <Icon name="plus" color='white' size={40}
-          onPress={() => {
-            navigate.navigate("addSurvey")
-          }}
-        />
-      </View> */}
     </View>
   )
 }

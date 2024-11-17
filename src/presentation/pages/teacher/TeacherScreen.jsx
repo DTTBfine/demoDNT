@@ -38,38 +38,26 @@ const TeacherScreen = () => {
                 <FuncBox
                     iconName='group'
                     name='Lớp học'
-                    infor='Quản lý lớp học, tạo và chỉnh sửa lớp học'
+                    infor='Tạo và chỉnh sửa lớp học'
                     routeName='classNavigationForTeacher'
                 />
                 <FuncBox
                     iconName='flask'
-                    name='Bài tập'
-                    infor='Tạo và quản lý bài tập'
-                    routeName='survey'
-                />
-                <FuncBox
-                    iconName='bell-o'
-                    name='Điểm danh'
-                    infor='Điểm danh sinh viên'
-                    routeName='survey'
-                />
-                <FuncBox
-                    iconName='folder-open-o'
-                    name='Tài liệu'
-                    infor='Tài liệu học tập'
-                    routeName='survey'
+                    name='Lớp học'
+                    infor='Quản lý giảng dạy lớp học'
+                    routeName='teacherClassList'
                 />
                 <FuncBox
                     iconName='newspaper-o'
                     name='Thông báo tin tức'
                     infor='Các thông báo quan trọng'
-                    routeName='survey'
+                    routeName='teacherClassList'
                 />
                 <FuncBox
                     iconName='bar-chart'
                     name='Khảo sát'
                     infor='Khảo sát và form'
-                    routeName='survey'
+                    routeName='teacherClassList'
                 />
             </View>
         </ScrollView>

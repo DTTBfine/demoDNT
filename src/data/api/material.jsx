@@ -13,3 +13,21 @@ export const apiGetMaterialList = async (payload) => {
         });
     return response;
 }
+
+export const apiUploadMaterial = async (payload) => {
+    const response = await axiosConfig(
+        {
+            method: 'post',
+            url: '/it5023e/upload_material',
+            data: {
+                file: payload.file,
+                token: payload.token,
+                classId: payload.classId,
+                title: payload.title,
+                description: payload.description,
+                materialType: payload.materialType
+            }
+        }
+    )
+    return response
+}

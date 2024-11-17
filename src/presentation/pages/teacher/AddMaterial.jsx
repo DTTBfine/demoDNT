@@ -3,7 +3,7 @@ import React, { useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 
-const AddSurvey = ({ route }) => {
+const AddMaterial = ({ route }) => {
     const { class_id } = route.params
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 
@@ -11,10 +11,10 @@ const AddSurvey = ({ route }) => {
     const [payload, setPayload] = useState({
         file: {},
         token: token,
-        class_id: class_id,
+        classId: class_id,
         title: '',
-        deadline: '', //định dạng: 2024-12-11T14:30:00
-        description: ''
+        description: '',
+        materialType: ''
     })
     const [focusField, setFocusField] = useState('')
 
@@ -52,7 +52,7 @@ const AddSurvey = ({ route }) => {
                 <TextInput
                     secureTextEntry={true}
                     style={[styles.input, { borderColor: focusField === 'title' ? '#00CCFF' : '#AA0000' }]}
-                    placeholder='Tên bài kiểm tra *'
+                    placeholder='Tên tài liệu*'
                     placeholderTextColor="#888"
                     value={payload.title}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'title': text }))}
@@ -83,14 +83,6 @@ const AddSurvey = ({ route }) => {
                 />
             </View>
             <View style={{ gap: 10 }}>
-                <Text style={{
-                    marginTop: 10,
-                    textAlign: 'center',
-                    color: '#AA0000',
-                    fontSize: 17,
-                    fontWeight: '700',
-                    fontStyle: 'italic'
-                }}>Hoặc</Text>
                 <View style={{ alignItems: 'center' }}>
                     <TouchableOpacity
                         style={styles.button}
@@ -103,11 +95,6 @@ const AddSurvey = ({ route }) => {
                     padding: 10,
                     fontStyle: 'italic'
                 }}>{payload.file.name} </Text>}
-            </View>
-            <View style={{
-                marginTop: 10
-            }}>
-                <Text style={{ textAlign: 'center' }}>Chọn bắt đầu với kết thúc nữa</Text>
             </View>
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
@@ -153,4 +140,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default AddSurvey
+export default AddMaterial

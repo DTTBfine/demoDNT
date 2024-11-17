@@ -1,13 +1,13 @@
 import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import ClassScreen from '../pages/student/ClassScreen'
+import ClassScreen from '../pages/ClassScreen'
 
 const ClassBasicInfoItem = ({ isHeader, classItem, class_id, class_name, attached_code, class_type, student_count, status, checkedList, setCheckedList }) => {
     const [checkedClassItem, setCheckedClassItem] = useState('')
     if (!isHeader && checkedList) {
         setCheckedClassItem(checkedList.get(classItem?.class_id));
     }
-    
+
     return (
         <View style={[styles.container, {
             backgroundColor: isHeader && '#AA0000',
@@ -23,7 +23,8 @@ const ClassBasicInfoItem = ({ isHeader, classItem, class_id, class_name, attache
             <Cell isHeader={isHeader} width={100} data={classItem?.register_status} />
             <View style={[styles.cell, { width: 150, borderRightWidth: 0 }]}>
                 {isHeader ? <Text style={[styles.dataCell, { color: isHeader && 'white', fontWeight: isHeader ? '600' : '400' }]}>Thao tác</Text>
-                    : <Pressable onPress={() => { checkedClassItem === classItem 
+                    : <Pressable onPress={() => {
+                        checkedClassItem === classItem
                         ? setCheckedList(prevCheckedList => {
                             const newCheckedList = new Map(prevCheckedList);
                             newCheckedList.delete(classItem.class_id);
@@ -35,7 +36,8 @@ const ClassBasicInfoItem = ({ isHeader, classItem, class_id, class_name, attache
                             newCheckedList.set(classItem.class_id, classItem);
                             setCheckedClassItem(classItem)
                             return newCheckedList;
-                        }); }}
+                        });
+                    }}
                         style={{
                             width: 20,
                             height: 20,

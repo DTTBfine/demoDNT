@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
+import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -22,9 +22,11 @@ import AbsenceRequest from '../pages/student/AbsenceRequest';
 import StudentClasses from '../pages/student/StudentClasses';
 import Notification from '../pages/Notification';
 import EditClass from '../pages/teacher/EditClass';
-import ClassScreen from '../pages/student/ClassScreen';
+import ClassScreen from '../pages/ClassScreen';
 import { classNameCode, getColorForId } from '../../utils/format';
 import TeacherClasses from '../pages/teacher/TeacherClasses';
+import CustomTeacherClass from '../components/customTeacherClass';
+import AddMaterial from '../pages/teacher/AddMaterial';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -79,10 +81,11 @@ const TeacherRoute = () => {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="homepage" component={TeacherHomepage} />
             <Stack.Screen name="classNavigationForTeacher" component={ClassNavigationForTeacher} />
-            <Stack.Screen name="survey" component={Survey} />
+            <Stack.Screen name="teacherClassList" component={TeacherClassList} />
         </Stack.Navigator>
     )
 }
+
 
 const TeacherHomepage = () => {
     return (
@@ -128,13 +131,19 @@ const TeacherHomepage = () => {
     )
 }
 
-const Survey = () => {
+const TeacherClassList = () => {
     return (
         <Stack.Navigator
             screenOptions={({ route }) => ({
                 headerTitle: () => {
+                    if (route.name === 'teacherClassScreen') {
+                        const { name, id, type, tabName } = route.params
+                        return <CustomTeacherClass id={id} name={name} type={type} tabName={tabName} />
+                    }
+
                     let titleName
                     if (route.name === "addSurvey") titleName = 'Tạo bài kiểm tra'
+                    else if (route.name === "addMaterial") titleName = 'Tải lên tài liệu'
                     else titleName = 'Lớp của bạn'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
@@ -148,10 +157,13 @@ const Survey = () => {
                     fontSize: 18,
                 },
                 headerTitleAlign: 'center',
+                headerTitleAlign: !(route.name === 'teacherClassScreen') && 'center'
             }
             )}>
             <Stack.Screen name="teacherClasses" component={TeacherClasses} />
+            <Stack.Screen name="teacherClassScreen" component={ClassScreen} />
             <Stack.Screen name="addSurvey" component={AddSurvey} />
+            <Stack.Screen name="addMaterial" component={AddMaterial} />
         </Stack.Navigator>
     )
 }
@@ -268,7 +280,7 @@ const ClassNavigationForStudent = () => {
         <Stack.Navigator
             screenOptions={({ route }) => ({
                 headerTitle: () => {
-                    if (route.name === 'classScreen') {
+                    if (route.name === 'studentClassScreen') {
                         const { name, id, teacher } = route.params
                         return (
                             <View style={{
@@ -323,11 +335,11 @@ const ClassNavigationForStudent = () => {
                     fontWeight: '500',
                     fontSize: 18,
                 },
-                headerTitleAlign: !(route.name === 'classScreen') && 'center',
+                headerTitleAlign: !(route.name === 'studentClassScreen') && 'center',
             }
             )}>
             <Stack.Screen name="myClasses" component={StudentClasses} />
-            <Stack.Screen name="classScreen" component={ClassScreen} />
+            <Stack.Screen name="studentClassScreen" component={ClassScreen} />
             <Stack.Screen name="absenceRequest" component={AbsenceRequest} />
         </Stack.Navigator>
     )

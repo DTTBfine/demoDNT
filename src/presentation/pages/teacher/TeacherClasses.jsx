@@ -11,6 +11,7 @@ const TeacherClasses = () => {
 
     const [classList, setClassList] = useState(myClasses)
     const [classId, setClassId] = useState('')
+    const [currentId, setCurrentId] = useState('')
 
     return (
         <View style={styles.container}>
@@ -25,7 +26,8 @@ const TeacherClasses = () => {
                         borderWidth: 1,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
-                        borderColor: '#CC0000'
+                        borderColor: '#CC0000',
+                        borderRadius: 5
                     }}
                     placeholder='Mã lớp'
                     placeholderTextColor="gray"
@@ -53,7 +55,7 @@ const TeacherClasses = () => {
                         const { class_id, class_name, class_type } = item
                         return (
                             <View key={index}>
-                                <ClassBox class_id={class_id} class_name={class_name} class_type={class_type} />
+                                <ClassBox class_id={class_id} class_name={class_name} class_type={class_type} currentId={currentId} setCurrentId={setCurrentId} />
                             </View>
                         )
                     })}
@@ -64,38 +66,58 @@ const TeacherClasses = () => {
     )
 }
 
-const ClassBox = ({ class_id, class_name, class_type }) => {
+const ClassBox = ({ class_id, class_name, class_type, currentId, setCurrentId }) => {
     const navigate = useNavigation()
-    console.log('class_id: ' + class_id)
     return (
-        <TouchableOpacity style={styles.titleBox} onPress={() => navigate.navigate('addSurvey', { class_id: class_id })}>
-            <View style={{
-                width: 55,
-                height: 55,
-                borderRadius: 10,
-                backgroundColor: getColorForId(class_id),
-                justifyContent: 'center'
+        <View style={[styles.classBox, { borderWidth: 2, borderColor: currentId === class_id ? '#AA0000' : '#DDDDDD' }]}>
+            <TouchableOpacity style={styles.titleBox} onPress={() => {
+                //setIsExpanded(!isExpanded)
+                setCurrentId(class_id)
+                if (currentId === class_id) setCurrentId('0')
             }}>
-                <Text style={{
-                    fontSize: 20,
-                    fontWeight: '600',
-                    textAlign: 'center',
-                    color: 'white'
-                }}>{classNameCode(class_name)}</Text>
-            </View>
-            <View style={{
-                justifyContent: 'center'
+                <View style={{
+                    width: 45,
+                    height: 45,
+                    borderRadius: 10,
+                    backgroundColor: getColorForId(class_id),
+                    justifyContent: 'center'
+                }}>
+                    <Text style={{
+                        fontSize: 20,
+                        fontWeight: '600',
+                        textAlign: 'center',
+                        color: 'white'
+                    }}>{classNameCode(class_name)}</Text>
+                </View>
+                <View style={{
+                    justifyContent: 'center'
+                }}>
+                    <Text style={{
+                        fontSize: 17,
+                        fontWeight: 500,
+                    }}> {class_name} </Text>
+                    <Text style={{
+                        fontSize: 13,
+                        color: 'gray'
+                    }}> {class_type}</Text>
+                </View>
+            </TouchableOpacity>
+            {currentId === class_id && <View style={{
+                borderTopColor: '#CCCCCC',
+                borderTopWidth: 1,
             }}>
-                <Text style={{
-                    fontSize: 17,
-                    fontWeight: 500,
-                }}> {class_name} </Text>
-                <Text style={{
-                    fontSize: 13,
-                    color: 'gray'
-                }}> {class_type}</Text>
+                <Text style={styles.textBar} onPress={() => {
+                    navigate.navigate('teacherClassScreen', { name: class_name, id: class_id, type: class_type, tabName: 'Bài tập' })
+                }}> Bài tập </Text>
+                <Text style={styles.textBar} onPress={() => {
+                    navigate.navigate('teacherClassScreen', { name: class_name, id: class_id, type: class_type, tabName: 'Tài liệu' })
+                }}> Tài liệu</Text>
+                <Text style={styles.textBar} onPress={() => {
+                    //navigate.navigate('absenceRequest')
+                }}> Các yêu cầu xin phép nghỉ học</Text>
             </View>
-        </TouchableOpacity>
+            }
+        </View>
     )
 }
 
@@ -103,12 +125,19 @@ const styles = StyleSheet.create({
     container: {
         padding: 15
     },
+    classBox: {
+        borderRadius: 15
+    },
     titleBox: {
         flexDirection: 'row',
         gap: 10,
         backgroundColor: 'papayawhip',
         padding: 10,
         borderRadius: 10
+    },
+    textBar: {
+        padding: 8,
+        fontWeight: '500'
     }
 })
 
