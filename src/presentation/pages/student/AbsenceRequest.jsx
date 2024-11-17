@@ -8,9 +8,6 @@ import { formatSQLDate } from '../../../utils/format';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { responseCodes } from '../../../utils/constants/responseCodes';
 
-
-
-
 const AbsenceRequest = ({ route }) => {
     //Đã xử lý payload đúng định dạng rồi, chỉ cần gửi api thôi, thêm cái Submit
     const { class_id } = route.params
@@ -78,7 +75,7 @@ const AbsenceRequest = ({ route }) => {
         setInvalidFields(new Map())
         try {
             const result = await DocumentPicker.getDocumentAsync({
-                type: ['image/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],                
+                type: ['image/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
                 copyToCacheDirectory: true,
             });
 
@@ -233,16 +230,16 @@ const AbsenceRequest = ({ route }) => {
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                     style={[styles.button, { width: 150, borderRadius: 10 }]}
-                    onPress={async () => { 
+                    onPress={async () => {
                         await handleSubmit()
                     }}>
-                    <Text 
-                        style={{ 
-                            color: "white", 
-                            fontSize: 17, 
-                            fontStyle: 'italic', 
-                            fontWeight: 'bold', 
-                            alignSelf: 'center', 
+                    <Text
+                        style={{
+                            color: "white",
+                            fontSize: 17,
+                            fontStyle: 'italic',
+                            fontWeight: 'bold',
+                            alignSelf: 'center',
                         }}>
                         Submit
                     </Text>
@@ -250,19 +247,19 @@ const AbsenceRequest = ({ route }) => {
             </View>
 
             {invalidFields.size > 0 && invalidFields.has(invalidFieldSubmit) && <Text style={{
-                    paddingHorizontal: 15,
-                    fontStyle: 'italic',
-                    color: 'red',
-                    fontSize: 12
-                }}> {invalidFields.get(invalidFieldSubmit)}
-                </Text>}
+                paddingHorizontal: 15,
+                fontStyle: 'italic',
+                color: 'red',
+                fontSize: 12
+            }}> {invalidFields.get(invalidFieldSubmit)}
+            </Text>}
             {requestAbsenceInfo && <Text style={{
-                    paddingHorizontal: 15,
-                    fontStyle: 'italic',
-                    color: 'green',
-                    fontSize: 12
-                }}> {requestAbsenceInfo}
-                </Text>}
+                paddingHorizontal: 15,
+                fontStyle: 'italic',
+                color: 'green',
+                fontSize: 12
+            }}> {requestAbsenceInfo}
+            </Text>}
         </View>
     )
 }
@@ -273,7 +270,10 @@ const styles = StyleSheet.create({
         gap: 10
     },
     input: {
-        borderWidth: 2,
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderRightWidth: 1,
+        elevation: 5,
         borderRadius: 10,
         paddingVertical: 10,
         paddingHorizontal: 20,
@@ -284,7 +284,10 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 150,
         borderColor: '#AA0000',
-        borderWidth: 2,
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderRightWidth: 1,
+        elevation: 5,
         borderRadius: 10,
         textAlignVertical: 'top', // Đảm bảo chữ bắt đầu từ đầu TextArea
         padding: 10,

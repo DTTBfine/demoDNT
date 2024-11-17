@@ -105,7 +105,6 @@ const styles = StyleSheet.create({
     scheduleBox: {
         backgroundColor: "white",
         borderRadius: 15,
-        height: 100,
         margin: 20,
         padding: 15,
         borderBottomWidth: 1,

@@ -17,8 +17,9 @@ const TeacherClasses = () => {
         <View style={styles.container}>
             <View style={{
                 flexDirection: 'row',
-                gap: 10,
-                marginBottom: 15
+                gap: 15,
+                marginBottom: 15,
+                paddingHorizontal: 10
             }}>
                 <TextInput
                     style={{
@@ -26,8 +27,10 @@ const TeacherClasses = () => {
                         borderWidth: 1,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
-                        borderColor: '#CC0000',
-                        borderRadius: 5
+                        borderColor: '#CCCCCC',
+                        borderRadius: 5,
+                        elevation: 5,
+                        backgroundColor: 'white'
                     }}
                     placeholder='Mã lớp'
                     placeholderTextColor="gray"
@@ -54,7 +57,7 @@ const TeacherClasses = () => {
                     {myClasses.length > 0 && myClasses.map((item, index) => {
                         const { class_id, class_name, class_type } = item
                         return (
-                            <View key={index}>
+                            <View key={index} style={{ paddingHorizontal: 10, paddingVertical: 5 }}>
                                 <ClassBox class_id={class_id} class_name={class_name} class_type={class_type} currentId={currentId} setCurrentId={setCurrentId} />
                             </View>
                         )
@@ -69,7 +72,7 @@ const TeacherClasses = () => {
 const ClassBox = ({ class_id, class_name, class_type, currentId, setCurrentId }) => {
     const navigate = useNavigation()
     return (
-        <View style={[styles.classBox, { borderWidth: 2, borderColor: currentId === class_id ? '#AA0000' : '#DDDDDD' }]}>
+        <View style={[styles.classBox, { borderColor: currentId === class_id ? '#AA0000' : '#DDDDDD' }]}>
             <TouchableOpacity style={styles.titleBox} onPress={() => {
                 //setIsExpanded(!isExpanded)
                 setCurrentId(class_id)
@@ -123,17 +126,25 @@ const ClassBox = ({ class_id, class_name, class_type, currentId, setCurrentId })
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         padding: 15
     },
     classBox: {
-        borderRadius: 15
+        backgroundColor: 'white',
+        borderRadius: 10,
+        borderBottomWidth: 1,
+        borderRightWidth: 1,
+        elevation: 5,
+        borderColor: '#CCCCCC',
+        paddingHorizontal: 10,
+        paddingVertical: 5
     },
     titleBox: {
         flexDirection: 'row',
         gap: 10,
-        backgroundColor: 'papayawhip',
+        backgroundColor: 'white',
         padding: 10,
-        borderRadius: 10
+        borderRadius: 10,
     },
     textBar: {
         padding: 8,
