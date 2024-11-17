@@ -6,6 +6,7 @@ import * as DocumentPicker from 'expo-document-picker';
 const AddSurvey = ({ route }) => {
     const { class_id } = route.params
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const [document, setDocument] = useState(null);
 
     const [invalidFields, setInvalidFields] = useState([])
     const [payload, setPayload] = useState({

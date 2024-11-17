@@ -2,16 +2,65 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import React, { useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
+import * as apis from '../../../data/api/index'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { formatSQLDate } from '../../../utils/format';
 import Icon from 'react-native-vector-icons/FontAwesome'
+import { responseCodes } from '../../../utils/constants/responseCodes';
+
+
+
 
 const AbsenceRequest = ({ route }) => {
     //Đã xử lý payload đúng định dạng rồi, chỉ cần gửi api thôi, thêm cái Submit
     const { class_id } = route.params
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const [requestAbsenceInfo, setRequestAbsenceInfo] = useState('')
 
-    const [invalidFields, setInvalidFields] = useState([])
+    const [invalidFields, setInvalidFields] = useState(new Map())
+    //invalid fields
+    const invalidFieldTitle = 'title'
+    const invalidFieldReason = 'reason'
+    const invalidFieldFile = 'file'
+    const invalidFieldSubmit = 'submit'
+
+    const validateInput = (title, reason, file) => {
+        let check = true
+
+        if (title?.length === 0) {
+            setInvalidFields(prev => {
+                const newFields = new Map(prev)
+                newFields.set(invalidFieldTitle, "Tiêu đề không được bỏ trống")
+
+                return newFields
+            })
+            check = false
+        }
+
+        if (reason?.length === 0) {
+            setInvalidFields(prev => {
+                const newFields = new Map(prev)
+                newFields.set(invalidFieldReason, "Lý do không được bỏ trống")
+
+                return newFields
+            })
+            check = false
+        }
+
+        if (!file) {
+            setInvalidFields(prev => {
+                const newFields = new Map(prev)
+                newFields.set(invalidFieldFile, "Bạn cần phải tải file minh chứng")
+
+                return newFields
+            })
+            check = false
+        }
+        return check
+    }
+
+
+
     const [date, setDate] = useState(new Date())
     const [payload, setPayload] = useState({
         token: token,
@@ -24,12 +73,12 @@ const AbsenceRequest = ({ route }) => {
     const [focusField, setFocusField] = useState('')
     const [showDatePicker, setShowDatePicker] = useState(false)
 
-    console.log('payload: ' + JSON.stringify(payload))
 
     const handleDocumentSelection = async () => {
+        setInvalidFields(new Map())
         try {
             const result = await DocumentPicker.getDocumentAsync({
-                type: '*/*', // Allows all file types
+                type: ['image/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],                
                 copyToCacheDirectory: true,
             });
 
@@ -55,6 +104,25 @@ const AbsenceRequest = ({ route }) => {
         }
     }
 
+    const handleSubmit = async () => {
+        setInvalidFields(new Map())
+        setRequestAbsenceInfo('')
+        if (!validateInput(payload.title, payload.reason)) {
+            return
+        }
+        const response = await apis.apiRequestAbsence(payload)
+
+        if (response?.data.meta.code !== responseCodes.statusOK) {
+            return setInvalidFields(prev => {
+                const newFields = new Map(prev)
+                newFields.set(invalidFieldSubmit, response?.data.data)
+
+                return newFields
+            })
+        }
+
+        setRequestAbsenceInfo("Gửi xin phép nghỉ học thành công")
+    }
     const onChange = (event, selectedDate) => {
         if (event.type === "set") { // Kiểm tra nếu người dùng chọn ngày (type: set)
             const currentDate = selectedDate || date;
@@ -65,7 +133,6 @@ const AbsenceRequest = ({ route }) => {
             setShowDatePicker(false); // Đóng DateTimePicker nếu người dùng nhấn hủy (type: dismissed)
         }
     };
-    console.log('formatSQLDate: ' + formatSQLDate(date))
 
     return (
         <View style={styles.container}>
@@ -85,12 +152,12 @@ const AbsenceRequest = ({ route }) => {
                         setInvalidFields([])
                     }}
                 />
-                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'title') && <Text style={{
+                {invalidFields.size > 0 && invalidFields.has(invalidFieldTitle) && <Text style={{
                     paddingHorizontal: 15,
                     fontStyle: 'italic',
                     color: 'red',
                     fontSize: 12
-                }}> {invalidFields.find(i => i.name === 'title')?.message}
+                }}> {invalidFields.get(invalidFieldTitle)}
                 </Text>}
                 <TextInput
                     style={[styles.textArea, { borderColor: focusField === 'reason' ? '#00CCFF' : '#AA0000' }]}
@@ -105,12 +172,12 @@ const AbsenceRequest = ({ route }) => {
                         setInvalidFields([])
                     }}
                 />
-                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'reason') && <Text style={{
+                {invalidFields.size > 0 && invalidFields.has(invalidFieldReason) && <Text style={{
                     paddingHorizontal: 15,
                     fontStyle: 'italic',
                     color: 'red',
                     fontSize: 12
-                }}> {invalidFields.find(i => i.name === 'reason')?.message}
+                }}> {invalidFields.get(invalidFieldReason)}
                 </Text>}
             </View>
             <View style={{ gap: 10 }}>
@@ -129,6 +196,13 @@ const AbsenceRequest = ({ route }) => {
                         <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Tải minh chứng</Text>
                     </TouchableOpacity>
                 </View>
+                {invalidFields.size > 0 && invalidFields.has(invalidFieldFile) && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.get(invalidFieldFile)}
+                </Text>}
                 {payload.file && <Text style={{
                     textAlign: 'center',
                     padding: 10,
@@ -159,10 +233,36 @@ const AbsenceRequest = ({ route }) => {
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                     style={[styles.button, { width: 150, borderRadius: 10 }]}
-                    onPress={() => { }}>
-                    <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
+                    onPress={async () => { 
+                        await handleSubmit()
+                    }}>
+                    <Text 
+                        style={{ 
+                            color: "white", 
+                            fontSize: 17, 
+                            fontStyle: 'italic', 
+                            fontWeight: 'bold', 
+                            alignSelf: 'center', 
+                        }}>
+                        Submit
+                    </Text>
                 </TouchableOpacity>
             </View>
+
+            {invalidFields.size > 0 && invalidFields.has(invalidFieldSubmit) && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.get(invalidFieldSubmit)}
+                </Text>}
+            {requestAbsenceInfo && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'green',
+                    fontSize: 12
+                }}> {requestAbsenceInfo}
+                </Text>}
         </View>
     )
 }

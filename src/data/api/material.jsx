@@ -1,3 +1,4 @@
+import axios from '../../../axiosConfig';
 import axiosConfig from '../../../axiosConfig'
 
 export const apiGetMaterialList = async (payload) => {
@@ -15,19 +16,26 @@ export const apiGetMaterialList = async (payload) => {
 }
 
 export const apiUploadMaterial = async (payload) => {
-    const response = await axiosConfig(
-        {
-            method: 'post',
-            url: '/it5023e/upload_material',
-            data: {
-                file: payload.file,
-                token: payload.token,
-                classId: payload.classId,
-                title: payload.title,
-                description: payload.description,
-                materialType: payload.materialType
+    var bodyFormData = new FormData();
+    bodyFormData.append('file', payload.file)
+    bodyFormData.append('token', payload.token)
+    bodyFormData.append('classId', payload.classId)
+    bodyFormData.append('title', payload.title)
+    bodyFormData.append('description', payload.description)
+    bodyFormData.append('materialType', payload.materialType)
+    try {
+        return await axiosConfig(
+            {
+                method: 'post',
+                url: '/it5023e/upload_material',
+                data: bodyFormData,
+                headers: { "Content-Type": "multipart/form-data" },
             }
+        )
+    } catch (error) {
+        if (!error.response) {
+            return console.error("error uploading material: " + error)
         }
-    )
-    return response
+        return error.response
+    }
 }
