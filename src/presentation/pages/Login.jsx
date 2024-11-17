@@ -28,6 +28,9 @@ const LoginScreen = () => {
                 token,
                 userId
             }))
+            dispatch(actions.getUnreadNotificationCount({
+                token: token
+            }))
             dispatch(actions.getClassList({
                 token: token,
                 role: role,

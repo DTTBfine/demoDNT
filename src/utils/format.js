@@ -113,6 +113,25 @@ export const days = [
     }
 ]
 
+export const getDaysOfWeek = (date) => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayIndex = date.getDay(); // Lấy chỉ số ngày trong tuần (0: Chủ nhật, 1: Thứ Hai, ..., 6: Thứ Bảy)
+    const currentDay = days[dayIndex]; // Lấy ngày hiện tại dựa vào chỉ số
+
+    // Tính toán các ngày còn lại trong tuần
+    const daysOfWeek = [];
+    for (let i = 0; i < 7; i++) {
+        const nextDay = new Date(date); // Tạo một đối tượng Date mới để không ảnh hưởng đến đối tượng gốc
+        nextDay.setDate(date.getDate() + i - dayIndex); // Đặt ngày mới cho ngày tiếp theo
+        daysOfWeek.push({
+            day: days[nextDay.getDay()],
+            date: nextDay
+        });
+    }
+
+    return daysOfWeek;
+}
+
 export const DayToId = (day) => {
     switch (day) {
         case 'Mon':

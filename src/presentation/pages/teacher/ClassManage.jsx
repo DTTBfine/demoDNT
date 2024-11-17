@@ -33,7 +33,9 @@ const ClassManage = () => {
                         borderWidth: 1,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
-                        borderColor: '#CC0000'
+                        borderColor: '#CC0000',
+                        borderRadius: 5,
+                        backgroundColor: 'white'
                     }}
                     placeholder='Mã lớp'
                     placeholderTextColor="gray"
@@ -58,7 +60,8 @@ const ClassManage = () => {
             <View>
                 <ScrollView horizontal={true}>
                     <View style={{
-                        gap: 10
+                        gap: 10,
+                        backgroundColor: 'white'
                     }}>
                         <ClassBasicInfoItem isHeader classItem={HeaderItem} />
                         <View style={{

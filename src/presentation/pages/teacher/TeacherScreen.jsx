@@ -1,16 +1,16 @@
-import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
 import { useSelector } from 'react-redux';
-import { convertVNDate, days } from '../../../utils/format';
+import { convertVNDate, days, getDaysOfWeek } from '../../../utils/format';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
 const TeacherScreen = () => {
     const { userInfo } = useSelector(state => state.user)
-    const [date, setDate] = useState(new Date())
+    const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
 
     return (
@@ -35,12 +35,12 @@ const TeacherScreen = () => {
                 </View>
             </View>
             {showSchedule && <View style={styles.scheduleBox}>
-                <Text style={{ fontSize: 13 }}> {convertVNDate(date)}</Text>
+                <Text style={{ fontSize: 13 }}> {convertVNDate(currentDate)}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 15 }}>
-                    {days.map((item) => {
+                    {getDaysOfWeek(currentDate).map((item, index) => {
                         return (
-                            <View key={item.id}>
-                                <DateItem name={item.engName} date={'16'} />
+                            <View key={index}>
+                                <DateItem name={item.day} date={item.date} currentDate={currentDate} setCurrentDate={setCurrentDate} />
                             </View>
                         )
                     })}
@@ -79,14 +79,16 @@ const TeacherScreen = () => {
     )
 }
 
-const DateItem = ({ name, date }) => {
+const DateItem = ({ name, date, currentDate, setCurrentDate }) => {
+    const isSelected = currentDate.toDateString() === date.toDateString();
     return (
-        <View style={{ alignItems: 'center', gap: 5 }}>
+        <TouchableOpacity onPress={() => setCurrentDate(date)}
+            style={{ alignItems: 'center', gap: 5 }}>
             <Text style={{ color: 'gray', fontSize: 13 }}>{name}</Text>
-            <View style={{ width: 36, height: 36, backgroundColor: '#DDDDDD', alignItems: 'center', justifyContent: 'center', borderRadius: 18 }}>
-                <Text style={{ textAlign: 'center' }}>{date}</Text>
+            <View style={{ width: 36, height: 36, backgroundColor: isSelected ? '#AA0000' : '#EEEEEE', alignItems: 'center', justifyContent: 'center', borderRadius: 18 }}>
+                <Text style={{ textAlign: 'center', color: isSelected ? 'white' : 'black' }}>{date.getDate()}</Text>
             </View>
-        </View>
+        </TouchableOpacity>
     )
 }
 

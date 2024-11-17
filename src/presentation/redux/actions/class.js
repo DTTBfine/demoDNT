@@ -84,4 +84,19 @@ export const getBasicClassInfo = (payload) => async (dispatch) => {
     })
 }
 
+export const getUnreadNotificationCount = (payload) => async (dispatch) => {
+    const response = await apis.apiGetUnreadNotificationCount(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_UNREAD_NOTIFICATION_COUNT,
+            data: response.data.data
+        })
+        return
+    }
+    dispatch({
+        type: actionTypes.GET_UNREAD_NOTIFICATION_COUNT,
+        data: null
+    })
+}
+
 

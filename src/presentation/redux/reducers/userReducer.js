@@ -1,7 +1,8 @@
 import actionTypes from '../actions/actionTypes'
 
 const initState = {
-    userInfo: {}
+    userInfo: {},
+    unreadNotificationCount: 0,
 }
 
 const userReducer = (state = initState, action) => {
@@ -10,6 +11,11 @@ const userReducer = (state = initState, action) => {
             return {
                 ...state,
                 userInfo: action.data || {}
+            }
+        case actionTypes.GET_UNREAD_NOTIFICATION_COUNT:
+            return {
+                ...state,
+                unreadNotificationCount: action.data || 0
             }
         case actionTypes.LOGOUT:
             return {
