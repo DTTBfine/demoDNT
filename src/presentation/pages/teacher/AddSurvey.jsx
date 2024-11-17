@@ -50,7 +50,6 @@ const AddSurvey = ({ route }) => {
                 marginTop: 20
             }}>
                 <TextInput
-                    secureTextEntry={true}
                     style={[styles.input, { borderColor: focusField === 'title' ? '#00CCFF' : '#AA0000' }]}
                     placeholder='Tên bài kiểm tra *'
                     placeholderTextColor="#888"

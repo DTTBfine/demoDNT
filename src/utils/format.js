@@ -162,3 +162,4 @@ export const getColorForId = (id) => {
     }
     return colorMap.get(id);
 };
+
