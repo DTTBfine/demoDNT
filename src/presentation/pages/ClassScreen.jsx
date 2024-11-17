@@ -96,7 +96,6 @@ const MaterialList = () => {
 
 const styles = StyleSheet.create({
     cotainer: {
-        backgroundColor: '#EEEEEE',
         flex: 1
     },
     tabItem: {
