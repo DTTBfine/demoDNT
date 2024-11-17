@@ -165,7 +165,7 @@ const AbsenceRequest = ({ route }) => {
                     placeholderTextColor="#888"
                     multiline={true} // Cho phép nhiều dòng
                     numberOfLines={4} // Số dòng mặc định
-                    value={payload.description}
+                    value={payload.reason}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'reason': text }))}
                     onFocus={() => {
                         setFocusField('reason')

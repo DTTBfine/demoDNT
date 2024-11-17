@@ -5,6 +5,7 @@ import FuncBox from '../../components/func';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
+import { convertVNDate, days } from '../../../utils/format';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
@@ -14,11 +15,11 @@ const StudentScreen = () => {
     const { userInfo } = useSelector(state => state.user)
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 
-
     if (!userInfo) {
         return <Text>Loading...</Text>;
     }
-
+    const [currentDate, setCurrentDate] = useState(new Date())
+    const [showSchedule, setShowSchedule] = useState(true)
     return (
         <ScrollView>
             <View style={styles.infoBox}>
@@ -37,12 +38,24 @@ const StudentScreen = () => {
                     <Text style={{ fontSize: 13 }}> Sinh viên </Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                    <Icon name='calendar' size={18} color="#BB0000" />
+                    <Icon name='calendar' size={18} color="#BB0000" onPress={() => setShowSchedule(!showSchedule)} />
                 </View>
             </View>
-            <View style={styles.scheduleBox}>
-                <Text> Thời khóa biểu</Text>
-            </View>
+            {showSchedule && <View style={styles.scheduleBox}>
+                <Text style={{ fontSize: 13 }}> {convertVNDate(currentDate)}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 15 }}>
+                    {days.map((item) => {
+                        return (
+                            <View key={item.id}>
+                                <DateItem name={item.engName} date={'16'} currentDate={currentDate} setCurrentDate={setCurrentDate} />
+                            </View>
+                        )
+                    })}
+                </View>
+                <View style={{ borderTopWidth: 1, borderColor: 'gray', paddingVertical: 20 }}>
+                    <Text style={{ color: '#CCCCCC', textAlign: 'center', fontSize: 13 }}>Không có lịch</Text>
+                </View>
+            </View>}
             <View style={styles.funcList}>
                 <FuncBox
                     iconName='user-plus'
@@ -79,6 +92,17 @@ const StudentScreen = () => {
     )
 }
 
+const DateItem = ({ name, date, currentDate, setCurrentDate }) => {
+    return (
+        <View style={{ alignItems: 'center', gap: 5 }}>
+            <Text style={{ color: 'gray', fontSize: 13 }}>{name}</Text>
+            <View style={{ width: 36, height: 36, backgroundColor: '#DDDDDD', alignItems: 'center', justifyContent: 'center', borderRadius: 18 }}>
+                <Text style={{ textAlign: 'center' }}>{date}</Text>
+            </View>
+        </View>
+    )
+}
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -88,17 +112,21 @@ const styles = StyleSheet.create({
         width: '100%',
         marginHorizontal: 20,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 15
     },
     scheduleBox: {
         backgroundColor: "white",
         borderRadius: 15,
-        height: 100,
         margin: 20,
-        padding: 15
+        padding: 15,
+        borderBottomWidth: 1,
+        borderColor: '#CCCCCC',
+        elevation: 5,
     },
     funcList: {
         flex: 2,
+        marginTop: 10,
         flexDirection: 'row',
         flexWrap: 'wrap'
     },

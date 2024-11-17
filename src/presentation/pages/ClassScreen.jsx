@@ -24,10 +24,10 @@ const ClassScreen = ({ route }) => {
                         style={[styles.tabName, currentTab === "Tài liệu" && styles.tabNameActive]}>Tài liệu</Text>
                 </View>
             </View>
-            <View>
+            <ScrollView>
                 {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} />}
                 {currentTab === 'Tài liệu' && <MaterialList />}
-            </View>
+            </ScrollView>
         </View>
     )
 }
@@ -40,7 +40,8 @@ const UpcomingSurvey = ({ class_id }) => {
         <View>
             <ScrollView style={{
                 padding: 10,
-                gap: 10
+                gap: 10,
+                marginBottom: 20
             }}>
                 {
                     testData.length > 0 && testData.map((item, index) => {

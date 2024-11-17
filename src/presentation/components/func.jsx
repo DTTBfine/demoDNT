@@ -30,14 +30,18 @@ const styles = StyleSheet.create({
         width: width / 2,
         height: 200,
         alignItems: "center",
-        gap: 4
+        gap: 4,
     },
     iconBox: {
         borderWidth: 1,
-        borderRadius: 15,
+        borderRadius: 18,
         padding: 20,
         borderColor: '#DDDDDD',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderRightWidth: 1,
+        borderColor: '#CCCCCC',
+        elevation: 5,
     }
 });
 

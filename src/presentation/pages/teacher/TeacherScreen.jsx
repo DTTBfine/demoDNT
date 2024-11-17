@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
 import { useSelector } from 'react-redux';
@@ -9,6 +9,8 @@ const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta tru
 
 const TeacherScreen = () => {
     const { userInfo } = useSelector(state => state.user)
+    const [date, setDate] = useState(new Date())
+    const [showSchedule, setShowSchedule] = useState(true)
 
     return (
         <ScrollView>
@@ -28,12 +30,24 @@ const TeacherScreen = () => {
                     <Text style={{ fontSize: 13 }}>Giảng viên</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                    <Icon name='calendar' size={18} color="#BB0000" />
+                    <Icon name='calendar' size={18} color="#BB0000" onPress={() => setShowSchedule(!showSchedule)} />
                 </View>
             </View>
-            <View style={styles.scheduleBox}>
-                <Text> Thời khóa biểu</Text>
-            </View>
+            {showSchedule && <View style={styles.scheduleBox}>
+                <Text style={{ fontSize: 13 }}> {convertVNDate(date)}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 15 }}>
+                    {days.map((item) => {
+                        return (
+                            <View key={item.id}>
+                                <DateItem name={item.engName} date={'16'} />
+                            </View>
+                        )
+                    })}
+                </View>
+                <View style={{ borderTopWidth: 1, borderColor: 'gray', paddingVertical: 20 }}>
+                    <Text style={{ color: '#CCCCCC', textAlign: 'center', fontSize: 13 }}>Không có lịch</Text>
+                </View>
+            </View>}
             <View style={styles.funcList}>
                 <FuncBox
                     iconName='group'
@@ -64,6 +78,17 @@ const TeacherScreen = () => {
     )
 }
 
+const DateItem = ({ name, date }) => {
+    return (
+        <View style={{ alignItems: 'center', gap: 5 }}>
+            <Text style={{ color: 'gray', fontSize: 13 }}>{name}</Text>
+            <View style={{ width: 36, height: 36, backgroundColor: '#DDDDDD', alignItems: 'center', justifyContent: 'center', borderRadius: 18 }}>
+                <Text style={{ textAlign: 'center' }}>{date}</Text>
+            </View>
+        </View>
+    )
+}
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -73,17 +98,22 @@ const styles = StyleSheet.create({
         width: '100%',
         marginHorizontal: 20,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 15
     },
     scheduleBox: {
         backgroundColor: "white",
         borderRadius: 15,
         height: 100,
         margin: 20,
-        padding: 15
+        padding: 15,
+        borderBottomWidth: 1,
+        borderColor: '#CCCCCC',
+        elevation: 5,
     },
     funcList: {
         flex: 2,
+        marginTop: 10,
         flexDirection: 'row',
         flexWrap: 'wrap'
     },

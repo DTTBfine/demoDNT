@@ -43,6 +43,17 @@ const AddSurvey = ({ route }) => {
         }
     }
 
+    const handleSubmit = () => {
+        setPayload({
+            file: {},
+            token: token,
+            class_id: class_id,
+            title: '',
+            deadline: '', //định dạng: 2024-12-11T14:30:00
+            description: ''
+        })
+    }
+
     return (
         <View style={styles.container}>
             <View style={{
@@ -112,7 +123,7 @@ const AddSurvey = ({ route }) => {
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                     style={[styles.button, { width: 150, borderRadius: 10 }]}
-                    onPress={() => { }}>
+                    onPress={() => { handleSubmit }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>

@@ -27,6 +27,19 @@ export const formatSQLDate = (string_date) => {
     return date + year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day;
 }
 
+export const convertVNDate = (string_date) => {
+    // Tạo một đối tượng Date từ chuỗi
+    var date_object = new Date(string_date);
+    let date = ''
+
+    // Lấy các thành phần ngày, tháng, năm
+    var day = date_object.getDate();
+    var month = date_object.getMonth() + 1; // Vì getUTCMonth trả về từ 0 đến 11
+    var year = date_object.getFullYear();
+
+    return date + day + ' Tháng ' + month + ', ' + year
+}
+
 export const tinhThoiGianTuMocThoiGianDenNay = (date) => {
     // Chuyển mốc thời gian vào đối tượng Date
     var mocThoiGian = new Date(date);
