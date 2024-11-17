@@ -67,6 +67,19 @@ const AbsenceRequest = ({ route }) => {
     };
     console.log('formatSQLDate: ' + formatSQLDate(date))
 
+    const handleSubmit = () => {
+        //gọi dispatch đi 
+        setDate(new Date())
+        setPayload({
+            token: token,
+            class_id: class_id,
+            date: formatSQLDate(date), //vd: 2024-11-13,
+            reason: '',
+            title: '',
+            file: {}
+        })
+    }
+
     return (
         <View style={styles.container}>
             <View style={{
@@ -98,7 +111,7 @@ const AbsenceRequest = ({ route }) => {
                     placeholderTextColor="#888"
                     multiline={true} // Cho phép nhiều dòng
                     numberOfLines={4} // Số dòng mặc định
-                    value={payload.description}
+                    value={payload.reason}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'reason': text }))}
                     onFocus={() => {
                         setFocusField('reason')
@@ -159,7 +172,7 @@ const AbsenceRequest = ({ route }) => {
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                     style={[styles.button, { width: 150, borderRadius: 10 }]}
-                    onPress={() => { }}>
+                    onPress={handleSubmit}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>
