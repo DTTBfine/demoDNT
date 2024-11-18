@@ -108,18 +108,14 @@ const ClassManage = () => {
                         paddingVertical: 10
                     }}
                     onPress={() => {
-
+                        navigate.navigate('AddClass')
                     }}>
                     <Text style={{
                         color: 'white',
                         fontWeight: 'bold',
                         fontStyle: 'italic',
                         fontSize: 16
-                    }}
-                        onPress={() => {
-                            navigate.navigate('AddClass')
-                        }}
-                    >
+                    }}>
                         Tạo lớp học
                     </Text>
                 </TouchableOpacity>
