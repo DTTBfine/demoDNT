@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AssignmentItem from '../../components/assignmentItem'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import * as actions from '../../redux/actions'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
@@ -92,8 +94,18 @@ const testData = [
 
 const AssignmentList = () => {
   const [state, setState] = useState('Sắp tới')
+  const dispatch = useDispatch()
+  const [dispatchData, setDispatchData] = useState(true)
+  const { token } = useSelector(state => state.auth)
+  const { allStudentAssignment } = useSelector(state => state.learning)
+  useEffect(() => {
+    dispatchData && dispatch(actions.getStudentAssignments({
+      token: token
+    }))
+    setDispatchData(false)
+  }, [])
 
-  const finalData = []
+  console.log('all assignment: ' + JSON.stringify(allStudentAssignment))
 
   const navigate = useNavigation()
 
@@ -143,8 +155,9 @@ const AssignmentList = () => {
         </View>
 
         <ScrollView style={styles.list}>
-          {
-            testData.length > 0 && testData.map((day, index) => {
+          {allStudentAssignment.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
+          {/* {
+            allStudentAssignment.length > 0 && allStudentAssignment.map((day, index) => {
               return (
                 <View key={index} style={{
                   gap: 10
@@ -172,27 +185,9 @@ const AssignmentList = () => {
                 </View>
               )
             })
-          }
+          } */}
         </ScrollView>
       </View>
-
-      {/* <View style={{
-        position: 'absolute',
-        bottom: 50,
-        right: 30,
-        backgroundColor: '#CCCCCC',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-        <Icon name="plus" color='white' size={40}
-          onPress={() => {
-            navigate.navigate("addSurvey")
-          }}
-        />
-      </View> */}
     </View>
   )
 }
@@ -207,10 +202,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#CCCCCC'
+    borderBottomColor: '#CCCCCC',
   },
   tabItemActive: {
-    backgroundColor: '#3366CC',
+    backgroundColor: '#BB0000',
     color: 'white',
     paddingVertical: 6,
     paddingHorizontal: 20,
@@ -222,7 +217,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 20,
     borderRadius: 15
-
   },
   textActive: {
     color: 'white',

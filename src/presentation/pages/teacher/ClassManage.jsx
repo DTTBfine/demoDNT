@@ -1,15 +1,14 @@
-import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity, Pressable } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { useSelector } from 'react-redux'
-import ClassBasicInfoItem from '../../components/classBasicInfoItem'
 
 const ClassManage = () => {
     const navigate = useNavigation()
     const { myClasses } = useSelector(state => state.learning)
     const [classList, setClassList] = useState(myClasses)
     const [classId, setClassId] = useState('') //lấy classId của input lọc
-    const [isChoosed, setIsChoosed] = useState('') //id lớp để chọn chỉnh sửa
+    const [isChoosed, setIsChoosed] = useState({}) //id lớp để chọn chỉnh sửa
 
     const HeaderItem = {
         class_id: 'Mã lớp',
@@ -33,7 +32,9 @@ const ClassManage = () => {
                         borderWidth: 1,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
-                        borderColor: '#CC0000'
+                        borderColor: '#CC0000',
+                        borderRadius: 5,
+                        backgroundColor: 'white'
                     }}
                     placeholder='Mã lớp'
                     placeholderTextColor="gray"
@@ -58,7 +59,8 @@ const ClassManage = () => {
             <View>
                 <ScrollView horizontal={true}>
                     <View style={{
-                        gap: 10
+                        gap: 10,
+                        backgroundColor: 'white'
                     }}>
                         <ClassBasicInfoItem isHeader classItem={HeaderItem} />
                         <View style={{
@@ -106,37 +108,31 @@ const ClassManage = () => {
                         paddingVertical: 10
                     }}
                     onPress={() => {
-
+                        navigate.navigate('AddClass')
                     }}>
                     <Text style={{
                         color: 'white',
                         fontWeight: 'bold',
                         fontStyle: 'italic',
                         fontSize: 16
-                    }}
-                        onPress={() => {
-                            navigate.navigate('AddClass')
-                        }}
-                    >
+                    }}>
                         Tạo lớp học
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={{
                         flex: 5,
-                        backgroundColor: "#BB0000",
+                        backgroundColor: isChoosed.class_id ? "#BB0000" : '#CCCCCC',
                         alignItems: 'center',
                         justifyContent: 'center',
                         borderRadius: 15,
                         paddingVertical: 10
                     }}
                     onPress={() => {
-                        console.log('class: ' + JSON.stringify(isChoosed))
-                        const data = JSON.stringify(isChoosed)
-                        navigate.navigate('EditClass', { isChoosed })
+                        isChoosed.class_id && navigate.navigate('EditClass', { isChoosed })
                     }}>
                     <Text style={{
-                        color: 'white',
+                        color: isChoosed.class_id ? 'white' : 'gray',
                         fontWeight: 'bold',
                         fontStyle: 'italic',
                         fontSize: 16
@@ -162,9 +158,61 @@ const ClassManage = () => {
     )
 }
 
+const ClassBasicInfoItem = ({ isHeader, classItem, isChoosed, setIsChoosed }) => {
+    return (
+        <View style={{
+            backgroundColor: isHeader && '#AA0000',
+            minHeight: isHeader && 60,
+            flexDirection: 'row',
+            alignItems: 'center'
+        }}>
+            <Cell isHeader={isHeader} width={100} data={classItem?.class_id} />
+            <Cell isHeader={isHeader} width={200} data={classItem?.class_name} />
+            <Cell isHeader={isHeader} width={100} data={classItem?.attached_code || classItem?.class_id} />
+            <Cell isHeader={isHeader} width={100} data={classItem?.class_type} />
+            <Cell isHeader={isHeader} width={100} data={classItem?.student_count || classItem?.max_student_amount} />
+            <Cell isHeader={isHeader} width={150} data={classItem?.status} />
+            <View style={[styles.cell, { width: 150, borderRightWidth: 0 }]}>
+                {isHeader ? <Text style={[styles.dataCell, { color: isHeader && 'white', fontWeight: isHeader ? '600' : '400' }]}>Thao tác</Text>
+                    : <Pressable onPress={() => {
+                        setIsChoosed(classItem)
+                        isChoosed === classItem && setIsChoosed({})
+                    }}
+                        style={{
+                            width: 20,
+                            height: 20,
+                            borderWidth: 1,
+                            //borderRadius: 10,
+                            backgroundColor: isChoosed === classItem ? '#AA0000' : 'white'
+                        }} />
+                }
+
+            </View>
+        </View >
+    )
+}
+
+const Cell = ({ isHeader, width, data }) => {
+    return (
+        <View style={[styles.cell, { width: width }]}>
+            <Text style={[styles.dataCell, { color: isHeader && 'white', fontWeight: isHeader ? '600' : '400' }]}>{data} </Text>
+        </View>
+    )
+}
+
 const styles = StyleSheet.create({
     container: {
         padding: 20,
+    },
+    cell: {
+        justifyContent: 'center',
+        borderRightWidth: 1,
+        borderColor: '#BBBBBB',
+        alignItems: 'center'
+    },
+    dataCell: {
+        textAlign: 'center',
+        padding: 10
     }
 })
 

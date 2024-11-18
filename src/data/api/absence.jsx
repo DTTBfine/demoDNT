@@ -1,18 +1,30 @@
 import axiosConfig from '../../../axiosConfig'
 
 export const apiRequestAbsence = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/request_absence',
-        data: {
-            token: payload.token,
-            class_id: payload.class_id,
-            date: payload.date, //vd: 2024-11-13,
-            reason: payload.reason,
-            file: payload.file //định dạng file
+    var formDataBody = new FormData()
+    formDataBody.append('token', payload.token)
+    formDataBody.append('classId', payload.class_id)
+    formDataBody.append('date', payload.date)
+    formDataBody.append('reason', payload.reason)
+    formDataBody.append('file', payload.file)
+
+
+
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/request_absence',
+            data: formDataBody,
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+
+        return response
+    } catch (error) {
+        if (!error.response) {
+            console.log("send absence request failed: " + error)
         }
-    })
-    return response
+        return error.reponse
+    }
 }
 
 export const apiReviewAbsenceRequest = async (payload) => {

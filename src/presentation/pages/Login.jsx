@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, TextInput, Button,Image, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import PulsatingIcon from '../components/PulsatingIcon';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../redux/actions'
 import { validateEmail } from '../../utils/validate';
+
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -26,6 +27,9 @@ const LoginScreen = () => {
             dispatch(actions.getUserInfo({
                 token,
                 userId
+            }))
+            dispatch(actions.getUnreadNotificationCount({
+                token: token
             }))
             dispatch(actions.getClassList({
                 token: token,
@@ -58,6 +62,7 @@ const LoginScreen = () => {
         }
         console.log(payload)
         dispatch(actions.login(payload))
+        Keyboard.dismiss()
         //setVisible(true);
     }
 
@@ -120,7 +125,14 @@ const LoginScreen = () => {
                 }} />
             }
             <View style={styles.titleBox}>
-                <Text style={styles.title1}>HUST</Text>
+                <Image
+                    source={require('../../../assets/logo.png')}
+                    style={{
+                    width: 200,
+                    height: 60,
+                    }}
+                />
+                {/* <Text style={styles.title1}>HUST</Text> */}
                 <Text style={styles.title2}> Đăng nhập với tài khoản QLĐT</Text>
             </View>
             <View style={styles.inputBox}>

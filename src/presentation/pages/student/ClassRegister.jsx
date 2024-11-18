@@ -7,9 +7,10 @@ import * as apis from '../../../data/api/index'
 import { responseCodes } from '../../../utils/constants/responseCodes'
 
 const ClassRegister = () => {
+    const dispatch = useDispatch()
+
     const classIdErrorType = 'class_id_error'
     const registerClassErrorType = 'register_class_error'
-    const dispatch = useDispatch()
     const [classId, setClassId] = useState('')
     const [registerClassInfo, setRegisterClassInfo] = useState('')
     const [error, setError] = useState({
@@ -19,17 +20,23 @@ const ClassRegister = () => {
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const [classesList, setClassesList] = useState([])
     const [isChosen, setIsChosen] = useState('')
-    
+    const [checkedList, setCheckedList] = useState(new Map())
+
     const HeaderItem = {
         class_id: 'Mã lớp',
         class_name: 'Tên lớp',
         attached_code: 'Mã lớp kèm',
         class_type: 'Loại lớp',
-        student_count: 'Số lượng sinh viên',
+        max_student_amount: 'Sinh viên tối đa',
         status: 'Trạng thái lớp',
+        register_status: 'Trạng thái đăng ký'
     }
-    
+
     const handleGetClassInfo = async () => {
+        setError({
+            type: '',
+            message: ''
+        })
         if (!classId) {
             setError({
                 type: classIdErrorType,
@@ -38,15 +45,8 @@ const ClassRegister = () => {
             return
         }
 
-        setError({
-            type: '',
-            message: ''
-        })
-        
-
-
         const response = await apis.apiGetBasicClassInfo({
-            token: token, 
+            token: token,
             class_id: classId
         })
         if (response?.data.meta.code !== responseCodes.statusOK) {
@@ -61,29 +61,25 @@ const ClassRegister = () => {
             if (exists) {
                 return prevClassesList
             }
-            return [...prevClassesList, classInfo]
+            return [...prevClassesList, { ...classInfo, register_status: '...' }]
         });
 
         setClassId('')
     }
 
     const handleRegisterClass = async () => {
-        if (classesList?.length == 0) {
-            setError({
-                type: registerClassErrorType,
-                message: "bạn chưa chọn đăng ký lớp nào"
-            })
-            return
-        }
+        setRegisterClassInfo('')
         setError({
             type: '',
             message: ''
         })
-        const classIds = classesList.map(item => String(item.class_id));
-        console.log("hehe " + JSON.stringify({
-            token: token,
-            class_ids: classIds
-        }))
+        const classIds = [...checkedList.keys()]
+        if (classIds?.length === 0) {
+            return setError({
+                type: registerClassErrorType,
+                message: "bạn chưa chọn đăng ký lớp nào"
+            })
+        }
         const response = await apis.apiRegisterClass({
             token: token,
             class_ids: classIds
@@ -95,18 +91,89 @@ const ClassRegister = () => {
             })
         }
 
+        const info = response.data.data
+        let regSuccessClasses = []
+        let regFailedClasses = []
+
+        info.forEach(item => {
+            const matchingClass = classesList.find(cls => cls.class_id === item.class_id);
+
+            if (matchingClass) {
+                if (item.status.toUpperCase() === 'SUCCESS') {
+                    regSuccessClasses.push(matchingClass.class_name);
+                } else if (item.status.toUpperCase() === 'FAILED') {
+                    regFailedClasses.push(matchingClass.class_name);
+                }
+            }
+            setClassesList(prevClassesList =>
+                prevClassesList.map(cls =>
+                    cls.class_id === item.class_id
+                        ? { ...cls, register_status: item.status }
+                        : cls
+                )
+            );
+        });
+
+        if (regFailedClasses.length !== 0) {
+            setError({
+                type: registerClassErrorType,
+                message: "Đăng ký các lớp sau không thành công: " + regFailedClasses.join(', ')
+            })
+        } else {
+            setError({
+                type: '',
+                message: ''
+            })
+        }
+
+        if (regSuccessClasses.length !== 0) {
+            setRegisterClassInfo("Đăng ký các lớp sau thành công: " + regSuccessClasses.join(', '))
+        }
+        setCheckedList(new Map())
+
+        // setClassesList([])
+        dispatch(actions.getClassList({
+            token: token,
+            role: role,
+            account_id: userId
+        }))
+    }
+
+    const handleDeleteClass = async () => {
+        setRegisterClassInfo('')
         setError({
             type: '',
             message: ''
         })
-        setRegisterClassInfo("đăng ký lớp thành công")
-        // dispatch(actions.registerClass({
-        //     token: token,
-        //     class_ids: classIds
-        // }))
-        setClassesList([])
+        const classIds = [...checkedList?.keys()]
+        if (classIds?.length === 0) {
+            return
+        }
+
+        let invalidClasses = [];
+
+        for (let i = classesList.length - 1; i >= 0; i--) {
+            if (!classIds.includes(classesList[i].class_id)) {
+                continue
+            }
+
+            if (classesList[i].register_status.toUpperCase() === 'SUCCESS') {
+                invalidClasses.push(classesList[i].class_name)
+                continue
+            }
+            classesList.splice(i, 1)
+        }
+
+
+        if (invalidClasses?.length > 0) {
+            setError({
+                type: registerClassErrorType,
+                message: "Không thể xóa các lớp đã đăng ký thành công: " + invalidClasses.join(', ')
+            })
+        }
+
     }
-   
+
     return (
         <ScrollView style={styles.container}>
             <View style={{
@@ -173,8 +240,8 @@ const ClassRegister = () => {
                                         <View key={item.class_id}>
                                             <ClassBasicInfoItem
                                                 classItem={item}
-                                                isChoosed={isChosen}
-                                                setIsChoosed={setIsChosen}
+                                                checkedList={isChosen}
+                                                setCheckedList={setCheckedList}
                                             />
                                         </View>
                                     )
@@ -213,8 +280,8 @@ const ClassRegister = () => {
                         borderRadius: 15,
                         paddingVertical: 10
                     }}
-                    onPress={() => {
-
+                    onPress={async () => {
+                        await handleDeleteClass()
                     }}>
                     <Text style={{ color: 'white', fontWeight: 'bold', fontStyle: 'italic', fontSize: 16 }}> Xóa lớp</Text>
                 </TouchableOpacity>
@@ -224,7 +291,7 @@ const ClassRegister = () => {
                     {error.message}
                 </Text>
             )}
-            { registerClassInfo && (
+            {registerClassInfo && (
                 <Text style={{ color: 'green', marginBottom: 10 }}>
                     {registerClassInfo}
                 </Text>

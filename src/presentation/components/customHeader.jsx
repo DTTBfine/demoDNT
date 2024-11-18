@@ -2,9 +2,11 @@ import { View, Text, StyleSheet, Image } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/Octicons'
 import { useNavigation } from '@react-navigation/native'
+import { useSelector } from 'react-redux'
 
 const CustomHeader = () => {
     const navigate = useNavigation()
+    const { unreadNotificationCount } = useSelector(state => state.user)
 
     return (
         <View style={styles.container}>
@@ -31,6 +33,18 @@ const CustomHeader = () => {
                     navigate.navigate("notification")
                 }}
             />
+            <View style={{
+                width: 20,
+                height: 20,
+                borderRadius: 10,
+                backgroundColor: 'red',
+                position: 'absolute',
+                top: 37,
+                right: 10,
+                justifyContent: 'center'
+            }}>
+                <Text style={{ color: 'white', fontWeight: '400', fontSize: 12, textAlign: 'center' }}>{unreadNotificationCount}</Text>
+            </View>
         </View>
     )
 }

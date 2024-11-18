@@ -2,48 +2,40 @@ import actionTypes from '../actions/actionTypes'
 
 const initState = {
     myClasses: [],
-    classInfo: {
-        id: 0,
-        class_id: '',
-        class_name: '',
-        schedule: '',
-        lecturer_id: 0,
-        max_student_amount: 0,
-        attached_code: '',
-        class_type: '',
-        start_date: '',
-        status: '' //ACTIVE
-    },
-    classInfoErr: '',
-    registerClassSuccess: false
+    classMaterial: [],
+    allStudentAssignment: [],
+    surveyOfCurrentClass: []
 }
 
 const learningReducer = (state = initState, action) => {
     switch (action.type) {
+        //class
         case actionTypes.GET_CLASS_LIST:
             return {
                 ...state,
                 myClasses: action.data || []
             }
-        case actionTypes.REGISTER_CLASS_SUCCCESS:
+        //attendance
+
+        //absence
+
+        //assignment
+        case actionTypes.GET_STUDENT_ASSIGNMENTS:
             return {
                 ...state,
-                registerClassSuccess: true
+                allStudentAssignment: action.data || []
             }
-        case actionTypes.REGISTER_CLASS_FAILED:
+        case actionTypes.GET_SURVEYS_OF_CLASS:
             return {
                 ...state,
-                registerClassSuccess: false
+                surveyOfCurrentClass: action.data || []
             }
-        case actionTypes.GET_BASIC_CLASS_INFO_SUCCESS:
+
+        //material
+        case actionTypes.GET_MATERIAL_LIST:
             return {
                 ...state,
-                classInfo: action.data
-            }
-        case actionTypes.GET_BASIC_CLASS_INFO_FAILED:
-            return {
-                ...state,
-                classInfoErr: action.data
+                classMaterial: action.data || []
             }
         case actionTypes.LOGOUT:
             return {

@@ -48,9 +48,12 @@ const AssignmentItem = ({ }) => {
 
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: 'white',
         flexDirection: 'row',
-        borderWidth: 1,
+        borderBottomWidth: 1,
+        borderRightWidth: 1,
         borderColor: '#CCCCCC',
+        elevation: 5,
         borderRadius: 15,
         padding: 15,
         gap: 15

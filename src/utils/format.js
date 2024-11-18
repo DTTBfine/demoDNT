@@ -27,6 +27,19 @@ export const formatSQLDate = (string_date) => {
     return date + year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day;
 }
 
+export const convertVNDate = (string_date) => {
+    // Tạo một đối tượng Date từ chuỗi
+    var date_object = new Date(string_date);
+    let date = ''
+
+    // Lấy các thành phần ngày, tháng, năm
+    var day = date_object.getDate();
+    var month = date_object.getMonth() + 1; // Vì getUTCMonth trả về từ 0 đến 11
+    var year = date_object.getFullYear();
+
+    return date + day + ' Tháng ' + month + ', ' + year
+}
+
 export const tinhThoiGianTuMocThoiGianDenNay = (date) => {
     // Chuyển mốc thời gian vào đối tượng Date
     var mocThoiGian = new Date(date);
@@ -100,6 +113,25 @@ export const days = [
     }
 ]
 
+export const getDaysOfWeek = (date) => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayIndex = date.getDay(); // Lấy chỉ số ngày trong tuần (0: Chủ nhật, 1: Thứ Hai, ..., 6: Thứ Bảy)
+    const currentDay = days[dayIndex]; // Lấy ngày hiện tại dựa vào chỉ số
+
+    // Tính toán các ngày còn lại trong tuần
+    const daysOfWeek = [];
+    for (let i = 0; i < 7; i++) {
+        const nextDay = new Date(date); // Tạo một đối tượng Date mới để không ảnh hưởng đến đối tượng gốc
+        nextDay.setDate(date.getDate() + i - dayIndex); // Đặt ngày mới cho ngày tiếp theo
+        daysOfWeek.push({
+            day: days[nextDay.getDay()],
+            date: nextDay
+        });
+    }
+
+    return daysOfWeek;
+}
+
 export const DayToId = (day) => {
     switch (day) {
         case 'Mon':
@@ -128,13 +160,14 @@ export const classNameCode = (fullName) => {
     var nameParts = fullName.split(" ");
 
     // Lấy chữ cái đầu tiên của mỗi từ và nối lại
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < nameParts.length; i++) {
         code += nameParts[i][0];
     }
     // Chuyển đổi chữ cái thành chữ hoa
     code = code.toUpperCase();
 
     return code
+
 }
 
 export const getRandomColor = () => {
@@ -161,3 +194,4 @@ export const getColorForId = (id) => {
     }
     return colorMap.get(id);
 };
+

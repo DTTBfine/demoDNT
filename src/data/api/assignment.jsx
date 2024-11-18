@@ -17,7 +17,7 @@ export const apiCreateSurvey = async (payload) => {
         method: 'post',
         url: '',
         data: {
-            file: '', //lấy file từ params của url hả khum biết
+            file: payload.file,
             token: payload.token,
             class_id: payload.class_id,
             title: payload.title,

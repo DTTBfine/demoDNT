@@ -85,19 +85,31 @@ export const apiGetVerifyCode = async (payload) => {
 
 
 export const apiChangeInfoAfterSignUp = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it4788/change_info_after_signup',
-        data: {
-            token: payload.token,
-            user_name: payload.user_name,
-            avatar: payload.avatar
+    let formDataBody = new FormData()
+    formDataBody.append('token', payload.token)
+    formDataBody.append('name', payload.name)
+    formDataBody.append('file', payload.file)
+
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it4788/change_info_after_signup',
+            data: formDataBody,
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("change info after signup failed: " + error)
         }
-    })
-    return response
+        return error.response
+    }
+
+    
 }
 
 export const apiChangePassword = async (payload) => {
+
     const response = await axiosConfig({
         method: 'post',
         url: '/it4788/change_password',
