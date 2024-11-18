@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TextInput, Button,Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Picker } from '@react-native-picker/picker'
 import { useNavigation } from '@react-navigation/native'
@@ -117,7 +117,14 @@ const RegisterScreen = () => {
     return (
         <View style={styles.container}>
             <View style={styles.titleBox}>
-                <Text style={styles.title1}>HUST</Text>
+                <Image
+                source={require('../../../assets/logo.png')}
+                style={{
+                width: 200,
+                height: 60,
+                }}
+                />
+                {/* <Text style={styles.title1}>HUST</Text> */}
                 <Text style={styles.title2}> Welcome to AIIHust</Text>
             </View>
             <View style={styles.inputBox}>
@@ -206,6 +213,7 @@ const RegisterScreen = () => {
                 <View style={[styles.picker, { borderColor: focusField === 'role' ? '#00CCFF' : '#CCCCCC' }]}>
                     <Picker
                         style={styles.picker}
+                        selectedValue={payload.role}
                         onValueChange={handleRoleChange}
                         onFocus={() => {
                             setFocusField('role')

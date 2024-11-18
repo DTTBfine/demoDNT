@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, TextInput, Button,Image, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import PulsatingIcon from '../components/PulsatingIcon';
@@ -125,7 +125,14 @@ const LoginScreen = () => {
                 }} />
             }
             <View style={styles.titleBox}>
-                <Text style={styles.title1}>HUST</Text>
+                <Image
+                    source={require('../../../assets/logo.png')}
+                    style={{
+                    width: 200,
+                    height: 60,
+                    }}
+                />
+                {/* <Text style={styles.title1}>HUST</Text> */}
                 <Text style={styles.title2}> Đăng nhập với tài khoản QLĐT</Text>
             </View>
             <View style={styles.inputBox}>
