@@ -11,6 +11,7 @@ import * as actions from '../redux/actions'
 const ProfileScreen = () => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.user)
+<<<<<<< Updated upstream
     let originalAvatar = ""
     if (userInfo.avatar?.length > 0 && userInfo.avatar.startsWith("https://drive.google.com")) {
         const fileId = userInfo.avatar.split('/d/')[1].split('/')[0];
@@ -72,6 +73,11 @@ const ProfileScreen = () => {
         return check
     }
 
+=======
+    const [file, setFile] = useState({})
+    console.log('userInfo',userInfo)
+    console.log(file)
+>>>>>>> Stashed changes
 
     const handleImageSelection = async () => {
         try {

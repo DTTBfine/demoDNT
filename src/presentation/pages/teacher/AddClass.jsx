@@ -18,7 +18,7 @@ const AddClass = () => {
     const [showEndPicker, setShowEndPicker] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const { token } = useSelector(state => state.auth)
 
     const formatDate = (date) => {
         const day = date.getDate().toString().padStart(2, '0'); 
@@ -40,8 +40,8 @@ const AddClass = () => {
                 class_id: classId,
                 class_name: className,
                 class_type: classType,
-                start_date: startDate.toISOString(),
-                end_date: endDate.toISOString(),
+                start_date: startDate.toISOString().split('T')[0],
+                end_date: endDate.toISOString().split('T')[0],
                 max_student_amount: parseInt(maxStudentAmount,10),
             };
             console.log('payload-create-class:',payload);
