@@ -11,73 +11,9 @@ import * as actions from '../redux/actions'
 const ProfileScreen = () => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.user)
-<<<<<<< Updated upstream
-    let originalAvatar = ""
-    if (userInfo.avatar?.length > 0 && userInfo.avatar.startsWith("https://drive.google.com")) {
-        const fileId = userInfo.avatar.split('/d/')[1].split('/')[0];
-        originalAvatar = `https://drive.google.com/uc?export=view&id=${fileId}`
-    }
-    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
-    const originalName = userInfo.ho + ' ' + userInfo.ten
-    const [file, setFile] = useState(null)
-    const [name, setName] = useState(originalName)
-    const [isEditable, setIsEditable] = useState(false);
-    const [invalidFields, setInvalidFields] = useState(new Map())
-    const invalidFieldName = 'name'
-    const invalidFieldFile = 'file'
-    const invalidFieldsSubmit = 'submit'
-
-    const [submitInfo, setSubmitInfo] = useState('')
-
-    const handleIconPress = () => {
-        setIsEditable(true); // Enable editing
-    };
-
-    const handleOutsidePress = () => {
-        if (isEditable) {
-            setIsEditable(false); // Disable editing
-            Keyboard.dismiss(); // Close the keyboard
-        }
-    };
-
-    const handleCancelChanges = () => {
-        setInvalidFields(new Map())
-        setSubmitInfo('')
-        setName(originalName)
-        setFile(null)
-        Keyboard.dismiss()
-    }
-
-    const validateInput = (name, file) => {
-        let check = true
-
-        if (name.length === 0) {
-            setInvalidFields(prev => {
-                const newFields = new Map(prev)
-                newFields.set(invalidFieldName, "Tên không được bỏ trống")
-
-                return newFields
-            })
-            check = false
-        }
-
-        if (!file) {
-            setInvalidFields(prev => {
-                const newFields = new Map(prev)
-                newFields.set(invalidFieldFile, "Cần phải chọn 1 file")
-
-                return newFields
-            })
-            check = false
-        }
-        return check
-    }
-
-=======
     const [file, setFile] = useState({})
-    console.log('userInfo',userInfo)
+    console.log('userInfo', userInfo)
     console.log(file)
->>>>>>> Stashed changes
 
     const handleImageSelection = async () => {
         try {
@@ -133,7 +69,7 @@ const ProfileScreen = () => {
             })
             return
         }
-        
+
         dispatch(actions.getUserInfo({
             token,
             userId
@@ -149,12 +85,12 @@ const ProfileScreen = () => {
                 <View style={{ alignItems: 'center' }}>
                     <View style={{}}>
                         <Image
-                            source={file 
-                                ? { uri: file.uri } 
+                            source={file
+                                ? { uri: file.uri }
                                 : originalAvatar?.length > 0
-                                    ? {uri: originalAvatar}
+                                    ? { uri: originalAvatar }
                                     : require('../../../assets/default-avatar.jpg')
-                                }
+                            }
                             style={{
                                 width: 200,
                                 height: 200,
@@ -212,21 +148,21 @@ const ProfileScreen = () => {
                                 </Text>
                             )}
                         </View>
-                        <Icon 
-                            style={{padding: 15}} 
-                            name='edit' 
-                            size={25} 
-                            color='#BB0000' 
+                        <Icon
+                            style={{ padding: 15 }}
+                            name='edit'
+                            size={25}
+                            color='#BB0000'
                             onPress={handleIconPress}
                         />
                     </View>
                     {invalidFields.size > 0 && invalidFields.has(invalidFieldName) && <Text style={{
-                            paddingHorizontal: 15,
-                            fontStyle: 'italic',
-                            color: 'red',
-                            fontSize: 12
-                        }}> {invalidFields.get(invalidFieldName)} </Text>}
-                    
+                        paddingHorizontal: 15,
+                        fontStyle: 'italic',
+                        color: 'red',
+                        fontSize: 12
+                    }}> {invalidFields.get(invalidFieldName)} </Text>}
+
                 </View>
                 <View style={styles.infoItem}>
                     <View style={{ flexDirection: 'row' }}>
@@ -297,7 +233,7 @@ const ProfileScreen = () => {
                 }}> {submitInfo}</Text>}
             </View>
         </TouchableWithoutFeedback>
-        
+
     )
 }
 
