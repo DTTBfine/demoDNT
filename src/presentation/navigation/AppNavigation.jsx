@@ -27,6 +27,7 @@ import { classNameCode, getColorForId } from '../../utils/format';
 import TeacherClasses from '../pages/teacher/TeacherClasses';
 import CustomTeacherClass from '../components/customTeacherClass';
 import AddMaterial from '../pages/teacher/AddMaterial';
+import SubmitSurvey from '../pages/student/SubmitSurvey';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -40,8 +41,34 @@ const AppNavigation = () => {
                 <Stack.Screen name="teacher" component={TeacherRoute} />
                 {/* <Stack.Screen name="inapp" component={InapNavigation} /> */}
                 <Stack.Screen name="notification" component={Note} />
+                <Stack.Screen name="testUI" component={TestUI} />
             </Stack.Navigator>
         </NavigationContainer>
+    )
+}
+
+const TestUI = () => {
+    return (
+        <Stack.Navigator
+            screenOptions={({ route }) => ({
+                headerTitle: () => {
+                    return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>Test thử giao diện </Text>
+                },
+                headerStyle: {
+                    backgroundColor: '#BB0000',
+                    height: 80,
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                    fontWeight: '500',
+                    fontSize: 18,
+                },
+                headerTitleAlign: 'center',
+                headerTitleAlign: !(route.name === 'teacherClassScreen') && 'center'
+            }
+            )}>
+            <Stack.Screen name="submitSurvey" component={SubmitSurvey} />
+        </Stack.Navigator>
     )
 }
 

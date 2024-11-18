@@ -91,7 +91,7 @@ const RegisterScreen = () => {
             return;
         }
         let response = await apis.apiSignUp(payload)
-        console.log(response.data.code) 
+        console.log(response.data.code)
         if (response?.data.code !== responseCodes.statusOK) {
             return setError({
                 type: registerError,
@@ -214,7 +214,7 @@ const RegisterScreen = () => {
                     >
                         <Picker.Item label="Role" value="" />
                         <Picker.Item label="Sinh viên" value="STUDENT" />
-                        <Picker.Item label="Giảng viên" value="LECTURE" />
+                        <Picker.Item label="Giảng viên" value="LECTURER" />
                     </Picker>
                 </View>
                 {invalidFields.length > 0 && invalidFields.some(i => i.name === 'role') && <Text style={{
@@ -235,7 +235,7 @@ const RegisterScreen = () => {
                         </Text>
                     </TouchableOpacity>
                 </View>
-                
+
                 <View style={styles.titleBox}>
                     <Text style={{ color: "white" }}> Đăng nhập với <Text style={{ textDecorationLine: 'underline' }}
                         onPress={() => {
@@ -244,9 +244,9 @@ const RegisterScreen = () => {
                 </View>
 
                 {error.type === registerError && (
-                <Text style={{ color: 'red', marginBottom: 10 }}>
-                    {error.message}
-                </Text>
+                    <Text style={{ color: 'red', marginBottom: 10 }}>
+                        {error.message}
+                    </Text>
                 )}
             </View>
 

@@ -21,6 +21,8 @@ const actionTypes = {
 
     GET_UNREAD_NOTIFICATION_COUNT: 'GET_UNREAD_NOTIFICATION_COUNT',
 
+    GET_STUDENT_ASSIGNMENTS: 'GET_STUDENT_ASSIGNMENTS',
+
 }
 
 export default actionTypes

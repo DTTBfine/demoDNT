@@ -36,7 +36,7 @@ const ProfileScreen = () => {
             <View style={{ alignItems: 'center' }}>
                 <View style={{}}>
                     <Image
-                        source={file ? { uri: file.uri } : require('../../../assets/default-avatar.jpg')}
+                        source={file.uri ? { uri: file.uri } : require('../../../assets/default-avatar.jpg')}
                         style={{
                             width: 200,
                             height: 200,

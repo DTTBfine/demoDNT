@@ -87,7 +87,7 @@ const StudentScreen = () => {
                     iconName='bar-chart'
                     name='Khảo sát'
                     infor='Khảo sát và form'
-                    routeName='classNavigationForStudent'
+                    routeName='testUI'
                 />
             </View>
         </ScrollView>
