@@ -1,44 +1,12 @@
-import { View, Text } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { classNameCode, getColorForId } from '../../utils/format'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 
-const CustomTeacherClass = ({ id, name, type, tabName }) => {
+const CustomTeacherClass = ({ id, name, type }) => {
     const navigate = useNavigation()
-    const { token } = useSelector(state => state.auth)
-    const [payload, setPayload] = useState({
-        file: {},
-        token: token,
-        classId: id,
-        title: '',
-        description: '',
-        materialType: ''
-    })
-    console.log(payload)
-    console.log('tabname: ' + tabName)
-    const handleUploadMaterial = async () => {
-        try {
-            const result = await DocumentPicker.getDocumentAsync({
-                type: '*/*', // Allows all file types
-                copyToCacheDirectory: true,
-            });
-
-            // Kiểm tra nếu người dùng hủy chọn file
-            if (result.canceled) {
-                console.log('User canceled document selection.');
-                return; // Không tiếp tục nếu bị hủy
-            }
-
-            console.log('result ' + JSON.stringify(result))
-            if (result?.assets?.length > 0) {
-                setPayload(prev => ({ ...prev, 'file': result.assets[0] }))
-            }
-        } catch (err) {
-            console.error('Error picking document:', err);
-        }
-    }
 
     return (
         <View style={{
@@ -81,14 +49,13 @@ const CustomTeacherClass = ({ id, name, type, tabName }) => {
                     }}> {type}</Text>
                 </View>
             </View>
-            <View>
-                <Text onPress={() => navigate.navigate('addMaterial', { class_id: id })}
-                    style={{
-                        fontSize: 38,
-                        fontWeight: '300',
-                        color: 'white'
-                    }}>+</Text>
-            </View>
+            <TouchableOpacity onPress={() => navigate.navigate('addMaterial', { class_id: id })}>
+                <Text style={{
+                    fontSize: 38,
+                    fontWeight: '300',
+                    color: 'white'
+                }}>+</Text>
+            </TouchableOpacity>
         </View>
     )
 }
