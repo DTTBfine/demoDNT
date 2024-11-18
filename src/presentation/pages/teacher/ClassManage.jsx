@@ -122,17 +122,17 @@ const ClassManage = () => {
                 <TouchableOpacity
                     style={{
                         flex: 5,
-                        backgroundColor: "#BB0000",
+                        backgroundColor: isChoosed.class_id ? "#BB0000" : '#CCCCCC',
                         alignItems: 'center',
                         justifyContent: 'center',
                         borderRadius: 15,
                         paddingVertical: 10
                     }}
                     onPress={() => {
-                        navigate.navigate('EditClass', { isChoosed })
+                        isChoosed.class_id && navigate.navigate('EditClass', { isChoosed })
                     }}>
                     <Text style={{
-                        color: 'white',
+                        color: isChoosed.class_id ? 'white' : 'gray',
                         fontWeight: 'bold',
                         fontStyle: 'italic',
                         fontSize: 16
@@ -174,7 +174,10 @@ const ClassBasicInfoItem = ({ isHeader, classItem, isChoosed, setIsChoosed }) =>
             <Cell isHeader={isHeader} width={150} data={classItem?.status} />
             <View style={[styles.cell, { width: 150, borderRightWidth: 0 }]}>
                 {isHeader ? <Text style={[styles.dataCell, { color: isHeader && 'white', fontWeight: isHeader ? '600' : '400' }]}>Thao tác</Text>
-                    : <Pressable onPress={() => { setIsChoosed(classItem) }}
+                    : <Pressable onPress={() => {
+                        setIsChoosed(classItem)
+                        isChoosed === classItem && setIsChoosed({})
+                    }}
                         style={{
                             width: 20,
                             height: 20,
