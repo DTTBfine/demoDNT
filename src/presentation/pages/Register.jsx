@@ -206,6 +206,7 @@ const RegisterScreen = () => {
                 <View style={[styles.picker, { borderColor: focusField === 'role' ? '#00CCFF' : '#CCCCCC' }]}>
                     <Picker
                         style={styles.picker}
+                        selectedValue={payload.role}
                         onValueChange={handleRoleChange}
                         onFocus={() => {
                             setFocusField('role')

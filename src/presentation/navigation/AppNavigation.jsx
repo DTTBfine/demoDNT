@@ -214,44 +214,50 @@ const StudentHomepage = () => {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
-                    let iconName
-                    if (route.name === 'home') {
-                        iconName = 'home'
-                    } else if (route.name === 'profile') {
-                        iconName = 'user'
+                    let iconName;
+                    if (route.name === 'Home') {
+                        iconName = 'home';
+                    } else if (route.name === 'Profile') {
+                        iconName = 'user';
                     } else {
-                        iconName = 'gear'
+                        iconName = 'gear';
                     }
-                    return <Icon name={iconName} color={color} size={20} />
+                    return <Icon name={iconName} color={color} size={25} marginBottom={5}/>; 
                 },
                 tabBarActiveTintColor: '#AA0000',
                 tabBarInactiveTintColor: 'gray',
-                header: (props) => (<CustomHeader {...props} />),
+                header: (props) => <CustomHeader {...props} />,
                 tabBarStyle: {
                     borderRadius: 40,
                     marginBottom: 10,
                     marginHorizontal: 10,
                     borderWidth: 1,
-                    height: 70,
-                    borderColor: '#ccc'
+                    height: 80, 
+                    borderColor: '#ccc',
+                    paddingVertical: 10,
+                    paddingHorizontal: 10, 
+                    justifyContent: 'center', 
                 },
                 tabBarLabelStyle: {
                     fontSize: 13,
                     textAlign: 'center',
                     fontWeight: '500',
-                    marginBottom: 10
+                    marginTop: 10, 
+                    marginBottom:-5,
+                    
                 },
                 tabBarIconStyle: {
-                    marginBottom: -4, // Giúp căn chỉnh icon với tên tab
+                    marginBottom: -10,
                 },
             })}
         >
-            <Tab.Screen name="home" component={StudentScreen} />
-            <Tab.Screen name="profile" component={ProfileScreen} />
-            <Tab.Screen name="setting" component={SettingScreen} />
+            <Tab.Screen name="Home" component={StudentScreen} />
+            <Tab.Screen name="Profile" component={ProfileScreen} />
+            <Tab.Screen name="Setting" component={SettingScreen} />
         </Tab.Navigator>
-    )
-}
+    );
+};
+
 
 const RegisterClass = () => {
     return (
