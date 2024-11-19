@@ -11,12 +11,6 @@ import * as actions from '../redux/actions'
 const ProfileScreen = () => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.user)
-<<<<<<< HEAD
-    const [invalidFields, setInvalidFields] = useState([])
-    const [file, setFile] = useState({})
-    console.log('userInfo', userInfo)
-    console.log(file)
-=======
     let originalAvatar = ""
     if (userInfo.avatar?.length > 0 && userInfo.avatar.startsWith("https://drive.google.com")) {
         const fileId = userInfo.avatar.split('/d/')[1].split('/')[0];
@@ -78,7 +72,6 @@ const ProfileScreen = () => {
         return check
     }
 
->>>>>>> e2c69ef35d756f6c3caebcdaebe00368a64aebc6
 
     const handleImageSelection = async () => {
         try {
@@ -134,7 +127,7 @@ const ProfileScreen = () => {
             })
             return
         }
-        
+
         dispatch(actions.getUserInfo({
             token,
             userId
@@ -145,17 +138,17 @@ const ProfileScreen = () => {
     }
 
     return (
-        <View>
+        <TouchableWithoutFeedback onPress={handleOutsidePress}>
             <View style={styles.container}>
                 <View style={{ alignItems: 'center' }}>
                     <View style={{}}>
                         <Image
-                            source={file 
-                                ? { uri: file.uri } 
+                            source={file
+                                ? { uri: file.uri }
                                 : originalAvatar?.length > 0
-                                    ? {uri: originalAvatar}
+                                    ? { uri: originalAvatar }
                                     : require('../../../assets/default-avatar.jpg')
-                                }
+                            }
                             style={{
                                 width: 200,
                                 height: 200,
@@ -213,21 +206,21 @@ const ProfileScreen = () => {
                                 </Text>
                             )}
                         </View>
-                        <Icon 
-                            style={{padding: 15}} 
-                            name='edit' 
-                            size={25} 
-                            color='#BB0000' 
+                        <Icon
+                            style={{ padding: 15 }}
+                            name='edit'
+                            size={25}
+                            color='#BB0000'
                             onPress={handleIconPress}
                         />
                     </View>
                     {invalidFields.size > 0 && invalidFields.has(invalidFieldName) && <Text style={{
-                            paddingHorizontal: 15,
-                            fontStyle: 'italic',
-                            color: 'red',
-                            fontSize: 12
-                        }}> {invalidFields.get(invalidFieldName)} </Text>}
-                    
+                        paddingHorizontal: 15,
+                        fontStyle: 'italic',
+                        color: 'red',
+                        fontSize: 12
+                    }}> {invalidFields.get(invalidFieldName)} </Text>}
+
                 </View>
                 <View style={styles.infoItem}>
                     <View style={{ flexDirection: 'row' }}>
@@ -297,13 +290,8 @@ const ProfileScreen = () => {
                     fontSize: 12
                 }}> {submitInfo}</Text>}
             </View>
-<<<<<<< HEAD
-        </View>
-
-=======
         </TouchableWithoutFeedback>
-        
->>>>>>> e2c69ef35d756f6c3caebcdaebe00368a64aebc6
+
     )
 }
 

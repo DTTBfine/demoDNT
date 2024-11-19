@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Button,Image, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, TextInput, Button, Image, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import PulsatingIcon from '../components/PulsatingIcon';
@@ -128,8 +128,8 @@ const LoginScreen = () => {
                 <Image
                     source={require('../../../assets/logo.png')}
                     style={{
-                    width: 200,
-                    height: 60,
+                        width: 200,
+                        height: 60,
                     }}
                 />
                 {/* <Text style={styles.title1}>HUST</Text> */}
