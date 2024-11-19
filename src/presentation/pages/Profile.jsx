@@ -17,7 +17,7 @@ const ProfileScreen = () => {
         originalAvatar = `https://drive.google.com/uc?export=view&id=${fileId}`
     }
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
-    const originalName = userInfo.ho + ' ' + userInfo.ten
+    const originalName = `${userInfo.ho} ${userInfo.ten}`
     const [file, setFile] = useState(null)
     const [name, setName] = useState(originalName)
     const [isEditable, setIsEditable] = useState(false);

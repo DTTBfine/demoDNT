@@ -8,13 +8,19 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 const SettingScreen = () => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.user)
+    const avatarLink = userInfo.avatar
+    let avatarUri = ''
+    if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
+        const fileId = avatarLink.split('/d/')[1].split('/')[0];
+        avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
+    }
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const navigate = useNavigation()
     return (
         <View style={styles.cotainer}>
             <TouchableOpacity style={{ flexDirection: 'row', gap: 10, borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'white', alignItems: 'center' }}>
                 <Image
-                    source={require('../../../assets/default-avatar.jpg')}
+                    source={avatarUri.length > 0 ? {uri: avatarUri} : require('../../../assets/default-avatar.jpg')}
                     style={{
                         width: 46,
                         height: 46,

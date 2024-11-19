@@ -12,13 +12,18 @@ const TeacherScreen = () => {
     const { userInfo } = useSelector(state => state.user)
     const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
-
+    const avatarLink = userInfo.avatar
+    let avatarUri = ''
+    if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
+        const fileId = avatarLink.split('/d/')[1].split('/')[0];
+        avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
+    }
     return (
         <ScrollView>
             <View style={styles.infoBox}>
                 <View style={{ flex: 1 }}>
                     <Image
-                        source={require('../../../../assets/default-avatar.jpg')}
+                        source={avatarUri.length > 0 ? {uri: avatarUri} : require('../../../../assets/default-avatar.jpg')}
                         style={{
                             width: 40,
                             height: 40,
