@@ -116,6 +116,9 @@ const ClassBox = ({ class_id, class_name, class_type, currentId, setCurrentId })
                     navigate.navigate('teacherClassScreen', { name: class_name, id: class_id, type: class_type, tabName: 'Tài liệu' })
                 }}> Tài liệu</Text>
                 <Text style={styles.textBar} onPress={() => {
+                    //navigate.navigate('teacherClassScreen', { name: class_name, id: class_id, type: class_type, tabName: 'Bài tập' })
+                }}> Điểm danh </Text>
+                <Text style={styles.textBar} onPress={() => {
                     //navigate.navigate('absenceRequest')
                 }}> Các yêu cầu xin phép nghỉ học</Text>
             </View>

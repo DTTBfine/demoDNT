@@ -7,10 +7,12 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { formatSQLDate } from '../../../utils/format';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { responseCodes } from '../../../utils/constants/responseCodes';
+import { useNavigation } from '@react-navigation/native';
 
 const AbsenceRequest = ({ route }) => {
     //Đã xử lý payload đúng định dạng rồi, chỉ cần gửi api thôi, thêm cái Submit
     const { class_id } = route.params
+    const navigate = useNavigation()
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const [requestAbsenceInfo, setRequestAbsenceInfo] = useState('')
 
@@ -65,7 +67,7 @@ const AbsenceRequest = ({ route }) => {
         date: formatSQLDate(date), //vd: 2024-11-13,
         reason: '',
         title: '',
-        file: {}
+        file: null
     })
     const [focusField, setFocusField] = useState('')
     const [showDatePicker, setShowDatePicker] = useState(false)
@@ -104,7 +106,7 @@ const AbsenceRequest = ({ route }) => {
     const handleSubmit = async () => {
         setInvalidFields(new Map())
         setRequestAbsenceInfo('')
-        if (!validateInput(payload.title, payload.reason)) {
+        if (!validateInput(payload.title, payload.reason, payload.file)) {
             return
         }
         const response = await apis.apiRequestAbsence(payload)
@@ -119,6 +121,18 @@ const AbsenceRequest = ({ route }) => {
         }
 
         setRequestAbsenceInfo("Gửi xin phép nghỉ học thành công")
+        setPayload({
+            token: token,
+            class_id: class_id,
+            date: formatSQLDate(date), //vd: 2024-11-13,
+            reason: '',
+            title: '',
+            file: null
+        })
+        setTimeout(() => {
+            navigate.navigate('myClasses')
+        }, 300)
+
     }
     const onChange = (event, selectedDate) => {
         if (event.type === "set") { // Kiểm tra nếu người dùng chọn ngày (type: set)
@@ -153,7 +167,8 @@ const AbsenceRequest = ({ route }) => {
                     paddingHorizontal: 15,
                     fontStyle: 'italic',
                     color: 'red',
-                    fontSize: 12
+                    fontSize: 12,
+                    textAlign: 'center'
                 }}> {invalidFields.get(invalidFieldTitle)}
                 </Text>}
                 <TextInput
@@ -173,7 +188,8 @@ const AbsenceRequest = ({ route }) => {
                     paddingHorizontal: 15,
                     fontStyle: 'italic',
                     color: 'red',
-                    fontSize: 12
+                    fontSize: 12,
+                    textAlign: 'center'
                 }}> {invalidFields.get(invalidFieldReason)}
                 </Text>}
             </View>
@@ -197,7 +213,8 @@ const AbsenceRequest = ({ route }) => {
                     paddingHorizontal: 15,
                     fontStyle: 'italic',
                     color: 'red',
-                    fontSize: 12
+                    fontSize: 12,
+                    textAlign: 'center'
                 }}> {invalidFields.get(invalidFieldFile)}
                 </Text>}
                 {payload.file && <Text style={{
@@ -250,17 +267,19 @@ const AbsenceRequest = ({ route }) => {
                 paddingHorizontal: 15,
                 fontStyle: 'italic',
                 color: 'red',
-                fontSize: 12
+                fontSize: 12,
+                textAlign: 'center'
             }}> {invalidFields.get(invalidFieldSubmit)}
             </Text>}
             {requestAbsenceInfo && <Text style={{
                 paddingHorizontal: 15,
                 fontStyle: 'italic',
                 color: 'green',
-                fontSize: 12
+                fontSize: 12,
+                textAlign: 'center'
             }}> {requestAbsenceInfo}
             </Text>}
-        </View>
+        </View >
     )
 }
 
