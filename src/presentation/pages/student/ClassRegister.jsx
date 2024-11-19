@@ -61,7 +61,7 @@ const ClassRegister = () => {
             if (exists) {
                 return prevClassesList
             }
-            return [...prevClassesList, { ...classInfo, register_status: '...' }]
+            return [...prevClassesList, { ...classInfo, register_status: 'INSERT' }]
         });
 
         setClassId('')
