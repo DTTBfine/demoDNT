@@ -109,6 +109,7 @@ const ClassManage = () => {
                     }}
                     onPress={() => {
                         navigate.navigate('AddClass')
+                        navigate.navigate('AddClass')
                     }}>
                     <Text style={{
                         color: 'white',
