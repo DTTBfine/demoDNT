@@ -15,6 +15,12 @@ const StudentScreen = () => {
     const dispatch = useDispatch()
     const navigate = useNavigation()
     const { userInfo } = useSelector(state => state.user)
+    const avatarLink = userInfo.avatar
+    let avatarUri = ''
+    if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
+        const fileId = avatarLink.split('/d/')[1].split('/')[0];
+        avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
+    }
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 
     if (!userInfo) {
@@ -29,7 +35,7 @@ const StudentScreen = () => {
             <View style={styles.infoBox}>
                 <View style={{ flex: 1 }}>
                     <Image
-                        source={require('../../../../assets/default-avatar.jpg')}
+                        source={avatarUri.length > 0 ? {uri: avatarUri} : require('../../../../assets/default-avatar.jpg')}
                         style={{
                             width: 40,
                             height: 40,
