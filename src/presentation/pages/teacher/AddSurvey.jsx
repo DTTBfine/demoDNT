@@ -2,11 +2,17 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import React, { useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
+import Icon from 'react-native-vector-icons/FontAwesome'
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddSurvey = ({ route }) => {
     const { class_id } = route.params
-    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
-    const [document, setDocument] = useState(null);
+    const { token } = useSelector(state => state.auth)
+
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [showStartPicker, setShowStartPicker] = useState(false);
+    const [showEndPicker, setShowEndPicker] = useState(false);
 
     const [invalidFields, setInvalidFields] = useState([])
     const [payload, setPayload] = useState({
@@ -14,9 +20,16 @@ const AddSurvey = ({ route }) => {
         token: token,
         class_id: class_id,
         title: '',
-        deadline: '', //định dạng: 2024-12-11T14:30:00
+        deadline: {}, //định dạng: 2024-12-11T14:30:00
         description: ''
     })
+
+    const formatDate = (date) => {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
     const [focusField, setFocusField] = useState('')
 
     console.log('payload: ' + JSON.stringify(payload))
@@ -49,7 +62,7 @@ const AddSurvey = ({ route }) => {
             token: token,
             class_id: class_id,
             title: '',
-            deadline: '', //định dạng: 2024-12-11T14:30:00
+            deadline: {}, //định dạng: 2024-12-11T14:30:00
             description: ''
         })
     }
@@ -115,14 +128,61 @@ const AddSurvey = ({ route }) => {
                     fontStyle: 'italic'
                 }}>{payload.file.name} </Text>}
             </View>
-            <View style={{
-                marginTop: 10
-            }}>
-                <Text style={{ textAlign: 'center' }}>Chọn bắt đầu với kết thúc nữa</Text>
+            <View style={styles.dateRow}>
+                <TouchableOpacity
+                    style={styles.dateInput}
+                    onPress={() => setShowStartPicker(true)}
+                >
+                    <View style={styles.row}>
+                        <Text style={startDate ? styles.dateText : styles.placeholderText}>
+                            {startDate ? formatDate(startDate) : 'Bắt đầu'}
+                        </Text>
+                        <Icon name="chevron-down" color="#AA0000" size={18} />
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.dateInput}
+                    onPress={() => setShowEndPicker(true)}
+                >
+                    <View style={styles.row}>
+                        <Text style={endDate ? styles.dateText : styles.placeholderText}>
+                            {endDate ? formatDate(endDate) : 'Kết thúc'}
+                        </Text>
+                        <Icon name="chevron-down" color="#AA0000" size={18} />
+                    </View>
+                </TouchableOpacity>
             </View>
+
+            {showStartPicker && (
+                <DateTimePicker
+                    value={startDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, date) => {
+                        setShowStartPicker(false);
+                        if (date) setStartDate(date);
+                    }}
+                />
+            )}
+            {showEndPicker && (
+                <DateTimePicker
+                    value={endDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, date) => {
+                        setShowEndPicker(false);
+                        if (date) {
+                            setEndDate(date)
+                            let newdate = new Date(date);
+                            setPayload(prev => ({ ...prev, 'deadline': newdate }))
+                        };
+
+                    }}
+                />
+            )}
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10 }]}
+                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: (payload.file.uri || payload.description) ? '#AA0000' : '#CCCCCC' }]}
                     onPress={() => { handleSubmit }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
@@ -133,8 +193,10 @@ const AddSurvey = ({ route }) => {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         padding: 15,
-        gap: 10
+        gap: 10,
+        backgroundColor: '#EEEEEE'
     },
     input: {
         borderWidth: 2,
@@ -143,6 +205,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderColor: '#AA0000',
         fontSize: 16,
+        backgroundColor: 'white'
     },
     textArea: {
         width: '100%',
@@ -154,6 +217,7 @@ const styles = StyleSheet.create({
         padding: 10,
         fontSize: 16,
         color: '#000',
+        backgroundColor: 'white'
     },
     button: {
         backgroundColor: '#AA0000',
@@ -161,7 +225,32 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderRadius: 20,
         width: 200
-    }
+    },
+    dateRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10,
+        padding: 10
+    },
+    dateInput: {
+        flex: 1,
+        borderWidth: 2,
+        borderColor: '#BB0000',
+        borderRadius: 15,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        backgroundColor: 'white',
+    },
+    dateText: {
+        fontSize: 16,
+        color: 'black',
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginEnd: 1
+    },
 })
 
 export default AddSurvey

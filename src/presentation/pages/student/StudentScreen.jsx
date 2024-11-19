@@ -6,12 +6,14 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
 import { convertVNDate, days, getDaysOfWeek } from '../../../utils/format';
+import { useNavigation } from '@react-navigation/native';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
 const StudentScreen = () => {
     const dispatch = useDispatch()
+    const navigate = useNavigation()
     const { userInfo } = useSelector(state => state.user)
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 

@@ -3,14 +3,22 @@ import axiosConfig from '../../../axiosConfig'
 
 export const apiGetMaterialList = async (payload) => {
     console.log(payload)
+    const { token, class_id } = payload
     const response = await axiosConfig(
         {
-            method: 'post',
-            url: '/it5023e/get_material_list',
-            data: {
-                token: payload.token,
-                class_id: payload.class_id
-            }
+            method: 'get',
+            url: `/it5023e/get_material_list?token=${token}&class_id=${class_id}`
+        });
+    return response;
+}
+
+export const apiGetMaterialInfo = async (payload) => {
+    console.log(payload)
+    const { token, material_id } = payload
+    const response = await axiosConfig(
+        {
+            method: 'get',
+            url: `/it5023e/get_material_info?token=${token}&material_id=${material_id}`
         });
     return response;
 }

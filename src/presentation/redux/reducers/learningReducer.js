@@ -3,7 +3,8 @@ import actionTypes from '../actions/actionTypes'
 const initState = {
     myClasses: [],
     classMaterial: [],
-    allStudentAssignment: []
+    allStudentAssignment: [],
+    surveyOfCurrentClass: []
 }
 
 const learningReducer = (state = initState, action) => {
@@ -23,6 +24,11 @@ const learningReducer = (state = initState, action) => {
             return {
                 ...state,
                 allStudentAssignment: action.data || []
+            }
+        case actionTypes.GET_SURVEYS_OF_CLASS:
+            return {
+                ...state,
+                surveyOfCurrentClass: action.data || []
             }
 
         //material
