@@ -12,6 +12,7 @@ import * as actions from '../redux/actions'
 const ProfileScreen = () => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.user)
+    const [invalidFields, setInvalidFields] = useState([])
     const [file, setFile] = useState({})
     console.log('userInfo', userInfo)
     console.log(file)
@@ -81,7 +82,7 @@ const ProfileScreen = () => {
     }
 
     return (
-        <TouchableWithoutFeedback onPress={handleOutsidePress}>
+        <View>
             <View style={styles.container}>
                 <View style={{ alignItems: 'center' }}>
                     <View style={{}}>
@@ -233,7 +234,7 @@ const ProfileScreen = () => {
                     fontSize: 12
                 }}> {submitInfo}</Text>}
             </View>
-        </TouchableWithoutFeedback>
+        </View>
 
     )
 }
