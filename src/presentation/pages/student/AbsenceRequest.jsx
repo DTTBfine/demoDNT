@@ -246,13 +246,13 @@ const AbsenceRequest = ({ route }) => {
             </View>
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10 }]}
+                    style={[styles.button, { backgroundColor: (payload.file && payload.reason && payload.title) ? '#AA0000' : '#CCCCCC', width: 150, borderRadius: 10 }]}
                     onPress={async () => {
                         await handleSubmit()
                     }}>
                     <Text
                         style={{
-                            color: "white",
+                            color: (payload.file && payload.reason && payload.title) ? 'white' : 'gray',
                             fontSize: 17,
                             fontStyle: 'italic',
                             fontWeight: 'bold',
@@ -263,22 +263,26 @@ const AbsenceRequest = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            {invalidFields.size > 0 && invalidFields.has(invalidFieldSubmit) && <Text style={{
-                paddingHorizontal: 15,
-                fontStyle: 'italic',
-                color: 'red',
-                fontSize: 12,
-                textAlign: 'center'
-            }}> {invalidFields.get(invalidFieldSubmit)}
-            </Text>}
-            {requestAbsenceInfo && <Text style={{
-                paddingHorizontal: 15,
-                fontStyle: 'italic',
-                color: 'green',
-                fontSize: 12,
-                textAlign: 'center'
-            }}> {requestAbsenceInfo}
-            </Text>}
+            {
+                invalidFields.size > 0 && invalidFields.has(invalidFieldSubmit) && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12,
+                    textAlign: 'center'
+                }}> {invalidFields.get(invalidFieldSubmit)}
+                </Text>
+            }
+            {
+                requestAbsenceInfo && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'green',
+                    fontSize: 12,
+                    textAlign: 'center'
+                }}> {requestAbsenceInfo}
+                </Text>
+            }
         </View >
     )
 }
