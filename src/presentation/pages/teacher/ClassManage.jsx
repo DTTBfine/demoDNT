@@ -50,7 +50,7 @@ const ClassManage = () => {
                         borderRadius: 15
                     }}
                     onPress={() => {
-                        setClassList(myClasses.filter(classItem => classItem.class_id === classId))
+                        setClassList(myClasses?.length > 0 ? myClasses?.filter(classItem => classItem.class_id === classId) : [])
                     }}>
                     <Text style={{ color: 'white', fontWeight: 'bold', fontStyle: 'italic', fontSize: 16 }}> Tìm kiếm</Text>
                 </TouchableOpacity>

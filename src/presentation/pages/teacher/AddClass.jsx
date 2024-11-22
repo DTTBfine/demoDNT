@@ -33,31 +33,29 @@ const AddClass = () => {
             return;
         }
 
-        try {
-            setLoading(true);
-            const payload = {
-                token: token,
-                class_id: classId,
-                class_name: className,
-                class_type: classType,
-                start_date: startDate.toISOString().split('T')[0],
-                end_date: endDate.toISOString().split('T')[0],
-                max_student_amount: parseInt(maxStudentAmount,10),
-            };
-            console.log('payload-create-class:',payload);
-            const response = await apiCreateClass(payload);
-            if (response.status === 200) {
-                console.log(response.data.message)
-                Alert.alert('Thành công', 'Tạo lớp học thành công!');
-            } else {
-                Alert.alert('Lỗi', response.data.message || 'Không thể tạo lớp học.');
-            }
-        } catch (error) {
-            console.error(error);
-            Alert.alert('Lỗi', error.response?.data?.message || 'Không thể tạo lớp học.');
-        } finally {
-            setLoading(false);
+        setLoading(true);
+        const payload = {
+            token: token,
+            class_id: classId,
+            class_name: className,
+            class_type: classType,
+            start_date: startDate.toISOString().split('T')[0],
+            end_date: endDate.toISOString().split('T')[0],
+            max_student_amount: parseInt(maxStudentAmount,10),
+        };
+        console.log('payload-create-class:',payload);
+        const response = await apiCreateClass(payload);
+        console.log("response: " + JSON.stringify(response))    
+        if (response?.status !== 200) {
+            console.log("hello hello")
+            Alert.alert('Lỗi', error.response?.data?.meta.message || 'Không thể tạo lớp học.');
+        } else {
+            Alert.alert('Thành công', 'Tạo lớp học thành công!');
         }
+
+        setLoading(false)
+
+
     }
 
     return (

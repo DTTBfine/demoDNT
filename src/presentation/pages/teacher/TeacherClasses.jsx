@@ -7,7 +7,7 @@ import { classNameCode, getColorForId } from '../../../utils/format'
 const TeacherClasses = () => {
     const navigate = useNavigation()
     const { myClasses } = useSelector(state => state.learning)
-    console.log(JSON.stringify(myClasses))
+    console.log("classes: " + JSON.stringify(myClasses))
 
     const [classList, setClassList] = useState(myClasses)
     const [classId, setClassId] = useState('')
@@ -46,7 +46,7 @@ const TeacherClasses = () => {
                         borderRadius: 15
                     }}
                     onPress={() => {
-                        setClassList(myClasses.filter(classItem => classItem.class_id === classId))
+                        setClassList(myClasses?.length > 0 ? myClasses.filter(classItem => classItem.class_id === classId) : [])
                     }}>
                     <Text style={{ color: 'white', fontWeight: 'bold', fontStyle: 'italic', fontSize: 16 }}> Tìm kiếm</Text>
                 </TouchableOpacity>

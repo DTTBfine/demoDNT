@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard } from 'react-native'
 import React, { useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
@@ -16,7 +16,7 @@ const AddSurvey = ({ route }) => {
 
     const [invalidFields, setInvalidFields] = useState([])
     const [payload, setPayload] = useState({
-        file: {},
+        file: null,
         token: token,
         class_id: class_id,
         title: '',
@@ -33,6 +33,17 @@ const AddSurvey = ({ route }) => {
     const [focusField, setFocusField] = useState('')
 
     console.log('payload: ' + JSON.stringify(payload))
+
+    const resetInput = () => {
+        setPayload({
+            file: null,
+            token: token,
+            class_id: class_id,
+            title: '',
+            deadline: {}, //định dạng: 2024-12-11T14:30:00
+            description: ''
+        })
+    }
 
     const handleDocumentSelection = async () => {
         try {
@@ -57,14 +68,7 @@ const AddSurvey = ({ route }) => {
     }
 
     const handleSubmit = () => {
-        setPayload({
-            file: {},
-            token: token,
-            class_id: class_id,
-            title: '',
-            deadline: {}, //định dạng: 2024-12-11T14:30:00
-            description: ''
-        })
+        
     }
 
     return (

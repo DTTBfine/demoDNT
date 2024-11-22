@@ -72,6 +72,15 @@ const AbsenceRequest = ({ route }) => {
     const [focusField, setFocusField] = useState('')
     const [showDatePicker, setShowDatePicker] = useState(false)
 
+    const resetInput = () => {
+        setPayload(prev => ({
+            ...prev,
+            reason: '',
+            title: '',
+            file: null
+        }));
+    }
+
 
     const handleDocumentSelection = async () => {
         setInvalidFields(new Map())
@@ -109,8 +118,9 @@ const AbsenceRequest = ({ route }) => {
         if (!validateInput(payload.title, payload.reason, payload.file)) {
             return
         }
+        setRequestAbsenceInfo('Đang gửi đơn xin nghỉ học...')
         const response = await apis.apiRequestAbsence(payload)
-
+        console.log("absence response: " + JSON.stringify(response.data))
         if (response?.data.meta.code !== responseCodes.statusOK) {
             return setInvalidFields(prev => {
                 const newFields = new Map(prev)
@@ -119,7 +129,7 @@ const AbsenceRequest = ({ route }) => {
                 return newFields
             })
         }
-
+        resetInput()
         setRequestAbsenceInfo("Gửi xin phép nghỉ học thành công")
         setPayload({
             token: token,

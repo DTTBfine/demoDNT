@@ -28,20 +28,28 @@ export const apiGetClassInfo = async (payload) => {
 }
 
 export const apiCreateClass = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/create_class',
-        data: {
-            token: payload.token,
-            class_id: payload.class_id,
-            class_name: payload.class_name,
-            class_type: payload.class_type,
-            start_date: payload.start_date,
-            end_date: payload.end_date,
-            max_student_amount: payload.max_student_amount
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/create_class',
+            data: {
+                token: payload.token,
+                class_id: payload.class_id,
+                class_name: payload.class_name,
+                class_type: payload.class_type,
+                start_date: payload.start_date,
+                end_date: payload.end_date,
+                max_student_amount: payload.max_student_amount
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("failed to create class: " + error)
         }
-    })
-    return response
+        return error.response
+    }
+    
 }
 
 export const apiEditClass = async (payload) => {

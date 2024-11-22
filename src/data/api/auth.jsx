@@ -5,6 +5,7 @@ export const apiLogin = async (payload) => {
     console.log('vào apiLogin')
     const deviceId = uuid.v4()
     console.log('deviceId: ' + deviceId)
+    console.log("base url: " + axiosConfig.defaults.baseURL)
     try {
         const response = await axiosConfig(
             {
@@ -16,7 +17,6 @@ export const apiLogin = async (payload) => {
                     deviceId: deviceId
                 }
             });
-        console.log('gọi api xong và có response: ' + response)
         return response;
     } catch (error) {
         if (error.response) {

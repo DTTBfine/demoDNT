@@ -9,7 +9,7 @@ export const getClassList = (payload) => async (dispatch) => {
     if (response?.data.meta.code === responseCodes.statusOK) {
         dispatch({
             type: actionTypes.GET_CLASS_LIST,
-            data: response.data.data
+            data: response.data.data.page_content
         })
     }
     else {

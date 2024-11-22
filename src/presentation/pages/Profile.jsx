@@ -85,7 +85,6 @@ const ProfileScreen = () => {
                 console.log('User canceled image selection.');
                 return; // Không tiếp tục nếu bị hủy
             }
-            console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
                 const { mimeType, uri, name } = result.assets[0]
                 setFile({
@@ -111,7 +110,7 @@ const ProfileScreen = () => {
             return
         }
 
-
+        setSubmitInfo('Đang chờ thay đổi từ server...')
         const response = await apis.apiChangeInfoAfterSignUp({
             token: token,
             name: name,
