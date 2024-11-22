@@ -1,15 +1,19 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Alert } from 'react-native'
 import React, { useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
+import * as apis from '../../../data/api'
+import { responseCodes } from '../../../utils/constants/responseCodes';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const AddMaterial = ({ route }) => {
     const { class_id } = route.params
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const [isLoading, setIsLoading] = useState(false)
 
     const [invalidFields, setInvalidFields] = useState([])
     const [payload, setPayload] = useState({
-        file: {},
+        file: null,
         token: token,
         classId: class_id,
         title: '',
@@ -18,7 +22,25 @@ const AddMaterial = ({ route }) => {
     })
     const [focusField, setFocusField] = useState('')
 
-    console.log('payload: ' + JSON.stringify(payload))
+
+    const validateInput = () => {
+        if (!payload) {
+            return false
+        }
+        return payload.file && payload.title && payload.description && payload.materialType
+    }
+
+    const resetInput = () => {
+        setPayload({
+            file: null,
+            token: token,
+            classId: class_id,
+            title: '',
+            description: '',
+            materialType: ''
+        })
+        Keyboard.dismiss()
+    }
 
     const handleDocumentSelection = async () => {
         try {
@@ -35,15 +57,42 @@ const AddMaterial = ({ route }) => {
 
             console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
-                setPayload(prev => ({ ...prev, 'file': result.assets[0] }))
+                const {mimeType, uri, name} = result.assets[0]
+                setPayload(prev => ({ 
+                    ...prev, 
+                    'file': {
+                    type: mimeType,
+                    uri: uri,
+                    name: name
+                    },
+                    'materialType': mimeType
+            }))
             }
         } catch (err) {
             console.error('Error picking document:', err);
         }
     }
 
+    const handleSubmit = async () => {
+        setIsLoading(true)
+        const response = await apis.apiUploadMaterial(payload)
+        setIsLoading(false)
+        if (response.data?.code !== responseCodes.statusOK) {
+            Alert.alert("Error", response.data?.message || "Tải tài liệu lên không thành công")
+        } else {
+            Alert.alert("Success", response.data?.message || "Tải tài liệu thành công")
+        }
+
+        resetInput()
+    }
+
     return (
         <View style={styles.container}>
+            <Spinner
+                visible={isLoading}
+                textContent={'Chờ xử lý...'}
+                textStyle={styles.spinnerTextStyle}
+            />
             <View style={{
                 gap: 15,
                 padding: 10,
@@ -97,8 +146,10 @@ const AddMaterial = ({ route }) => {
             </View>
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10 }]}
-                    onPress={() => { }}>
+                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInput() ? '#AA0000' : '#CCCCCC' }]}
+                    onPress={async () => {
+                        await handleSubmit()
+                     }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>
@@ -110,6 +161,9 @@ const styles = StyleSheet.create({
     container: {
         padding: 15,
         gap: 10
+    },
+    spinnerTextStyle: {
+        color: '#FFF'
     },
     input: {
         borderWidth: 2,

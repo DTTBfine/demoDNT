@@ -14,7 +14,7 @@ export const apiLogin = async (payload) => {
                 data: {
                     email: payload.email,
                     password: payload.password,
-                    deviceId: deviceId
+                    device_id: deviceId
                 }
             });
         return response;

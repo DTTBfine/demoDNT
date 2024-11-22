@@ -49,8 +49,13 @@ const CustomTeacherClass = ({ id, name, type }) => {
                     }}> {type}</Text>
                 </View>
             </View>
-            <TouchableOpacity onPress={() => navigate.navigate('addMaterial', { class_id: id })}>
-                <Text style={{
+            <TouchableOpacity 
+                style={{
+                    padding: 10, // Adds extra space around the button
+                }}
+                onPress={() => navigate.navigate('addMaterial', { class_id: id })}>
+                <Text 
+                style={{
                     fontSize: 38,
                     fontWeight: '300',
                     color: 'white'

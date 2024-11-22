@@ -6,10 +6,10 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native'
 
 const ClassScreen = ({ route }) => {
+    const navigate = useNavigation()
     const { id, name, tabName } = route.params
     const [currentTab, setCurrentTab] = useState(tabName)
     const { role } = useSelector(state => state.auth)
-
     return (
         <View style={styles.cotainer}>
             <View style={{
@@ -28,6 +28,11 @@ const ClassScreen = ({ route }) => {
                 {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} />}
                 {currentTab === 'Tài liệu' && <MaterialList />}
             </ScrollView>
+            <Icon name="plus" color='red' size={40}
+                    onPress={() => {
+                        navigate.navigate("addMaterial", { class_id: id })
+                    }}
+            />
         </View>
     )
 }
