@@ -130,7 +130,7 @@ const AddSurvey = ({ route }) => {
                     textAlign: 'center',
                     padding: 10,
                     fontStyle: 'italic'
-                }}>{payload.file.name} </Text>}
+                }}>{payload.file ? payload.file.name : ''} </Text>}
             </View>
             <View style={styles.dateRow}>
                 <TouchableOpacity
