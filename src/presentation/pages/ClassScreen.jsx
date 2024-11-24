@@ -74,7 +74,7 @@ const ClassScreen = ({ route }) => {
                                         fontWeight: '500',
                                         marginBottom: 10,
                                     }}>{currentSurvey.title}</Text>
-                                    {<Text style={{ textAlign: 'right', fontStyle: 'italic', color: 'gray', fontSize: 13 }}>Hạn nộp: {convertVNDate(currentSurvey.deadline)}</Text>}
+                                    <Text style={{ textAlign: 'right', fontStyle: 'italic', color: 'gray', fontSize: 13 }}>Hạn nộp: {convertVNDate(currentSurvey.deadline)}</Text>
                                     <View style={{ paddingVertical: 15, gap: 15 }}>
                                         <View>
                                             <Text style={{ fontWeight: '500' }}>Mô tả:</Text>
@@ -118,7 +118,8 @@ const ClassScreen = ({ route }) => {
                                         role === 'STUDENT' && <TouchableOpacity onPress={() => {
                                             setShowSurveyInfo(false)
                                             console.log('navigate to submit survey')
-                                            navigate.navigate("testUI")
+                                            const { id, title, description, file_url, deadline } = currentSurvey
+                                            navigate.navigate("submitSurvey", { id, title, description, file_url, deadline })
                                         }}
                                             style={{
                                                 backgroundColor: '#CC0000',
