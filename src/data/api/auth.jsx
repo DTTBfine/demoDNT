@@ -14,7 +14,7 @@ export const apiLogin = async (payload) => {
                 data: {
                     email: payload.email,
                     password: payload.password,
-                    deviceId: deviceId
+                    device_id: deviceId
                 }
             });
         return response;
@@ -29,9 +29,9 @@ export const apiLogin = async (payload) => {
 
             }
             return error.response
-        } 
+        }
         // Nếu không có response từ server (network error)
-        console.error("Network error or request was not completed:", error.message);    
+        console.error("Network error or request was not completed:", error.message);
     }
 }
 
@@ -56,7 +56,7 @@ export const apiSignUp = async (payload) => {
         }
         return error.response;
     }
-    
+
 }
 
 export const apiCheckVerifyCode = async (payload) => {
@@ -105,7 +105,7 @@ export const apiChangeInfoAfterSignUp = async (payload) => {
         return error.response
     }
 
-    
+
 }
 
 export const apiChangePassword = async (payload) => {

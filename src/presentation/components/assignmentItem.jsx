@@ -1,46 +1,41 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
+import { convertVNDate, getColorForId } from '../../utils/format'
 
-const AssignmentItem = ({ }) => {
+const AssignmentItem = ({ item }) => {
     return (
         <View style={styles.container}>
-            <View style={{
-                flex: 1,
-            }}>
-                <View style={{
-                    width: 30,
-                    height: 30,
-                    backgroundColor: '#009999',
-                    borderRadius: 6,
-                    justifyContent: 'center'
-                }}>
+            <View style={{ flexDirection: 'row', gap: 15, alignItems: 'flex-start' }}>
+                <View style={{}}>
+                    <View style={{
+                        marginTop: 5,
+                        width: 30,
+                        height: 30,
+                        backgroundColor: getColorForId(item.class_id),
+                        borderRadius: 6,
+                        justifyContent: 'center'
+                    }}>
+                        <Text style={{
+                            color: 'white',
+                            textAlign: 'center',
+                        }}>BT</Text>
+                    </View>
+                </View>
+                <View style={{}}>
                     <Text style={{
-                        color: 'white',
-                        textAlign: 'center',
-                    }}>ST</Text>
+                        fontSize: 16,
+                        fontWeight: 500
+                    }}>{item?.title}</Text>
+                    <Text style={{
+                        color: 'gray'
+                    }}>Deadline: {convertVNDate(item.deadline)} </Text>
                 </View>
             </View>
-            <View style={{
-                flex: 8
-            }}>
-                <Text style={{
-                    fontSize: 16,
-                    fontWeight: 500
-                }}> Tên bài</Text>
-                <Text style={{
-                    color: 'gray'
-                }}> Đã làm gì lúc </Text>
-                <Text style={{
-                    color: 'gray'
-                }}> Tên lớp</Text>
-            </View>
-            <View style={{
-                flex: 3
-            }}>
+            <View style={{}}>
                 <Text style={{
                     fontSize: 12,
                     fontWeight: 500
-                }}>10/10 điểm</Text>
+                }}>Chưa có điểm</Text>
             </View>
         </View>
     )
@@ -56,7 +51,9 @@ const styles = StyleSheet.create({
         elevation: 5,
         borderRadius: 15,
         padding: 15,
-        gap: 15
+        justifyContent: 'space-between',
+        marginVertical: 10,
+        marginHorizontal: 20
     }
 })
 

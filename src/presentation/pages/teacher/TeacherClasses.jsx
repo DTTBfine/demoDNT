@@ -110,6 +110,9 @@ const ClassBox = ({ class_id, class_name, class_type, currentId, setCurrentId })
                 borderTopWidth: 1,
             }}>
                 <Text style={styles.textBar} onPress={() => {
+                    navigate.navigate('teacherClassScreen', { name: class_name, id: class_id, type: class_type, tabName: 'Chung' })
+                }}> Chung </Text>
+                <Text style={styles.textBar} onPress={() => {
                     navigate.navigate('teacherClassScreen', { name: class_name, id: class_id, type: class_type, tabName: 'Bài tập' })
                 }}> Bài tập </Text>
                 <Text style={styles.textBar} onPress={() => {

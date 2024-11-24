@@ -195,3 +195,18 @@ export const getColorForId = (id) => {
     return colorMap.get(id);
 };
 
+export const getIconForFileType = (fileType) => {
+    // Tạo một đối tượng ánh xạ giữa định dạng file và icon tương ứng
+    const fileIcons = {
+        'image/png': 'image',
+        'image/jpeg': 'image',
+        'application/pdf': 'file-pdf-o',
+        'text/plain': 'file-text-o',
+        'application/msword': 'file-word-o',
+        'application/vnd.ms-excel': 'file-excel-o',
+        'application/zip': 'file-archive-o',
+    };
+
+    // Trả về icon tương ứng với kiểu file, nếu không có trả về một icon mặc định
+    return fileIcons[fileType] || 'file';
+};

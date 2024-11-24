@@ -46,6 +46,9 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
                     borderTopWidth: 1,
                 }}>
                     <Text style={styles.textBar} onPress={() => {
+                        navigate.navigate('studentClassScreen', { name: name, id: id, teacher: teacher, tabName: 'Chung' })
+                    }}> Chung </Text>
+                    <Text style={styles.textBar} onPress={() => {
                         navigate.navigate('studentClassScreen', { name: name, id: id, teacher: teacher, tabName: 'Bài tập' })
                     }}> Bài tập </Text>
                     <Text style={styles.textBar} onPress={() => {

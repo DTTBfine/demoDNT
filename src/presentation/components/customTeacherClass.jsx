@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { classNameCode, getColorForId } from '../../utils/format'
 import { useSelector } from 'react-redux'
-import * as DocumentPicker from 'expo-document-picker';
+import Icon from 'react-native-vector-icons/FontAwesome6'
 
 const CustomTeacherClass = ({ id, name, type }) => {
     const navigate = useNavigation()
@@ -45,16 +45,18 @@ const CustomTeacherClass = ({ id, name, type }) => {
                     }}> {name} </Text>
                     <Text style={{
                         fontSize: 12,
-                        color: '#CCCCCC'
-                    }}> {type}</Text>
+                        color: '#CCCCCC',
+                        paddingLeft: 5
+                    }}> {id} - {type}</Text>
                 </View>
             </View>
-            <TouchableOpacity onPress={() => navigate.navigate('addMaterial', { class_id: id })}>
-                <Text style={{
+            <TouchableOpacity onPress={() => navigate.navigate('addMaterial', { class_id: id })} >
+                <Icon name='plus' color='white' size={24} onPress={() => navigate.navigate('addMaterial', { class_id: id })} />
+                {/* <Text style={{
                     fontSize: 38,
                     fontWeight: '300',
                     color: 'white'
-                }}>+</Text>
+                }}>+</Text> */}
             </TouchableOpacity>
         </View>
     )

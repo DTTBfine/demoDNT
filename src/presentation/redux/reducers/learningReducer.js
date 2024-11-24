@@ -2,6 +2,7 @@ import actionTypes from '../actions/actionTypes'
 
 const initState = {
     myClasses: [],
+    currentClass: {},
     classMaterial: [],
     allStudentAssignment: [],
     surveyOfCurrentClass: []
@@ -14,6 +15,11 @@ const learningReducer = (state = initState, action) => {
             return {
                 ...state,
                 myClasses: action.data || []
+            }
+        case actionTypes.GET_CLASS_INFO:
+            return {
+                ...state,
+                currentClass: action.data || {}
             }
         //attendance
 
