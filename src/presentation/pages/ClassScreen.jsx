@@ -1,15 +1,16 @@
-import { View, Text, ScrollView, StyleSheet, Dimensions, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import AssignmentItem from '../components/assignmentItem'
+import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable } from 'react-native'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import Icon5 from 'react-native-vector-icons/FontAwesome5'
 import { useNavigation } from '@react-navigation/native'
 import * as actions from '../redux/actions'
-import { getIconForFileType } from '../../utils/format'
+import { convertVNDate, getColorForId, getIconForFileType } from '../../utils/format'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
+
+const GlobalContext = createContext()
 
 const ClassScreen = ({ route }) => {
     const { id, name, type, tabName } = route.params
@@ -17,7 +18,11 @@ const ClassScreen = ({ route }) => {
     const { token, userId, role } = useSelector(state => state.auth)
     const { currentClass } = useSelector(state => state.learning)
     const dispatch = useDispatch()
+    const navigate = useNavigation()
     const [loadData, setLoadData] = useState(true)
+
+    const [currentSurvey, setCurrentSurvey] = useState(null)
+    const [showSurveyInfo, setShowSurveyInfo] = useState(false)
 
     console.log(JSON.stringify(currentClass))
     console.log('token, id: ' + token + ' ' + userId)
@@ -44,32 +49,91 @@ const ClassScreen = ({ route }) => {
 
     return (
         <View style={styles.cotainer}>
-            <View style={{
-                flexDirection: 'row',
-                borderBottomWidth: 1,
-                borderColor: '#DDDDDD'
-            }}>
-                <View style={[styles.tabItem, currentTab === "Chung" && styles.tabActive]}>
-                    <Text onPress={() => setCurrentTab('Chung')}
-                        style={[styles.tabName, currentTab === "Chung" && styles.tabNameActive]}>Chung</Text>
-                    {currentTab === "Chung" && <Icon name='circle' color="#BB0000" size={8} style={styles.circleActive} />}
+            <GlobalContext.Provider value={{ currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo }} >
+                {
+                    currentSurvey && (
+                        <Modal
+                            animationType="fade"
+                            transparent={true}
+                            visible={showSurveyInfo}
+                            onRequestClose={() => setShowSurveyInfo(false)}
+                        >
+                            <Pressable style={styles.modalBackground} onPress={() => setShowSurveyInfo(false)}>
+                                <View style={styles.modalContainer} onStartShouldSetResponder={() => true} onMoveShouldSetResponder={() => true}>
+                                    <Text style={{
+                                        fontSize: 24,
+                                        fontWeight: '500',
+                                        marginBottom: 10,
+                                    }}>{currentSurvey.title}</Text>
+                                    {<Text style={{ textAlign: 'right', fontStyle: 'italic', color: 'gray', fontSize: 13 }}>Hạn nộp: {convertVNDate(currentSurvey.deadline)}</Text>}
+                                    <View style={{ paddingVertical: 15, gap: 15 }}>
+                                        <View>
+                                            <Text style={{ fontWeight: '500' }}>Mô tả:</Text>
+                                            {currentSurvey.description && <Text>đây là 1 bài siếu siêu siêu khó</Text>}
+                                        </View>
+                                        <View>
+                                            <Text style={{ fontWeight: '500' }}>File mô tả: </Text>
+                                            {currentSurvey.file_url && <Text>{currentSurvey.file_url}</Text>}
+                                        </View>
+                                    </View>
+                                    {
+                                        role === 'LECTURER' && <View style={styles.row}>
+                                            <TouchableOpacity
+                                                style={styles.button}
+                                            >
+                                                <Text style={styles.buttonText}>Xóa</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                style={styles.button}
+                                            >
+                                                <Text style={styles.buttonText}>Chỉnh sửa</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    }
+                                    {
+                                        role === 'STUDENT' && <TouchableOpacity onPress={() => { }}
+                                            style={{
+                                                backgroundColor: '#CC0000',
+                                                paddingVertical: 8,
+                                                borderRadius: 15,
+                                                alignItems: 'center',
+                                                margin: 10,
+                                            }}>
+                                            <Text style={styles.buttonText}>Nộp bài</Text>
+                                        </TouchableOpacity>
+                                    }
+                                </View>
+                            </Pressable>
+                        </Modal>
+                    )
+                }
+                <View style={{
+                    flexDirection: 'row',
+                    borderBottomWidth: 1,
+                    borderColor: '#DDDDDD'
+                }}>
+                    <View style={[styles.tabItem, currentTab === "Chung" && styles.tabActive]}>
+                        <Text onPress={() => setCurrentTab('Chung')}
+                            style={[styles.tabName, currentTab === "Chung" && styles.tabNameActive]}>Chung</Text>
+                        {currentTab === "Chung" && <Icon name='circle' color="#BB0000" size={8} style={styles.circleActive} />}
+                    </View>
+                    <View style={[styles.tabItem, currentTab === "Bài tập" && styles.tabActive]}>
+                        <Text onPress={() => setCurrentTab('Bài tập')}
+                            style={[styles.tabName, currentTab === "Bài tập" && styles.tabNameActive]}>Bài tập</Text>
+                        {currentTab === "Bài tập" && <Icon name='circle' color="#BB0000" size={8} style={styles.circleActive} />}
+                    </View>
+                    <View style={[styles.tabItem, currentTab === "Tài liệu" && styles.tabActive]}>
+                        <Text onPress={() => setCurrentTab('Tài liệu')}
+                            style={[styles.tabName, currentTab === "Tài liệu" && styles.tabNameActive]}>Tài liệu</Text>
+                        {currentTab === "Tài liệu" && <Icon name='circle' color="#BB0000" size={8} style={styles.circleActive} />}
+                    </View>
                 </View>
-                <View style={[styles.tabItem, currentTab === "Bài tập" && styles.tabActive]}>
-                    <Text onPress={() => setCurrentTab('Bài tập')}
-                        style={[styles.tabName, currentTab === "Bài tập" && styles.tabNameActive]}>Bài tập</Text>
-                    {currentTab === "Bài tập" && <Icon name='circle' color="#BB0000" size={8} style={styles.circleActive} />}
+                <View style={{ height: height - 80, paddingVertical: 10 }}>
+                    {currentTab === 'Chung' && <About class_id={id} class_type={type} />}
+                    {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} />}
+                    {currentTab === 'Tài liệu' && <MaterialList />}
                 </View>
-                <View style={[styles.tabItem, currentTab === "Tài liệu" && styles.tabActive]}>
-                    <Text onPress={() => setCurrentTab('Tài liệu')}
-                        style={[styles.tabName, currentTab === "Tài liệu" && styles.tabNameActive]}>Tài liệu</Text>
-                    {currentTab === "Tài liệu" && <Icon name='circle' color="#BB0000" size={8} style={styles.circleActive} />}
-                </View>
-            </View>
-            <View style={{ height: height - 80, paddingVertical: 10 }}>
-                {currentTab === 'Chung' && <About class_id={id} class_type={type} />}
-                {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} />}
-                {currentTab === 'Tài liệu' && <MaterialList />}
-            </View>
+            </GlobalContext.Provider>
         </View>
     )
 }
@@ -235,6 +299,62 @@ const UpcomingSurvey = ({ class_id }) => {
     )
 }
 
+const AssignmentItem = ({ item }) => {
+    const { currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo } = useContext(GlobalContext)
+    return (
+        <TouchableOpacity onPress={() => {
+            setCurrentSurvey(item)
+            setShowSurveyInfo(true)
+        }}
+            style={{
+                backgroundColor: 'white',
+                flexDirection: 'row',
+                borderBottomWidth: 1,
+                borderRightWidth: 1,
+                borderColor: '#CCCCCC',
+                elevation: 5,
+                borderRadius: 15,
+                padding: 15,
+                justifyContent: 'space-between',
+                marginVertical: 10,
+                marginHorizontal: 20
+            }}>
+            <View style={{ flexDirection: 'row', gap: 15, alignItems: 'flex-start' }}>
+                <View style={{}}>
+                    <View style={{
+                        marginTop: 5,
+                        width: 30,
+                        height: 30,
+                        backgroundColor: getColorForId(item.class_id),
+                        borderRadius: 6,
+                        justifyContent: 'center'
+                    }}>
+                        <Text style={{
+                            color: 'white',
+                            textAlign: 'center',
+                        }}>BT</Text>
+                    </View>
+                </View>
+                <View style={{}}>
+                    <Text style={{
+                        fontSize: 16,
+                        fontWeight: 500
+                    }}>{item?.title}</Text>
+                    <Text style={{
+                        color: 'gray'
+                    }}>Deadline: {convertVNDate(item.deadline)} </Text>
+                </View>
+            </View>
+            <View style={{}}>
+                <Text style={{
+                    fontSize: 12,
+                    fontWeight: 500
+                }}>Chưa có điểm</Text>
+            </View>
+        </TouchableOpacity>
+    )
+}
+
 const MaterialList = () => {
     const { classMaterial } = useSelector(state => state.learning)
 
@@ -324,7 +444,38 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         position: 'absolute',
         top: 35
-    }
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    },
+    modalContainer: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+    },
+    button: {
+        flex: 1,
+        backgroundColor: '#CC0000',
+        paddingVertical: 8,
+        borderRadius: 15,
+        alignItems: 'center',
+        margin: 10,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 17,
+        fontStyle: 'italic',
+        fontWeight: '600',
+    },
+    row: {
+        flexDirection: 'row',
+        paddingHorizontal: 10,
+        gap: 5
+    },
 })
 
 export default ClassScreen
