@@ -13,19 +13,31 @@ export const apiGetAllSurveys = async (payload) => {
 }
 
 export const apiCreateSurvey = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '',
-        data: {
-            file: payload.file,
-            token: payload.token,
-            class_id: payload.class_id,
-            title: payload.title,
-            deadline: payload.deadline, //định dạng: 2024-12-11T14:30:00
-            description: payload.description
+    var formDataBody = new FormData()
+    for (const key in payload) {
+        if (payload[key]) {
+            formDataBody.append(key, payload[key])
+        } 
+    }
+
+    console.log("body: " + JSON.stringify(formDataBody))
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/create_survey',
+            data: formDataBody,
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+    
+        console.log("response: " + JSON.stringify(response.data))
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("failed to create survey: " + error)
         }
-    })
-    return response
+        return error.response
+    }
+    
 }
 
 export const apiEditSurvey = async (payload) => {

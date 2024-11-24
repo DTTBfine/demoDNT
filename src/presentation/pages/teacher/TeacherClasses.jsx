@@ -7,7 +7,6 @@ import { classNameCode, getColorForId } from '../../../utils/format'
 const TeacherClasses = () => {
     const navigate = useNavigation()
     const { myClasses } = useSelector(state => state.learning)
-    console.log("classes: " + JSON.stringify(myClasses))
 
     const [classList, setClassList] = useState(myClasses)
     const [classId, setClassId] = useState('')

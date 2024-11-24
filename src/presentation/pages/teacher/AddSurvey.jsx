@@ -1,13 +1,17 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard } from 'react-native'
-import React, { useState, useCallback } from 'react'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Alert } from 'react-native'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as apis from '../../../data/api'
+import { responseCodes } from '../../../utils/constants/responseCodes';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const AddSurvey = ({ route }) => {
     const { class_id } = route.params
     const { token } = useSelector(state => state.auth)
+    const [isLoading, setIsLoading] = useState(false)
 
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
@@ -18,11 +22,24 @@ const AddSurvey = ({ route }) => {
     const [payload, setPayload] = useState({
         file: null,
         token: token,
-        class_id: class_id,
+        classId: class_id,
         title: '',
         deadline: {}, //định dạng: 2024-12-11T14:30:00
         description: ''
     })
+
+    useEffect(() => {
+        if (startDate) {
+            //2 weeks from startDate
+            let defaultDeadline = new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000)
+            console.log("default deadline: " + defaultDeadline.toISOString())
+            setEndDate(defaultDeadline)
+            setPayload(prev => ({ ...prev, 'deadline': defaultDeadline.toISOString().split('.')[0] }))
+        }
+    }, [startDate])
+
+    // console.log("payload: " + JSON.stringify(payload))
+
 
     const formatDate = (date) => {
         const day = date.getDate().toString().padStart(2, '0');
@@ -32,17 +49,23 @@ const AddSurvey = ({ route }) => {
     };
     const [focusField, setFocusField] = useState('')
 
-    console.log('payload: ' + JSON.stringify(payload))
 
     const resetInput = () => {
+        setStartDate(null)
+        setEndDate(null)
         setPayload({
             file: null,
             token: token,
-            class_id: class_id,
+            classId: class_id,
             title: '',
-            deadline: {}, //định dạng: 2024-12-11T14:30:00
+            deadline: '', //định dạng: 2024-12-11T14:30:00
             description: ''
         })
+        Keyboard.dismiss()
+    }
+
+    const validateInput = () => {
+        return payload.title && endDate
     }
 
     const handleDocumentSelection = async () => {
@@ -60,19 +83,40 @@ const AddSurvey = ({ route }) => {
 
             console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
-                setPayload(prev => ({ ...prev, 'file': result.assets[0] }))
+                const {mimeType, uri, name} = result.assets[0]
+                setPayload(prev => ({ ...prev, 'file': {
+                    type: mimeType,
+                    uri: uri,
+                    name: name
+                }}))
             }
         } catch (err) {
             console.error('Error picking document:', err);
         }
     }
 
-    const handleSubmit = () => {
-        
+    const handleSubmit = async () => {
+        setIsLoading(true)
+        const response = await apis.apiCreateSurvey(payload)
+        setIsLoading(false)
+        if (response.data?.meta?.code !== responseCodes.statusOK) {
+            Alert.alert("Error", response.data?.meta?.message || "Tạo bài kiểm tra không thành công")
+        } else {
+            Alert.alert("Success", response.data?.meta?.message || "Tạo bài kiểm tra thành công")
+        }
+
+        resetInput()
     }
 
     return (
         <View style={styles.container}>
+            <Spinner
+                visible={isLoading}
+                textContent={'Chờ xử lý...'}
+                textStyle={{
+                    color: '#FFF'
+                }}
+            />
             <View style={{
                 gap: 15,
                 padding: 10,
@@ -130,7 +174,7 @@ const AddSurvey = ({ route }) => {
                     textAlign: 'center',
                     padding: 10,
                     fontStyle: 'italic'
-                }}>{payload.file.name} </Text>}
+                }}>{payload.file ? payload.file.name : ''} </Text>}
             </View>
             <View style={styles.dateRow}>
                 <TouchableOpacity
@@ -162,9 +206,12 @@ const AddSurvey = ({ route }) => {
                     value={startDate || new Date()}
                     mode="date"
                     display="default"
-                    onChange={(event, date) => {
+                    onChange={async (event, date) => {
                         setShowStartPicker(false);
-                        if (date) setStartDate(date);
+                        if (date) {
+                            setStartDate(date)
+                        }
+                        
                     }}
                 />
             )}
@@ -178,7 +225,7 @@ const AddSurvey = ({ route }) => {
                         if (date) {
                             setEndDate(date)
                             let newdate = new Date(date);
-                            setPayload(prev => ({ ...prev, 'deadline': newdate }))
+                            setPayload(prev => ({ ...prev, 'deadline': newdate.toISOString().split('.')[0] }))
                         };
 
                     }}
@@ -186,8 +233,8 @@ const AddSurvey = ({ route }) => {
             )}
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: (payload.file.uri || payload.description) ? '#AA0000' : '#CCCCCC' }]}
-                    onPress={() => { handleSubmit }}>
+                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInput() ? '#AA0000' : '#CCCCCC' }]}
+                    onPress={async () => { await handleSubmit() }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>

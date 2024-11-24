@@ -31,14 +31,14 @@ export const apiGetMaterialInfo = async (payload) => {
 
 export const apiUploadMaterial = async (payload) => {
     var bodyFormData = new FormData();
-    bodyFormData.append('file', payload.file)
-    bodyFormData.append('token', payload.token)
-    bodyFormData.append('classId', payload.classId)
-    bodyFormData.append('title', payload.title)
-    bodyFormData.append('description', payload.description)
-    bodyFormData.append('materialType', payload.materialType)
+    for (const key in payload) {
+        if (payload[key]) {
+            bodyFormData.append(key, payload[key])
+        }
+    }
+    console.log("body: " + JSON.stringify(bodyFormData))
     try {
-        return await axiosConfig(
+        const response = await axiosConfig(
             {
                 method: 'post',
                 url: '/it5023e/upload_material',
@@ -46,6 +46,8 @@ export const apiUploadMaterial = async (payload) => {
                 headers: { "Content-Type": "multipart/form-data" },
             }
         )
+        console.log("response: " + JSON.stringify(response.data))
+        return response
     } catch (error) {
         if (!error.response) {
             return console.error("error uploading material: " + error)
