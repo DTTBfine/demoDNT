@@ -3,6 +3,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import Icon5 from 'react-native-vector-icons/FontAwesome5'
+import IconA from 'react-native-vector-icons/AntDesign'
+import IconFe from 'react-native-vector-icons/Feather'
 import { useNavigation } from '@react-navigation/native'
 import * as actions from '../redux/actions'
 import { convertVNDate, getColorForId, getIconForFileType } from '../../utils/format'
@@ -141,9 +143,46 @@ const ClassScreen = ({ route }) => {
                             visible={showMaterialHandle}
                             onRequestClose={() => setShowMaterialHandle(false)}
                         >
-                            <Pressable style={styles.modalBackground} onPress={() => setShowMaterialHandle(false)}>
-                                <View style={styles.modalContainer} onStartShouldSetResponder={() => true} onMoveShouldSetResponder={() => true}>
+                            <Pressable style={{
+                                flex: 1,
+                                justifyContent: 'flex-end',
+                                backgroundColor: 'rgba(0, 0, 0, 0.3)'
 
+                            }}>
+                                <View style={{
+                                    zIndex: 1,
+                                    backgroundColor: '#fff',
+                                    padding: 20,
+                                    borderTopLeftRadius: 15,
+                                    borderTopRightRadius: 15
+                                }}>
+                                    <Text style={{
+                                        textAlign: 'center',
+                                        fontWeight: '500',
+                                        fontSize: 20
+                                    }}>{currentMaterial.material_name}
+                                    </Text>
+
+                                    <TouchableOpacity onPress={() => {
+                                        Linking.openURL(currentMaterial.material_link).catch(err => console.error("Failed to open URL: ", err))
+                                    }}
+                                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
+                                        <IconFe name='external-link' size={20} color='gray' />
+                                        <Text style={{ fontSize: 16, fontWeight: '400' }}>Mở</Text>
+                                    </TouchableOpacity>
+                                    {role === 'LECTURER' && <TouchableOpacity style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
+                                        <IconFe name='edit-3' size={20} color='gray' />
+                                        <Text style={{ fontSize: 16, fontWeight: '400' }}>Chỉnh sửa</Text>
+                                    </TouchableOpacity>}
+                                    {role === 'LECTURER' && <TouchableOpacity style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
+                                        <IconFe name='trash-2' size={20} color='gray' />
+                                        <Text style={{ fontSize: 16, fontWeight: '400' }}>Xóa</Text>
+                                    </TouchableOpacity>}
+                                    <TouchableOpacity onPress={() => { setShowMaterialHandle(false) }}
+                                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
+                                        <IconA name='close' size={20} color='gray' />
+                                        <Text style={{ fontSize: 16, fontWeight: '400' }}>Đóng</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </Pressable>
                         </Modal>
@@ -410,7 +449,7 @@ const MaterialList = () => {
                     classMaterial?.length > 0 && classMaterial.map((item, index) => {
                         return (
                             <View key={index}>
-                                <MaterialBox material_name={item.material_name} description={item.description} material_link={item.material_link} material_type={item.material_type} />
+                                <MaterialBox item={item} />
                             </View>
                         )
                     })
@@ -420,7 +459,9 @@ const MaterialList = () => {
     )
 }
 
-const MaterialBox = ({ material_name, description, material_link, material_type }) => {
+const MaterialBox = ({ item }) => {
+    const { currentMaterial, setCurrentMaterial, showMaterialHandle, setShowMaterialHandle } = useContext(GlobalContext)
+
     return (
         <View style={{
             flexDirection: 'row',
@@ -441,15 +482,18 @@ const MaterialBox = ({ material_name, description, material_link, material_type 
                 alignItems: 'center',
             }}>
                 <View>
-                    <Icon name={getIconForFileType(material_type)} color='#BB0000' size={30} />
+                    <Icon name={getIconForFileType(item?.material_type)} color='#BB0000' size={30} />
                 </View>
                 <View>
-                    <Text style={{ fontSize: 16, fontWeight: '500' }}>{material_name}</Text>
-                    <Text style={{ color: 'gray' }}>{description}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '500' }}>{item?.material_name}</Text>
+                    <Text style={{ color: 'gray' }}>{item?.description}</Text>
                 </View>
             </View>
             <View>
-                <Icon5 name='ellipsis-h' color='#BB0000' size={22} />
+                <Icon5 name='ellipsis-h' color='#BB0000' size={22} onPress={() => {
+                    setCurrentMaterial(item)
+                    setShowMaterialHandle(true)
+                }} />
             </View>
         </View>
     )
