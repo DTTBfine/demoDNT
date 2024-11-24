@@ -351,6 +351,7 @@ const ClassNavigationForStudent = () => {
                     let titleName
                     if (route.name === "absenceRequest") titleName = 'Nghỉ phép'
                     else if (route.name === "myClasses") titleName = 'Lớp của tôi'
+                    else if (route.name === "submitSurvey") titleName = 'Nộp bài'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
                 headerStyle: {
@@ -367,6 +368,7 @@ const ClassNavigationForStudent = () => {
             )}>
             <Stack.Screen name="myClasses" component={StudentClasses} />
             <Stack.Screen name="studentClassScreen" component={ClassScreen} />
+            <Stack.Screen name="submitSurvey" component={SubmitSurvey} />
             <Stack.Screen name="absenceRequest" component={AbsenceRequest} />
         </Stack.Navigator>
     )

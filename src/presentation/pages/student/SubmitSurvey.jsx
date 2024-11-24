@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 
-const SubmitSurvey = () => {
+const SubmitSurvey = ({ route }) => {
     const { token } = useSelector(state => state.auth)
     const [payload, setPayload] = useState({
         file: {},
@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderColor: '#AA0000',
         fontSize: 16,
+        backgroundColor: 'white'
     },
     textArea: {
         width: '100%',
@@ -131,6 +132,7 @@ const styles = StyleSheet.create({
         padding: 10,
         fontSize: 16,
         color: '#000',
+        backgroundColor: 'white'
     },
     button: {
         backgroundColor: '#AA0000',

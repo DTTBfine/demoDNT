@@ -24,6 +24,9 @@ const ClassScreen = ({ route }) => {
     const [currentSurvey, setCurrentSurvey] = useState(null)
     const [showSurveyInfo, setShowSurveyInfo] = useState(false)
 
+    const [currentMaterial, setCurrentMaterial] = useState(null)
+    const [showMaterialHandle, setShowMaterialHandle] = useState(false)
+
     console.log(JSON.stringify(currentClass))
     console.log('token, id: ' + token + ' ' + userId)
 
@@ -49,7 +52,7 @@ const ClassScreen = ({ route }) => {
 
     return (
         <View style={styles.cotainer}>
-            <GlobalContext.Provider value={{ currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo }} >
+            <GlobalContext.Provider value={{ currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo, currentMaterial, setCurrentMaterial, showMaterialHandle, setShowMaterialHandle }} >
                 {
                     currentSurvey && (
                         <Modal
@@ -58,8 +61,12 @@ const ClassScreen = ({ route }) => {
                             visible={showSurveyInfo}
                             onRequestClose={() => setShowSurveyInfo(false)}
                         >
-                            <Pressable style={styles.modalBackground} onPress={() => setShowSurveyInfo(false)}>
-                                <View style={styles.modalContainer} onStartShouldSetResponder={() => true} onMoveShouldSetResponder={() => true}>
+                            <Pressable style={styles.modalBackground} onPress={() => { }}>
+                                <View style={styles.modalContainer} >
+                                    <TouchableOpacity onPress={() => { setShowSurveyInfo(false) }} style={{ flexDirection: 'row', gap: 5, marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderColor: '#CCCCCC' }}>
+                                        <Icon5 name='angle-left' color='gray' size={18} />
+                                        <Text style={{ color: 'gray', fontWeight: '500' }}>Trở lại</Text>
+                                    </TouchableOpacity>
                                     <Text style={{
                                         fontSize: 24,
                                         fontWeight: '500',
@@ -69,20 +76,22 @@ const ClassScreen = ({ route }) => {
                                     <View style={{ paddingVertical: 15, gap: 15 }}>
                                         <View>
                                             <Text style={{ fontWeight: '500' }}>Mô tả:</Text>
-                                            {currentSurvey.description && <Text>{currentSurvey.description}</Text>}
+                                            {currentSurvey.description && <Text style={{ padding: 5 }}>{currentSurvey.description}</Text>}
                                         </View>
                                         <View>
                                             <Text style={{ fontWeight: '500' }}>File mô tả: </Text>
                                             {currentSurvey.file_url && <TouchableOpacity onPress={() => {
+                                                setShowSurveyInfo(false)
+                                                console.log("open file in drive")
                                                 Linking.openURL(currentSurvey.file_url).catch(err => console.error("Failed to open URL: ", err))
-                                            }}>
-                                                <Text onPress={() => {
-                                                    Linking.openURL(currentSurvey.file_url).catch(err => console.error("Failed to open URL: ", err))
+                                            }}
+                                                style={{ padding: 5 }}
+                                            >
+                                                <Text style={{
+                                                    zIndex: 100,
+                                                    color: 'dodgerblue',
+                                                    textDecorationLine: 'underline'
                                                 }}
-                                                    style={{
-                                                        color: 'dodgerblue',
-                                                        textDecorationLine: 'underline'
-                                                    }}
                                                 >{currentSurvey.file_url}
                                                 </Text>
                                             </TouchableOpacity>
@@ -104,7 +113,11 @@ const ClassScreen = ({ route }) => {
                                         </View>
                                     }
                                     {
-                                        role === 'STUDENT' && <TouchableOpacity onPress={() => { }}
+                                        role === 'STUDENT' && <TouchableOpacity onPress={() => {
+                                            setShowSurveyInfo(false)
+                                            console.log('navigate to submit survey')
+                                            navigate.navigate("testUI")
+                                        }}
                                             style={{
                                                 backgroundColor: '#CC0000',
                                                 paddingVertical: 8,
@@ -115,6 +128,22 @@ const ClassScreen = ({ route }) => {
                                             <Text style={styles.buttonText}>Nộp bài</Text>
                                         </TouchableOpacity>
                                     }
+                                </View>
+                            </Pressable>
+                        </Modal>
+                    )
+                }
+                {
+                    currentMaterial && (
+                        <Modal
+                            animationType="fade"
+                            transparent={true}
+                            visible={showMaterialHandle}
+                            onRequestClose={() => setShowMaterialHandle(false)}
+                        >
+                            <Pressable style={styles.modalBackground} onPress={() => setShowMaterialHandle(false)}>
+                                <View style={styles.modalContainer} onStartShouldSetResponder={() => true} onMoveShouldSetResponder={() => true}>
+
                                 </View>
                             </Pressable>
                         </Modal>
@@ -465,12 +494,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
     },
     modalContainer: {
+        zIndex: 1,
         backgroundColor: '#fff',
         padding: 20,
         borderRadius: 10,
         width: '80%',
     },
     button: {
+        zIndex: 2,
         flex: 1,
         backgroundColor: '#CC0000',
         paddingVertical: 8,
