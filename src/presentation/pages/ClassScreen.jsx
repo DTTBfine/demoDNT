@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking } from 'react-native'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -69,11 +69,24 @@ const ClassScreen = ({ route }) => {
                                     <View style={{ paddingVertical: 15, gap: 15 }}>
                                         <View>
                                             <Text style={{ fontWeight: '500' }}>Mô tả:</Text>
-                                            {currentSurvey.description && <Text>đây là 1 bài siếu siêu siêu khó</Text>}
+                                            {currentSurvey.description && <Text>{currentSurvey.description}</Text>}
                                         </View>
                                         <View>
                                             <Text style={{ fontWeight: '500' }}>File mô tả: </Text>
-                                            {currentSurvey.file_url && <Text>{currentSurvey.file_url}</Text>}
+                                            {currentSurvey.file_url && <TouchableOpacity onPress={() => {
+                                                Linking.openURL(currentSurvey.file_url).catch(err => console.error("Failed to open URL: ", err))
+                                            }}>
+                                                <Text onPress={() => {
+                                                    Linking.openURL(currentSurvey.file_url).catch(err => console.error("Failed to open URL: ", err))
+                                                }}
+                                                    style={{
+                                                        color: 'dodgerblue',
+                                                        textDecorationLine: 'underline'
+                                                    }}
+                                                >{currentSurvey.file_url}
+                                                </Text>
+                                            </TouchableOpacity>
+                                            }
                                         </View>
                                     </View>
                                     {
