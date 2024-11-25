@@ -29,25 +29,42 @@ const ClassScreen = ({ route }) => {
     const [currentMaterial, setCurrentMaterial] = useState(null)
     const [showMaterialHandle, setShowMaterialHandle] = useState(false)
 
-    console.log(JSON.stringify(currentClass))
-    console.log('token, id: ' + token + ' ' + userId)
 
     useEffect(() => {
         if (loadData) {
+            if (role === 'LECTURER') {
+                dispatch(actions.getAllSurveys({
+                    token: token,
+                    class_id: id
+                }))
+            } else {
+                dispatch(actions.getBasicClassInfo({
+                    token: token,
+                    class_id: id
+                }))
+                dispatch(actions.getStudentAssignmentsByClassId({
+                    token: token,
+                    classId: id
+                }))
+                dispatch(actions.getAttendanceRecord({
+                    token: token,
+                    class_id: id
+                }))
+            }
+
+
             dispatch(actions.getClassInfo({
                 token: token,
                 role: role,
                 account_id: userId,
                 class_id: id
             }))
+            
             dispatch(actions.getMaterialList({
                 token: token,
                 class_id: id
             }))
-            dispatch(actions.getAllSurveys({
-                token: token,
-                class_id: id
-            }))
+        
             setLoadData(false)
         }
     }, [])
@@ -221,8 +238,8 @@ const ClassScreen = ({ route }) => {
 }
 
 const About = ({ class_id, class_type }) => {
-    const { role } = useSelector(state => state.user)
-    const { currentClass } = useSelector(state => state.learning)
+    const { role } = useSelector(state => state.auth)
+    const { currentClass, attendanceRecord} = useSelector(state => state.learning)
 
     return (
         <ScrollView>
@@ -261,7 +278,7 @@ const About = ({ class_id, class_type }) => {
                                 <Text style={{ color: 'gray' }}>Số lần vắng :</Text>
                             </View>
                             <View style={{ flex: 1, paddingVertical: 5 }}>
-                                <Text style={{ color: 'gray' }}>Gọi api lấy info </Text>
+                                <Text style={{ color: 'gray' }}>{attendanceRecord?.absent_dates?.length} </Text>
                             </View>
                         </View>}
                         <View style={{ flexDirection: 'row' }}>
@@ -345,13 +362,22 @@ const StudentInfo = ({ first_name, last_name, email }) => {
 const UpcomingSurvey = ({ class_id }) => {
     const navigate = useNavigation()
     const { role } = useSelector(state => state.auth)
-    const { surveyOfCurrentClass } = useSelector(state => state.learning)
+    const { surveyOfCurrentClass, studentAssignmentsByClassId } = useSelector(state => state.learning)
     return (
         <View style={{ marginBottom: 35 }}>
-            {surveyOfCurrentClass.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có bài kiểm tra!</Text>}
+            {surveyOfCurrentClass.length === 0 && studentAssignmentsByClassId.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có bài kiểm tra!</Text>}
             <ScrollView>
                 {
                     surveyOfCurrentClass.length > 0 && surveyOfCurrentClass.map((item, index) => {
+                        return (
+                            <View key={index} >
+                                <AssignmentItem item={item} />
+                            </View>
+                        )
+                    })
+                }
+                {
+                    studentAssignmentsByClassId.length > 0 && studentAssignmentsByClassId.map((item, index) => {
                         return (
                             <View key={index} >
                                 <AssignmentItem item={item} />
@@ -407,7 +433,7 @@ const AssignmentItem = ({ item }) => {
                         marginTop: 5,
                         width: 30,
                         height: 30,
-                        backgroundColor: getColorForId(item.class_id),
+                        backgroundColor: getColorForId(item?.class_id),
                         borderRadius: 6,
                         justifyContent: 'center'
                     }}>
@@ -424,7 +450,7 @@ const AssignmentItem = ({ item }) => {
                     }}>{item?.title}</Text>
                     <Text style={{
                         color: 'gray'
-                    }}>Deadline: {convertVNDate(item.deadline)} </Text>
+                    }}>Deadline: {convertVNDate(item?.deadline)} </Text>
                 </View>
             </View>
             <View style={{}}>

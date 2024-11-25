@@ -68,17 +68,27 @@ export const apiDeleteSurvey = async (payload) => {
 }
 
 export const apiSubmitSurvey = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '',
-        data: {
-            file: '',
-            token: payload.token,
-            assignmentId: payload.assignmentId,
-            textResponse: payload.textResponse
+    let formDataBody = new FormData()
+    for (const key in payload) {
+        if (payload[key]) {
+            formDataBody.append(key, payload[key])
         }
-    })
-    return response
+    }
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/submit_survey',
+            data: formDataBody,
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("failed to submit survey: " + error)
+        }
+        return error.response
+    }
+    
 }
 
 export const apiGetSurveyResponse = async (payload) => {
@@ -103,6 +113,25 @@ export const apiGetStudentAssignments = async (payload) => {
         }
     })
     return response
+}
+
+export const apiGetStudentAssignmentsByClassId = async (payload) => {
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/get_student_assignments',
+            data: {
+                token: payload.token,
+                classId: payload.classId
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("failed to get student assignments by class id: " + error)
+        }
+        return error.response
+    }
 }
 
 export const apiGetSubmission = async (payload) => {

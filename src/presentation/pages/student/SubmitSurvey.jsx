@@ -1,21 +1,44 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Linking } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Linking, Keyboard, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import { convertVNDate } from '../../../utils/format';
+import Spinner from 'react-native-loading-spinner-overlay';
+import * as apis from '../../../data/api'
+import { responseCodes } from '../../../utils/constants/responseCodes';
+
 
 const SubmitSurvey = ({ route }) => {
     const { id, title, description, file_url, deadline } = route.params
-    console.log({ id, title, description, file_url, deadline })
+    const [isLoading, setIsLoading] = useState(false)
     const { token } = useSelector(state => state.auth)
     const [invalidFields, setInvalidFields] = useState([])
     const [payload, setPayload] = useState({
-        file: {},
+        file: null,
         token: token,
         assignmentId: id, //lấy luôn ở route.params
         textResponse: ''
     })
-    console.log(payload)
+
+    const validateInput = () => {
+        if (!payload) {
+            return false
+        }
+        if (!payload.file) {
+            return false
+        }
+        return true
+    }
+
+    const resetInput = () => {
+        setPayload({
+            file: null,
+            token: token,
+            assignmentId: id,
+            textResponse: ''
+        })
+        Keyboard.dismiss()
+    }
 
     const handleDocumentSelection = async () => {
         try {
@@ -30,26 +53,44 @@ const SubmitSurvey = ({ route }) => {
                 return; // Không tiếp tục nếu bị hủy
             }
 
-            console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
-                setPayload(prev => ({ ...prev, 'file': result.assets[0] }))
+                const {mimeType, uri, name} = result.assets[0] 
+                setPayload(prev => ({ ...prev, 'file': {
+                    type: mimeType,
+                    uri: uri,
+                    name: name
+                }}))
             }
         } catch (err) {
             console.error('Error picking document:', err);
         }
     }
 
-    const handleSubmit = () => {
-        setPayload({
-            file: {},
-            token: token,
-            assignmentId: id,
-            textResponse: ''
-        })
+    const handleSubmit = async () => {
+        setIsLoading(true)
+        const response = await apis.apiSubmitSurvey(payload)
+        // console.log("submit survey response: " + JSON.stringify(response?.data))
+        setIsLoading(false)
+        if (response.data?.meta?.code !== responseCodes.statusOK) {
+            console.log("hello hello")
+            Alert.alert("Error", response.data?.meta?.message || "Nộp bài tập không thành công")
+        } else {
+            Alert.alert("Success", response.data?.meta?.message || "Nộp bài tập thành công")
+        }
+
+        resetInput()
+
     }
 
     return (
         <View style={styles.container}>
+            <Spinner
+                visible={isLoading}
+                textContent={'Chờ xử lý...'}
+                textStyle={{
+                    color: '#FFF'
+                }}
+            />
             <View style={{
                 gap: 15,
                 paddingVertical: 10,
@@ -122,8 +163,12 @@ const SubmitSurvey = ({ route }) => {
             </View>
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10 }]}
-                    onPress={() => { handleSubmit }}>
+                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInput() ? '#AA0000' : '#CCCCCC' }]}
+                    onPress={async () => { 
+                        if (validateInput()) {
+                            await handleSubmit() 
+                        }
+                    }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>

@@ -28,7 +28,6 @@ const StudentScreen = () => {
     }
     const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
-    console.log('day in week: ' + JSON.stringify(getDaysOfWeek(currentDate)))
 
     return (
         <ScrollView>
