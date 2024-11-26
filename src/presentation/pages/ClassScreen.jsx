@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert } from 'react-native'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -9,6 +9,8 @@ import { useNavigation } from '@react-navigation/native'
 import * as actions from '../redux/actions'
 import { convertVNDate, getColorForId, getIconForFileType } from '../../utils/format'
 import ConfirmModal from '../components/ConfirmModal'
+import * as apis from '../../data/api'
+import { responseCodes } from '../../utils/constants/responseCodes'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -72,36 +74,46 @@ const ClassScreen = ({ route }) => {
 
     const [showConfirmModal, setShowConfirmModal] = useState(false)
 
-    const handleDeleteSurvey = () => {
-        //payload nài
-        console.log({
+    const handleDeleteSurvey = async () => {
+        //Xử lý ở đây
+        setShowConfirmModal(false)
+        const response = await apis.apiDeleteSurvey({
             token: token,
             survey_id: currentSurvey.id
         })
-        //Xử lý ở đây
 
-        setShowConfirmModal(false)
-        setCurrentSurvey(null)
-        dispatch(actions.getAllSurveys({
-            token: token,
-            class_id: id
-        }))
+        if (response?.data?.meta?.code !== responseCodes.statusOK) {
+            Alert.alert("Error", response?.data?.data || "Không thể xóa bài tập")
+        } else {
+            Alert.alert("Success", response?.data?.meta?.message || "Xóa bài tập thành công")
+            setCurrentSurvey(null)
+            dispatch(actions.getAllSurveys({
+                token: token,
+                class_id: id
+            }))
+        }
     }
 
-    const handleDeleteMateria = () => {
-        //payload đây nữa
-        console.log({
+    const handleDeleteMateria = async () => {      
+        setShowConfirmModal(false)
+        const response = await apis.apiDeleteMaterial({
             token: token,
             material_id: currentMaterial.id
         })
-        //Xử lý đi
 
-        setShowConfirmModal(false)
-        setCurrentMaterial(null)
-        dispatch(actions.getMaterialList({
-            token: token,
-            class_id: id
-        }))
+
+        if (response?.data?.code !== responseCodes.statusOK) {
+            Alert.alert("Error", response?.data?.data || "Không thể xóa tài liệu")
+        } else {
+            Alert.alert("Success", "Xóa bài tập thành công")
+            setCurrentMaterial(null)
+            dispatch(actions.getMaterialList({
+                token: token,
+                class_id: id
+            }))
+        }
+
+    
     }
 
     return (

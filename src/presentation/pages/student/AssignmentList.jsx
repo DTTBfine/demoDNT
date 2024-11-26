@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
 import { assignmentStatus } from '../../../utils/constants/class';
 import { classNameCode, getColorForId } from '../../../utils/format';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
@@ -21,6 +22,7 @@ const AssignmentList = () => {
   const [state, setState] = useState('Sắp tới')
   const dispatch = useDispatch()
   const [dispatchData, setDispatchData] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [displayedAssignments, setDisplayedAssignments] = useState([])
   const { token } = useSelector(state => state.auth)
   const { myClasses, upcomingAssignments, pastDueAssignments, completedAssignments } = useSelector(state => state.learning)
@@ -34,7 +36,7 @@ const AssignmentList = () => {
 
   useEffect(() => {
     if (dispatchData) {
-
+      setIsLoading(true)
       dispatch(actions.getCompletedAssigments({
         token: token,
         type: assignmentStatus.completed,
@@ -53,6 +55,7 @@ const AssignmentList = () => {
         class_id: null
       }))
 
+      setIsLoading(false)
       setDispatchData(false)
     }
   }, [])
@@ -87,6 +90,13 @@ const AssignmentList = () => {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
+        <Spinner
+          visible={isLoading}
+          textContent={'Load dữ liệu bài tập...'}
+          textStyle={{
+            color: '#FFF'
+          }}
+        />
         <View style={{
           height: 80,
           backgroundColor: '#BB0000',

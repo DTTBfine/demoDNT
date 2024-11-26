@@ -62,15 +62,22 @@ export const apiEditMaterial = async (payload) => {
 }
 
 export const apiDeleteMaterial = async (payload) => {
-    console.log(payload)
-    const response = await axiosConfig(
-        {
-            method: 'post',
-            url: `/it5023e/delete_material`,
-            data: {
-                token: payload.token,
-                material_id: payload.material_id
-            }
-        });
-    return response;
+    try {
+        const response = await axiosConfig(
+            {
+                method: 'post',
+                url: `/it5023e/delete_material`,
+                data: {
+                    token: payload.token,
+                    material_id: payload.material_id
+                }
+            });
+        return response;
+    } catch (error) {
+        if (!error.response) {
+            return console.error("delete material failed: " + error)
+        }
+        return error.response
+    }
+    
 }
