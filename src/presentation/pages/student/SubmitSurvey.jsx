@@ -72,7 +72,6 @@ const SubmitSurvey = ({ route }) => {
         // console.log("submit survey response: " + JSON.stringify(response?.data))
         setIsLoading(false)
         if (response.data?.meta?.code !== responseCodes.statusOK) {
-            console.log("hello hello")
             Alert.alert("Error", response.data?.meta?.message || "Nộp bài tập không thành công")
         } else {
             Alert.alert("Success", response.data?.meta?.message || "Nộp bài tập thành công")

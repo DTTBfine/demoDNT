@@ -56,15 +56,23 @@ export const apiEditSurvey = async (payload) => {
 }
 
 export const apiDeleteSurvey = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/delete_survey',
-        data: {
-            token: payload.token,
-            survey_id: payload.survey_id
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/delete_survey',
+            data: {
+                token: payload.token,
+                survey_id: payload.survey_id
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("delete survey failed: " + error)
         }
-    })
-    return response
+        return error.response
+    }
+    
 }
 
 export const apiSubmitSurvey = async (payload) => {
