@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { apiCreateClass } from '../../../data/api/class';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome'
+import * as actions from '../../redux/actions'
 
 const AddClass = () => {
     const [classId, setClassId] = useState('');
@@ -18,13 +19,15 @@ const AddClass = () => {
     const [showEndPicker, setShowEndPicker] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const { token } = useSelector(state => state.auth)
+    const dispatch = useDispatch()
+
+    const { token, role, userId } = useSelector(state => state.auth)
 
     const formatDate = (date) => {
-        const day = date.getDate().toString().padStart(2, '0'); 
-        const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
-        const year = date.getFullYear(); 
-        return `${day}/${month}/${year}`; 
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
     };
 
     const handleCreateClass = async () => {
@@ -41,11 +44,11 @@ const AddClass = () => {
             class_type: classType,
             start_date: startDate.toISOString().split('T')[0],
             end_date: endDate.toISOString().split('T')[0],
-            max_student_amount: parseInt(maxStudentAmount,10),
+            max_student_amount: parseInt(maxStudentAmount, 10),
         };
-        console.log('payload-create-class:',payload);
+        console.log('payload-create-class:', payload);
         const response = await apiCreateClass(payload);
-        console.log("response: " + JSON.stringify(response))    
+        console.log("response: " + JSON.stringify(response))
         if (response?.status !== 200) {
             console.log("hello hello")
             Alert.alert('Lỗi', error.response?.data?.meta.message || 'Không thể tạo lớp học.');
@@ -55,7 +58,11 @@ const AddClass = () => {
 
         setLoading(false)
 
-
+        dispatch(actions.getClassList({
+            token: token,
+            role: role,
+            account_id: userId
+        }))
     }
 
     return (
@@ -232,8 +239,8 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
+        alignItems: 'center',
+        justifyContent: 'space-between',
         marginEnd: 1
     },
 });

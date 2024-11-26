@@ -159,8 +159,9 @@ export const classNameCode = (fullName) => {
     // Tách tên thành các từ riêng biệt
     var nameParts = fullName.split(" ");
 
+    let len = Math.min(nameParts.length, 2)
     // Lấy chữ cái đầu tiên của mỗi từ và nối lại
-    for (let i = 0; i < nameParts.length; i++) {
+    for (let i = 0; i < len; i++) {
         code += nameParts[i][0];
     }
     // Chuyển đổi chữ cái thành chữ hoa

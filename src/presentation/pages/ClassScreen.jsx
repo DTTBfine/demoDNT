@@ -8,6 +8,7 @@ import IconFe from 'react-native-vector-icons/Feather'
 import { useNavigation } from '@react-navigation/native'
 import * as actions from '../redux/actions'
 import { convertVNDate, getColorForId, getIconForFileType } from '../../utils/format'
+import ConfirmModal from '../components/ConfirmModal'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -52,6 +53,40 @@ const ClassScreen = ({ route }) => {
         }
     }, [])
 
+    const [showConfirmModal, setShowConfirmModal] = useState(false)
+
+    const handleDeleteSurvey = () => {
+        //payload nài
+        console.log({
+            token: token,
+            survey_id: currentSurvey.id
+        })
+        //Xử lý ở đây
+
+        setShowConfirmModal(false)
+        setCurrentSurvey(null)
+        dispatch(actions.getAllSurveys({
+            token: token,
+            class_id: id
+        }))
+    }
+
+    const handleDeleteMateria = () => {
+        //payload đây nữa
+        console.log({
+            token: token,
+            material_id: currentMaterial.id
+        })
+        //Xử lý đi
+
+        setShowConfirmModal(false)
+        setCurrentMaterial(null)
+        dispatch(actions.getMaterialList({
+            token: token,
+            class_id: id
+        }))
+    }
+
     return (
         <View style={styles.cotainer}>
             <GlobalContext.Provider value={{ currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo, currentMaterial, setCurrentMaterial, showMaterialHandle, setShowMaterialHandle }} >
@@ -65,7 +100,11 @@ const ClassScreen = ({ route }) => {
                         >
                             <Pressable style={styles.modalBackground} onPress={() => { }}>
                                 <View style={styles.modalContainer} >
-                                    <TouchableOpacity onPress={() => { setShowSurveyInfo(false) }} style={{ flexDirection: 'row', gap: 5, marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderColor: '#CCCCCC' }}>
+                                    <TouchableOpacity onPress={() => {
+                                        setShowSurveyInfo(false)
+                                        setCurrentSurvey(null)
+                                    }}
+                                        style={{ flexDirection: 'row', gap: 5, marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderColor: '#CCCCCC' }}>
                                         <Icon5 name='angle-left' color='gray' size={18} />
                                         <Text style={{ color: 'gray', fontWeight: '500' }}>Trở lại</Text>
                                     </TouchableOpacity>
@@ -102,7 +141,7 @@ const ClassScreen = ({ route }) => {
                                     </View>
                                     {
                                         role === 'LECTURER' && <View style={styles.row}>
-                                            <TouchableOpacity
+                                            <TouchableOpacity onPress={() => setShowConfirmModal(true)}
                                                 style={styles.button}
                                             >
                                                 <Text style={styles.buttonText}>Xóa</Text>
@@ -131,6 +170,22 @@ const ClassScreen = ({ route }) => {
                                             <Text style={styles.buttonText}>Nộp bài</Text>
                                         </TouchableOpacity>
                                     }
+                                    {
+                                        role === 'LECTURER' && <TouchableOpacity
+                                            onPress={() => { }}
+                                            style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'flex-end',
+                                                gap: 10,
+                                                alignItems: 'center',
+                                                marginTop: 10,
+                                                padding: 10
+                                            }}
+                                        >
+                                            <Text style={{ color: 'gray' }}>Đi tới danh sách trả lời</Text>
+                                            <Icon5 name='angle-right' color='gray' size={24} />
+                                        </TouchableOpacity>
+                                    }
                                 </View>
                             </Pressable>
                         </Modal>
@@ -139,7 +194,7 @@ const ClassScreen = ({ route }) => {
                 {
                     currentMaterial && (
                         <Modal
-                            animationType="fade"
+                            animationType="slide"
                             transparent={true}
                             visible={showMaterialHandle}
                             onRequestClose={() => setShowMaterialHandle(false)}
@@ -153,7 +208,8 @@ const ClassScreen = ({ route }) => {
                                 <View style={{
                                     zIndex: 1,
                                     backgroundColor: '#fff',
-                                    padding: 20,
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 15,
                                     borderTopLeftRadius: 15,
                                     borderTopRightRadius: 15
                                 }}>
@@ -175,11 +231,15 @@ const ClassScreen = ({ route }) => {
                                         <IconFe name='edit-3' size={20} color='gray' />
                                         <Text style={{ fontSize: 16, fontWeight: '400' }}>Chỉnh sửa</Text>
                                     </TouchableOpacity>}
-                                    {role === 'LECTURER' && <TouchableOpacity style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
+                                    {role === 'LECTURER' && <TouchableOpacity onPress={() => { setShowConfirmModal(true) }}
+                                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
                                         <IconFe name='trash-2' size={20} color='gray' />
                                         <Text style={{ fontSize: 16, fontWeight: '400' }}>Xóa</Text>
                                     </TouchableOpacity>}
-                                    <TouchableOpacity onPress={() => { setShowMaterialHandle(false) }}
+                                    <TouchableOpacity onPress={() => {
+                                        setShowMaterialHandle(false)
+                                        setCurrentMaterial(null)
+                                    }}
                                         style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
                                         <IconA name='close' size={20} color='gray' />
                                         <Text style={{ fontSize: 16, fontWeight: '400' }}>Đóng</Text>
@@ -188,6 +248,12 @@ const ClassScreen = ({ route }) => {
                             </Pressable>
                         </Modal>
                     )
+                }
+                {
+                    currentSurvey && showConfirmModal && <ConfirmModal handleName={"Xóa"} handleFunction={handleDeleteSurvey} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
+                }
+                {
+                    currentMaterial && showConfirmModal && <ConfirmModal handleName={"Xóa"} handleFunction={handleDeleteMateria} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
                 }
                 <View style={{
                     flexDirection: 'row',
@@ -221,7 +287,7 @@ const ClassScreen = ({ route }) => {
 }
 
 const About = ({ class_id, class_type }) => {
-    const { role } = useSelector(state => state.user)
+    const { role } = useSelector(state => state.auth)
     const { currentClass } = useSelector(state => state.learning)
 
     return (
@@ -245,7 +311,7 @@ const About = ({ class_id, class_type }) => {
                                 <Text style={{ color: 'gray' }}>Loại hình :</Text>
                             </View>
                             <View style={{ flex: 1, paddingVertical: 5 }}>
-                                <Text style={{ color: 'gray' }}>{class_type} </Text>
+                                <Text style={{ color: 'gray' }}>{currentClass?.class_type} </Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row' }}>

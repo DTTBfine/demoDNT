@@ -4,30 +4,33 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { Text, View } from 'react-native';
+
 import CustomHeader from '../components/customHeader';
 import LoginScreen from '../pages/Login';
 import RegisterScreen from '../pages/Register';
 import ProfileScreen from '../pages/Profile';
 import SettingScreen from '../pages/Setting';
+import Notification from '../pages/Notification';
+import ClassScreen from '../pages/ClassScreen';
 
 import TeacherScreen from '../pages/teacher/TeacherScreen';
 import ClassManage from '../pages/teacher/ClassManage';
 import AddClass from '../pages/teacher/AddClass';
 import AddSurvey from '../pages/teacher/AddSurvey';
+import EditClass from '../pages/teacher/EditClass';
+import TeacherClasses from '../pages/teacher/TeacherClasses';
+import AddMaterial from '../pages/teacher/AddMaterial';
+import Attendance from '../pages/teacher/Attendance';
 
 import StudentScreen from '../pages/student/StudentScreen';
 import ClassRegister from '../pages/student/ClassRegister';
 import AssignmentList from '../pages/student/AssignmentList';
 import AbsenceRequest from '../pages/student/AbsenceRequest';
 import StudentClasses from '../pages/student/StudentClasses';
-import Notification from '../pages/Notification';
-import EditClass from '../pages/teacher/EditClass';
-import ClassScreen from '../pages/ClassScreen';
-import { classNameCode, getColorForId } from '../../utils/format';
-import TeacherClasses from '../pages/teacher/TeacherClasses';
-import CustomTeacherClass from '../components/customTeacherClass';
-import AddMaterial from '../pages/teacher/AddMaterial';
 import SubmitSurvey from '../pages/student/SubmitSurvey';
+
+import { classNameCode, getColorForId } from '../../utils/format';
+import CustomTeacherClass from '../components/customTeacherClass';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -120,9 +123,9 @@ const TeacherHomepage = () => {
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName
-                    if (route.name === 'home') {
+                    if (route.name === 'Home') {
                         iconName = 'home'
-                    } else if (route.name === 'profile') {
+                    } else if (route.name === 'Profile') {
                         iconName = 'user'
                     } else {
                         iconName = 'gear'
@@ -151,9 +154,9 @@ const TeacherHomepage = () => {
                 },
             })}
         >
-            <Tab.Screen name="home" component={TeacherScreen} />
-            <Tab.Screen name="profile" component={ProfileScreen} />
-            <Tab.Screen name="setting" component={SettingScreen} />
+            <Tab.Screen name="Home" component={TeacherScreen} />
+            <Tab.Screen name="Profile" component={ProfileScreen} />
+            <Tab.Screen name="Setting" component={SettingScreen} />
         </Tab.Navigator>
     )
 }
@@ -171,6 +174,7 @@ const TeacherClassList = () => {
                     let titleName
                     if (route.name === "addSurvey") titleName = 'Tạo bài kiểm tra'
                     else if (route.name === "addMaterial") titleName = 'Tải lên tài liệu'
+                    else if (route.name === 'attendance') titleName = 'Điểm danh sinh viên'
                     else titleName = 'Lớp của bạn'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
@@ -191,6 +195,7 @@ const TeacherClassList = () => {
             <Stack.Screen name="teacherClassScreen" component={ClassScreen} />
             <Stack.Screen name="addSurvey" component={AddSurvey} />
             <Stack.Screen name="addMaterial" component={AddMaterial} />
+            <Stack.Screen name="attendance" component={Attendance} />
         </Stack.Navigator>
     )
 }
@@ -242,9 +247,9 @@ const StudentHomepage = () => {
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName
-                    if (route.name === 'home') {
+                    if (route.name === 'Home') {
                         iconName = 'home'
-                    } else if (route.name === 'profile') {
+                    } else if (route.name === 'Profile') {
                         iconName = 'user'
                     } else {
                         iconName = 'gear'
@@ -273,9 +278,9 @@ const StudentHomepage = () => {
                 },
             })}
         >
-            <Tab.Screen name="home" component={StudentScreen} />
-            <Tab.Screen name="profile" component={ProfileScreen} />
-            <Tab.Screen name="setting" component={SettingScreen} />
+            <Tab.Screen name="Home" component={StudentScreen} />
+            <Tab.Screen name="Profile" component={ProfileScreen} />
+            <Tab.Screen name="Setting" component={SettingScreen} />
         </Tab.Navigator>
     )
 }

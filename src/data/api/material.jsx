@@ -55,3 +55,22 @@ export const apiUploadMaterial = async (payload) => {
         return error.response
     }
 }
+
+export const apiEditMaterial = async (payload) => {
+    console.log(payload)
+    //như upload
+}
+
+export const apiDeleteMaterial = async (payload) => {
+    console.log(payload)
+    const response = await axiosConfig(
+        {
+            method: 'post',
+            url: `/it5023e/delete_material`,
+            data: {
+                token: payload.token,
+                material_id: payload.material_id
+            }
+        });
+    return response;
+}
