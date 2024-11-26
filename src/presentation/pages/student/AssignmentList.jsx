@@ -228,7 +228,7 @@ const AssignmentItem = ({ item, class_name }) => {
                 fontSize: 12,
                 fontWeight: 500
             }}>
-              {item?.grade ? item.grade : "Chưa có điểm"}
+              {item?.grade ? `${item.grade}/10` : "Chưa có điểm"}
             </Text>
         </View>
     </View>
