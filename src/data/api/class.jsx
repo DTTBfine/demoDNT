@@ -14,17 +14,25 @@ export const apiGetClassList = async (payload) => {
 }
 
 export const apiGetClassInfo = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/get_class_info',
-        data: {
-            token: payload.token,
-            role: payload.role,
-            account_id: payload.account_id,
-            class_id: payload.class_id
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/get_class_info',
+            data: {
+                token: payload.token,
+                // role: payload.role,
+                // account_id: payload.account_id,
+                class_id: payload.class_id
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("failed to get class info: " + error)
         }
-    })
-    return response
+        return error.response
+    }
+   
 }
 
 export const apiCreateClass = async (payload) => {

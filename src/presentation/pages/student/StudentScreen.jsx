@@ -7,12 +7,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
 import { convertVNDate, days, getDaysOfWeek } from '../../../utils/format';
 import { useNavigation } from '@react-navigation/native';
+import { assignmentStatus } from '../../../utils/constants/class';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
 const StudentScreen = () => {
     const dispatch = useDispatch()
+    const [dispatchData, setDispatchData] = useState(true)
     const navigate = useNavigation()
     const { userInfo } = useSelector(state => state.user)
     const avatarLink = userInfo.avatar
@@ -28,7 +30,31 @@ const StudentScreen = () => {
     }
     const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
-    console.log('day in week: ' + JSON.stringify(getDaysOfWeek(currentDate)))
+
+    // useEffect(() => {
+    //     if (dispatchData) {
+    
+    //       dispatch(actions.getCompletedAssigments({
+    //         token: token,
+    //         type: assignmentStatus.completed,
+    //         class_id: null
+    //       }))
+    
+    //       dispatch(actions.getUpcomingAssigments({
+    //         token: token,
+    //         type: assignmentStatus.upcoming,
+    //         class_id: null
+    //       }))
+    
+    //       dispatch(actions.getPastDueAssigments({
+    //         token: token,
+    //         type: assignmentStatus.pastDue,
+    //         class_id: null
+    //       }))
+    
+    //     setDispatchData(false)
+    //     }
+    // }, [])
 
     return (
         <ScrollView>

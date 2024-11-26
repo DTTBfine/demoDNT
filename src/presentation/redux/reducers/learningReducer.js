@@ -1,11 +1,18 @@
+import { act } from 'react'
 import actionTypes from '../actions/actionTypes'
 
 const initState = {
     myClasses: [],
     currentClass: {},
+    currentClassBasic: {},
     classMaterial: [],
     allStudentAssignment: [],
-    surveyOfCurrentClass: []
+    studentAssignmentsByClassId: [],
+    completedAssignments: [],
+    upcomingAssignments: [],
+    pastDueAssignments: [],
+    surveyOfCurrentClass: [],
+    attendanceRecord: {}
 }
 
 const learningReducer = (state = initState, action) => {
@@ -21,7 +28,17 @@ const learningReducer = (state = initState, action) => {
                 ...state,
                 currentClass: action.data || {}
             }
+        case actionTypes.GET_BASIC_CLASS_INFO:
+            return {
+                ...state,
+                currentClassBasic: action.data || {}
+            }
         //attendance
+        case actionTypes.GET_ATTENDANCE_RECORD:
+            return {
+                ...state,
+                attendanceRecord: action.data || {}
+            }
 
         //absence
 
@@ -30,6 +47,26 @@ const learningReducer = (state = initState, action) => {
             return {
                 ...state,
                 allStudentAssignment: action.data || []
+            }
+        case actionTypes.GET_STUDENT_ASSIGNMENTS_BY_CLASS_ID:
+            return {
+                ...state,
+                studentAssignmentsByClassId: action.data || []
+            }
+        case actionTypes.GET_COMPLETED_ASSIGNMENTS:
+            return {
+                ...state,
+                completedAssignments: action.data || []
+            }
+        case actionTypes.GET_PAST_DUE_ASSIGNMENTS:
+            return {
+                ...state,
+                pastDueAssignments: action.data || []
+            }
+        case actionTypes.GET_UPCOMING_ASSIGNMENTS:
+            return {
+                ...state,
+                upcomingAssignments: action.data || []
             }
         case actionTypes.GET_SURVEYS_OF_CLASS:
             return {
