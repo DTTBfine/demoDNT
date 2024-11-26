@@ -205,7 +205,7 @@ const AssignmentList = () => {
           {displayedAssignments?.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
           {
             displayedAssignments?.length > 0 && displayedAssignments?.map((item, index) => {
-              const day = new Date()
+              const day = new Date(item.deadline)
               return (
                 <View key={index} style={{
                   gap: 10

@@ -35,7 +35,9 @@ const AssignmentItem = ({ item }) => {
                 <Text style={{
                     fontSize: 12,
                     fontWeight: 500
-                }}>Chưa có điểm</Text>
+                }}>
+                    {item.grade ? item.grade : "Chưa có điểm"}
+                </Text>
             </View>
         </View>
     )

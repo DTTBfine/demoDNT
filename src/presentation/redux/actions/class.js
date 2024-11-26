@@ -139,13 +139,26 @@ export const getUpcomingAssigments = (payload) => async (dispatch) => {
     }
 }
 
-
+//getCompletedAssignments will return grade in each assignment if it's been graded
 export const getCompletedAssigments = (payload) => async (dispatch) => {
     const response = await apis.apiGetStudentAssignments(payload)
     if (response?.data.meta.code === responseCodes.statusOK) {
+        let assignmentsList = response?.data?.data
+        for (let item of assignmentsList) {
+            const submissionResponse = await apis.apiGetSubmission({
+                token: payload.token,
+                assignment_id: item?.id
+            })
+            console.log("submission response: " + JSON.stringify(response?.data))
+            if (submissionResponse?.data?.meta?.code === responseCodes.statusOK) {
+                item.grade = submissionResponse?.data?.data?.grade
+            } else {
+                item.grade = null
+            }
+        }
         dispatch({
             type: actionTypes.GET_COMPLETED_ASSIGNMENTS,
-            data: response?.data?.data
+            data: assignmentsList
         })
     }
     else {
@@ -171,6 +184,20 @@ export const getPastDueAssigments = (payload) => async (dispatch) => {
             data: null
         })
     }
+}
+
+export const getSubmission = (payload) => async (dispatch) => {
+    const response = await apis.apiGetSubmission(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_SUBMISSION,
+            data: response?.data?.data
+        })
+    }
+    dispatch({
+        type: actionTypes.GET_SUBMISSION,
+        data: null
+    })
 }
 
 export const getAllSurveys = (payload) => async (dispatch) => {

@@ -11,6 +11,7 @@ const initState = {
     completedAssignments: [],
     upcomingAssignments: [],
     pastDueAssignments: [],
+    submissionOfCurrentAssignment: {},
     surveyOfCurrentClass: [],
     attendanceRecord: {}
 }
@@ -67,6 +68,11 @@ const learningReducer = (state = initState, action) => {
             return {
                 ...state,
                 upcomingAssignments: action.data || []
+            }
+        case actionTypes.GET_SUBMISSION:
+            return {
+                ...state,
+                submissionOfCurrentAssignment: action.data || []
             }
         case actionTypes.GET_SURVEYS_OF_CLASS:
             return {

@@ -153,13 +153,21 @@ export const apiGetStudentAssignmentsByClassId = async (payload) => {
 }
 
 export const apiGetSubmission = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/get_submission',
-        data: {
-            token: payload.token,
-            assignment_id: payload.assignment_id
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/get_submission',
+            data: {
+                token: payload.token,
+                assignment_id: payload.assignment_id
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("get submission failed: " + error)
         }
-    })
-    return response
+        return error.response
+    }
+    
 }
