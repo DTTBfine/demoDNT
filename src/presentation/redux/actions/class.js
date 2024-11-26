@@ -123,6 +123,56 @@ export const getStudentAssignmentsByClassId = (payload) => async (dispatch) => {
     }
 }
 
+export const getUpcomingAssigments = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAssignments(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_UPCOMING_ASSIGNMENTS,
+            data: response?.data?.data
+        })
+    }
+    else {
+        dispatch({
+            type: actionTypes.GET_UPCOMING_ASSIGNMENTS,
+            data: null
+        })
+    }
+}
+
+
+export const getCompletedAssigments = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAssignments(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_COMPLETED_ASSIGNMENTS,
+            data: response?.data?.data
+        })
+    }
+    else {
+        dispatch({
+            type: actionTypes.GET_COMPLETED_ASSIGNMENTS,
+            data: null
+        })
+    }
+}
+
+
+export const getPastDueAssigments = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAssignments(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_PAST_DUE_ASSIGNMENTS,
+            data: response?.data?.data
+        })
+    }
+    else {
+        dispatch({
+            type: actionTypes.GET_PAST_DUE_ASSIGNMENTS,
+            data: null
+        })
+    }
+}
+
 export const getAllSurveys = (payload) => async (dispatch) => {
     const response = await apis.apiGetAllSurveys(payload)
     console.log('Đã lấy response của api get all survey of class')

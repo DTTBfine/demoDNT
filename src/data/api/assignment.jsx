@@ -105,14 +105,24 @@ export const apiGetSurveyResponse = async (payload) => {
 }
 
 export const apiGetStudentAssignments = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/get_student_assignments',
-        data: {
-            token: payload.token
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/get_student_assignments',
+            data: {
+                token: payload.token,
+                type: payload.type ? payload.type : null,
+                class_id: payload.class_id ? payload.class_id : null
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("get student assignments failed: " + error)
         }
-    })
-    return response
+        return error.response
+    }
+    
 }
 
 export const apiGetStudentAssignmentsByClassId = async (payload) => {

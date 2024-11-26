@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
+import { assignmentStatus } from '../../../utils/constants/class';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
@@ -96,17 +97,53 @@ const AssignmentList = () => {
   const [state, setState] = useState('Sắp tới')
   const dispatch = useDispatch()
   const [dispatchData, setDispatchData] = useState(true)
+  const [displayedAssignments, setDisplayedAssignments] = useState([])
   const { token } = useSelector(state => state.auth)
-  const { allStudentAssignment } = useSelector(state => state.learning)
+  const { upcomingAssignments, pastDueAssignments, completedAssignments } = useSelector(state => state.learning)
+  
+
   useEffect(() => {
-    dispatchData && dispatch(actions.getStudentAssignments({
-      token: token
-    }))
+    if (dispatchData) {
+
+      dispatch(actions.getCompletedAssigments({
+        token: token,
+        type: assignmentStatus.completed,
+        class_id: null
+      }))
+
+      dispatch(actions.getUpcomingAssigments({
+        token: token,
+        type: assignmentStatus.upcoming,
+        class_id: null
+      }))
+
+      dispatch(actions.getPastDueAssigments({
+        token: token,
+        type: assignmentStatus.pastDue,
+        class_id: null
+      }))
+
     setDispatchData(false)
+    }
   }, [])
 
-  console.log('all assignment: ' + JSON.stringify(allStudentAssignment))
+  useEffect(() => {
 
+    switch (state) {
+      case "Sắp tới":
+        setDisplayedAssignments(upcomingAssignments);
+        break;
+      case "Quá hạn":
+        setDisplayedAssignments(pastDueAssignments)
+        break
+      case "Đã hoàn thành":
+        setDisplayedAssignments(completedAssignments)
+        break
+      default:
+        setDisplayedAssignments([])
+    }
+  }, [state])
+ 
   const navigate = useNavigation()
 
   return (
@@ -155,9 +192,10 @@ const AssignmentList = () => {
         </View>
 
         <ScrollView style={styles.list}>
-          {allStudentAssignment.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
-          {/* {
-            allStudentAssignment.length > 0 && allStudentAssignment.map((day, index) => {
+          {displayedAssignments?.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
+          {
+            displayedAssignments?.length > 0 && displayedAssignments?.map((item, index) => {
+              const day = new Date()
               return (
                 <View key={index} style={{
                   gap: 10
@@ -180,12 +218,11 @@ const AssignmentList = () => {
                       {day.day}
                     </Text>
                   </View>
-
-                  <AssignmentItem />
+                  <AssignmentItem item={item} />
                 </View>
               )
             })
-          } */}
+          }
         </ScrollView>
       </View>
     </View>
