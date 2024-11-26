@@ -149,7 +149,6 @@ export const getCompletedAssigments = (payload) => async (dispatch) => {
                 token: payload.token,
                 assignment_id: item?.id
             })
-            console.log("submission response: " + JSON.stringify(response?.data))
             if (submissionResponse?.data?.meta?.code === responseCodes.statusOK) {
                 item.grade = submissionResponse?.data?.data?.grade
             } else {

@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
-import { convertVNDate, getColorForId } from '../../utils/format'
+import { classNameCode, convertVNDate, getColorForId } from '../../utils/format'
 
-const AssignmentItem = ({ item }) => {
+const AssignmentItem = ({ item, class_name }) => {
     return (
         <View style={styles.container}>
             <View style={{ flexDirection: 'row', gap: 15, alignItems: 'flex-start' }}>
@@ -18,20 +18,20 @@ const AssignmentItem = ({ item }) => {
                         <Text style={{
                             color: 'white',
                             textAlign: 'center',
-                        }}>BT</Text>
+                        }}>{classNameCode(class_name)}</Text>
                     </View>
                 </View>
-                <View style={{}}>
+                <View>
                     <Text style={{
                         fontSize: 16,
                         fontWeight: 500
                     }}>{item?.title}</Text>
                     <Text style={{
                         color: 'gray'
-                    }}>Deadline: {convertVNDate(item.deadline)} </Text>
+                    }}>{class_name} </Text>
                 </View>
             </View>
-            <View style={{}}>
+            <View>
                 <Text style={{
                     fontSize: 12,
                     fontWeight: 500

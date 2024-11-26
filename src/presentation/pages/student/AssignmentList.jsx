@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import AssignmentItem from '../../components/assignmentItem'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
 import { assignmentStatus } from '../../../utils/constants/class';
+import { classNameCode, getColorForId } from '../../../utils/format';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
@@ -16,83 +16,7 @@ const size = {
   height: height
 }
 
-const data = [
-  {
-    name: 'Participant Exercise 20.5.2024',
-    class: '20232-IT4110E-147831',
-    startTime: '',
-    deadline: '',
-    done: true,
-    time: '16:46',
-    date: '20-5-2024'
-  },
-  {
-    name: 'Bài tập về ngoại lệ',
-    class: 'OOP-ICT',
-    startTime: '',
-    deadline: '',
-    done: true,
-    time: '11:28',
-    date: '16-5-2024'
-  },
-  {
-    name: 'LAB 3: STATIC ROUTING IN IP NETWORKS',
-    class: 'Sáng T6c2 738935',
-    startTime: '',
-    deadline: '',
-    done: true,
-    time: '16:46',
-    date: '12-5-2024'
-  },
-  {
-    name: 'Exercise about class diagram',
-    class: 'OOP-ICT',
-    startTime: '',
-    deadline: '',
-    done: true,
-    time: '11:11',
-    date: '9-5-2024'
-  }
-]
-
-const testData = [
-  {
-    day: 'thứ hai',
-    date: '20',
-    month: '5',
-    year: '2024'
-  },
-  {
-    day: 'thứ năm',
-    date: '16',
-    month: '5',
-    year: '2024'
-  },
-  {
-    day: 'chủ nhật',
-    date: '12',
-    month: '5',
-    year: '2024'
-  },
-  {
-    day: 'thứ năm',
-    date: '9',
-    month: '5',
-    year: '2024'
-  },
-  {
-    day: 'thứ sáu',
-    date: '26',
-    month: '4',
-    year: '2024'
-  },
-  {
-    day: 'thứ năm',
-    date: '25',
-    month: '4',
-    year: '2024'
-  },
-]
+const days = ['chủ nhật', 'thứ hai', 'thứ ba', 'thứ tư', 'thứ năm', 'thứ sáu', 'thứ bảy']
 
 const AssignmentList = () => {
   const [state, setState] = useState('Sắp tới')
@@ -101,8 +25,13 @@ const AssignmentList = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [displayedAssignments, setDisplayedAssignments] = useState([])
   const { token } = useSelector(state => state.auth)
-  const { upcomingAssignments, pastDueAssignments, completedAssignments } = useSelector(state => state.learning)
-  
+  const { myClasses, upcomingAssignments, pastDueAssignments, completedAssignments } = useSelector(state => state.learning)
+
+  const getClassNameById = (id) => {
+    let classObj = myClasses.find(item => item.class_id == id)
+    return classObj.class_name
+  }
+
 
   useEffect(() => {
     if (dispatchData) {
@@ -124,14 +53,13 @@ const AssignmentList = () => {
         type: assignmentStatus.pastDue,
         class_id: null
       }))
-    
-    setIsLoading(false)
-    setDispatchData(false)
+
+      setIsLoading(false)
+      setDispatchData(false)
     }
   }, [])
 
   useEffect(() => {
-
     switch (state) {
       case "Sắp tới":
         setDisplayedAssignments(upcomingAssignments);
@@ -146,18 +74,27 @@ const AssignmentList = () => {
         setDisplayedAssignments([])
     }
   }, [state])
- 
+
+
   const navigate = useNavigation()
+
+  const { userInfo } = useSelector(state => state.user)
+  const avatarLink = userInfo.avatar
+  let avatarUri = ''
+  if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
+    const fileId = avatarLink.split('/d/')[1].split('/')[0];
+    avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
+  }
 
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
         <Spinner
-                visible={isLoading}
-                textContent={'Load dữ liệu bài tập...'}
-                textStyle={{
-                    color: '#FFF'
-                }}
+          visible={isLoading}
+          textContent={'Load dữ liệu bài tập...'}
+          textStyle={{
+            color: '#FFF'
+          }}
         />
         <View style={{
           height: 80,
@@ -165,20 +102,23 @@ const AssignmentList = () => {
           justifyContent: "flex-start",
           alignItems: 'flex-end',
           padding: 15,
+          paddingTop: 30,
           flexDirection: 'row',
           gap: 5
         }}>
           <Image
-            source={require('../../../../assets/default-avatar.jpg')}
+            source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../../assets/default-avatar.jpg')}
             style={{
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
               borderRadius: 20,
+              borderWidth: 1,
+              borderColor: 'gray'
             }}
           />
           <Text style={{
-            fontSize: 22,
-            fontWeight: 'bold',
+            fontSize: 28,
+            fontWeight: '600',
             color: 'white'
           }} > Bài tập </Text>
         </View>
@@ -201,40 +141,96 @@ const AssignmentList = () => {
           </View>
         </View>
 
-        <ScrollView style={styles.list}>
-          {displayedAssignments?.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
-          {
-            displayedAssignments?.length > 0 && displayedAssignments?.map((item, index) => {
-              const day = new Date(item.deadline)
-              return (
-                <View key={index} style={{
-                  gap: 10
-                }}>
-                  <View style={{
-                    flexDirection: "row",
-                    alignItems: 'baseline',
+        <View style={styles.list}>
+          <ScrollView>
+            {displayedAssignments?.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
+            {
+              displayedAssignments?.length > 0 && displayedAssignments?.map((item, index) => {
+                const day = new Date(item.deadline)
+                return (
+                  <View key={index} style={{
                     gap: 10
                   }}>
-                    <Text style={{
-                      fontSize: 17,
-                      fontWeight: '600'
+                    <View style={{
+                      flexDirection: "row",
+                      alignItems: 'baseline',
                     }}>
-                      {day.date} thg {day.month}
-                    </Text>
-                    <Text style={{
-                      color: 'gray',
-                      fontSize: 14
-                    }}>
-                      {day.day}
-                    </Text>
+                      <Text style={{
+                        paddingHorizontal: 10,
+                        fontSize: 17,
+                        fontWeight: '600'
+                      }}>
+                        {day.getDate()} thg {day.getMonth() + 1}
+                      </Text>
+                      <Text style={{
+                        color: 'gray',
+                        fontSize: 14
+                      }}>
+                        {days[day.getDay()]}
+                      </Text>
+                    </View>
+                    <AssignmentItem item={item} class_name={getClassNameById(item.class_id)} />
                   </View>
-                  <AssignmentItem item={item} />
-                </View>
-              )
-            })
-          }
-        </ScrollView>
+                )
+              })
+            }
+          </ScrollView>
+        </View>
       </View>
+    </View>
+  )
+}
+
+const AssignmentItem = ({ item, class_name }) => {
+
+  return (
+    <View style={{
+      backgroundColor: 'white',
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderRightWidth: 1,
+      borderColor: '#CCCCCC',
+      elevation: 5,
+      borderRadius: 15,
+      padding: 15,
+      justifyContent: 'space-between',
+      marginVertical: 10,
+      marginHorizontal: 20
+    }}>
+      <View style={{ flexDirection: 'row', gap: 15, alignItems: 'flex-start' }}>
+        <View style={{}}>
+          <View style={{
+            marginTop: 5,
+            width: 30,
+            height: 30,
+            backgroundColor: getColorForId(item.class_id),
+            borderRadius: 6,
+            justifyContent: 'center'
+          }}>
+            <Text style={{
+              color: 'white',
+              textAlign: 'center',
+            }}>{classNameCode(class_name)}</Text>
+          </View>
+        </View>
+        <View>
+          <Text style={{
+            fontSize: 16,
+            fontWeight: 500
+          }}>{item?.title}</Text>
+          <Text style={{
+            color: 'gray'
+          }}>{class_name} </Text>
+        </View>
+      </View>
+      <View>
+            <Text style={{
+                fontSize: 12,
+                fontWeight: 500
+            }}>
+              {item?.grade ? item.grade : "Chưa có điểm"}
+            </Text>
+        </View>
     </View>
   )
 }
@@ -270,8 +266,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   list: {
-    padding: 20,
-    gap: 15
+    height: height - 130,
+    marginBottom: 20,
+    marginTop: 15
   }
 
 
