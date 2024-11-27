@@ -44,6 +44,7 @@ const EditClass = ({ route }) => {
         if (!validateFields()) return;
 
         try {
+            setShowEditConfirmModal(false);
             setLoadingEdit(true);
             const payload = {
                 token,
@@ -65,12 +66,12 @@ const EditClass = ({ route }) => {
             Alert.alert('Lỗi', error.response?.data?.message || 'Không thể chỉnh sửa lớp học!');
         } finally {
             setLoadingEdit(false);
-            setShowEditConfirmModal(false);
         }
     };
 
     const handleDeleteClass = async () => {
         try {
+            setShowDeleteConfirmModal(false);
             setLoadingDelete(true);
             const payload = {
                 token,
@@ -90,7 +91,6 @@ const EditClass = ({ route }) => {
             Alert.alert('Lỗi', error.response?.data?.message || 'Không thể xoá lớp học!');
         } finally {
             setLoadingDelete(false);
-            setShowDeleteConfirmModal(false);
         }
     };
 
@@ -259,27 +259,35 @@ const styles = StyleSheet.create({
         flex: 1,
         alignContent: 'center',
         paddingTop: 20,
-        backgroundColor: '#F3F3F3',
+        backgroundColor: '#fff',
     },
     inputBox: {
-        paddingHorizontal: 20,
+        padding: 20,
+        gap: 15,
     },
     input: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#AA0000',
-        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#BB0000',
+        borderRadius: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
         fontSize: 16,
+        color: 'black',
+        backgroundColor: '#f9f9f9',
     },
     dateRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        gap: 10,
     },
     dateInput: {
         flex: 1,
-        marginHorizontal: 5,
-        borderBottomWidth: 1,
-        borderBottomColor: '#AA0000',
+        borderWidth: 1,
+        borderColor: '#BB0000',
+        borderRadius: 20,
         paddingVertical: 10,
+        paddingHorizontal: 20,
+        backgroundColor: '#f9f9f9',
     },
     dateText: {
         fontSize: 16,
@@ -309,12 +317,12 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#AA0000',
-        width:165,
+        width:170,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 5,
         marginHorizontal:5,
-        marginVertical:30,
+        marginVertical:20,
     },
     buttonText: {
         color: '#FFFFFF',
