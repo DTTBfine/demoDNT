@@ -3,7 +3,8 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome'
-import { Text, View } from 'react-native';
+import IconI from 'react-native-vector-icons/Ionicons'
+import { Image, Text, View } from 'react-native';
 
 import CustomHeader from '../components/customHeader';
 import LoginScreen from '../pages/Login';
@@ -31,6 +32,9 @@ import SubmitSurvey from '../pages/student/SubmitSurvey';
 
 import { classNameCode, getColorForId } from '../../utils/format';
 import CustomTeacherClass from '../components/customTeacherClass';
+import AbsenceManage from '../pages/teacher/AbsenceManage';
+import Message from '../pages/Message';
+import Conversation from '../pages/Conversation';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -44,9 +48,50 @@ const AppNavigation = () => {
                 <Stack.Screen name="teacher" component={TeacherRoute} />
                 {/* <Stack.Screen name="inapp" component={InapNavigation} /> */}
                 <Stack.Screen name="notification" component={Note} />
+                <Stack.Screen name="message" component={MessageRoute} />
                 <Stack.Screen name="testUI" component={TestUI} />
             </Stack.Navigator>
         </NavigationContainer>
+    )
+}
+
+const MessageRoute = () => {
+    const convertAvtLink = (avatarLink) => {
+        let avatarUri = ''
+        if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
+            const fileId = avatarLink.split('/d/')[1].split('/')[0];
+            avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
+        }
+        return avatarUri
+    }
+    return (
+        <Stack.Navigator
+            screenOptions={({ route }) => ({
+                headerShown: !(route.name === 'conversationList'),
+                headerTitle: route.name === 'conversation' ? () => {
+                    return <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{ flex: 9, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                            <Image
+                                source={route.params.avatar ? { uri: convertAvtLink(route.params.avatar) } : require('../../../assets/default-avatar.jpg')}
+                                style={{
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: 25,
+                                }}
+                            />
+                            <Text style={{ fontSize: 18, fontWeight: '500' }}>{route.params.name}</Text>
+                        </View>
+                        {/* View phông bạt */}
+                        <View style={{ flex: 3, flexDirection: 'row', gap: 20 }}>
+                            <IconI name='call' color='mediumpurple' size={22} />
+                            <IconI name='videocam' color='mediumpurple' size={22} />
+                        </View>
+                    </View>
+                } : undefined,
+            })}>
+            <Stack.Screen name="conversationList" component={Message} />
+            <Stack.Screen name="conversation" component={Conversation} />
+        </Stack.Navigator >
     )
 }
 
@@ -175,6 +220,7 @@ const TeacherClassList = () => {
                     if (route.name === "addSurvey") titleName = 'Tạo bài kiểm tra'
                     else if (route.name === "addMaterial") titleName = 'Tải lên tài liệu'
                     else if (route.name === 'attendance') titleName = 'Điểm danh sinh viên'
+                    else if (route.name === 'absenceManage') titleName = 'Yêu cầu nghỉ phép'
                     else titleName = 'Lớp của bạn'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
@@ -196,6 +242,7 @@ const TeacherClassList = () => {
             <Stack.Screen name="addSurvey" component={AddSurvey} />
             <Stack.Screen name="addMaterial" component={AddMaterial} />
             <Stack.Screen name="attendance" component={Attendance} />
+            <Stack.Screen name="absenceManage" component={AbsenceManage} />
         </Stack.Navigator>
     )
 }

@@ -20,7 +20,7 @@ const SettingScreen = () => {
         <View style={styles.cotainer}>
             <TouchableOpacity style={{ flexDirection: 'row', gap: 10, borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'white', alignItems: 'center' }}>
                 <Image
-                    source={avatarUri.length > 0 ? {uri: avatarUri} : require('../../../assets/default-avatar.jpg')}
+                    source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../assets/default-avatar.jpg')}
                     style={{
                         width: 46,
                         height: 46,
@@ -62,7 +62,8 @@ const SettingScreen = () => {
                     </TouchableOpacity>
                 </View>
                 <View style={{ gap: 5 }}>
-                    <TouchableOpacity style={{ flexDirection: 'row', gap: 10, borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'white' }}>
+                    <TouchableOpacity onPress={() => navigate.navigate('message')}
+                        style={{ flexDirection: 'row', gap: 10, borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'white' }}>
                         <Icon name='wechat' size={24} />
                         <Text style={{ fontSize: 16, fontWeight: '500', textAlign: 'center' }}>Trò chuyện</Text>
                     </TouchableOpacity>

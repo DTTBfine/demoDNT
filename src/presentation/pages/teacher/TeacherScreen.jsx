@@ -21,21 +21,25 @@ const TeacherScreen = () => {
     return (
         <ScrollView>
             <View style={styles.infoBox}>
-                <View style={{ flex: 1 }}>
-                    <Image
-                        source={avatarUri.length > 0 ? {uri: avatarUri} : require('../../../../assets/default-avatar.jpg')}
-                        style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 20,
-                        }}
-                    />
+                <View style={{ flexDirection: 'row', gap: 15 }}>
+                    <View style={{}}>
+                        <Image
+                            source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../../assets/default-avatar.jpg')}
+                            style={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: 20,
+                                borderWidth: 1,
+                                borderColor: 'gray'
+                            }}
+                        />
+                    </View>
+                    <View style={{}}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text>
+                        <Text style={{ fontSize: 13 }}>Giảng viên </Text>
+                    </View>
                 </View>
-                <View style={{ flex: 4 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`} </Text>
-                    <Text style={{ fontSize: 13 }}>Giảng viên</Text>
-                </View>
-                <View style={{ flex: 1 }}>
+                <View style={{}}>
                     <Icon name='calendar' size={18} color="#BB0000" onPress={() => setShowSchedule(!showSchedule)} />
                 </View>
             </View>
@@ -103,11 +107,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     infoBox: {
-        width: '100%',
         marginHorizontal: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 15
+        marginBottom: 15,
+        justifyContent: 'space-between'
     },
     scheduleBox: {
         backgroundColor: "white",

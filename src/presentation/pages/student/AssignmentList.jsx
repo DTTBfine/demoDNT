@@ -224,13 +224,13 @@ const AssignmentItem = ({ item, class_name }) => {
         </View>
       </View>
       <View>
-            <Text style={{
-                fontSize: 12,
-                fontWeight: 500
-            }}>
-              {item?.grade ? `${item.grade}/10` : "Chưa có điểm"}
-            </Text>
-        </View>
+        <Text style={{
+          fontSize: 12,
+          fontWeight: 500
+        }}>
+          {item?.grade ? `${item.grade}/10` : "Chưa có điểm"}
+        </Text>
+      </View>
     </View>
   )
 }
