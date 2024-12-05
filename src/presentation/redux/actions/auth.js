@@ -36,3 +36,10 @@ export const login = (payload) => async (dispatch) => {
 export const logout = () => ({
     type: actionTypes.LOGOUT
 })
+
+export const saveFcmToken = (fcmToken) => {
+    return {
+      type: actionTypes.SAVE_FCM_TOKEN,
+      token: fcmToken,
+    };
+  };

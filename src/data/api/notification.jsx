@@ -43,8 +43,8 @@ export const apiGetNotifications = async (payload) => {
         url: '/it5023e/get_notifications',
         data: {
             token: payload.token,
-            index: '', //cái này dfng để làm gì?
-            count: '' //cái này nữa, là sao?
+            index: payload.index,
+            count: payload.count
         }
     })
     return response

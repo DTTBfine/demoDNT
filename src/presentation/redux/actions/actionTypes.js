@@ -21,6 +21,9 @@ const actionTypes = {
 
     //ABSENCE
 
+    //FCM_TOKEN
+    SAVE_FCM_TOKEN: 'SAVE_FCM_TOKEN',
+
     //ATTENDANCE
     GET_ATTENDANCE_RECORD: 'GET_ATTENANCE_RECORD',
 

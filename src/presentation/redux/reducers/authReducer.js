@@ -6,6 +6,7 @@ const initState = {
     userId: '',
     role: '',
     msg: '',
+    fcm_token:null,
     update: false
 }
 
@@ -45,6 +46,13 @@ const authReducer = (state = initState, action) => {
                 role: '',
                 msg: ''
             }
+
+        case actionTypes.SAVE_FCM_TOKEN:  
+            return {
+                ...state,
+                fcm_token: action.token, 
+            };
+
 
         default:
             return state;
