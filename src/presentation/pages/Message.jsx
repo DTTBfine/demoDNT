@@ -1,9 +1,13 @@
 import { View, Text, Image, StyleSheet, TextInput, Dimensions, ScrollView, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { useSelector } from 'react-redux'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { getHourMinute } from '../../utils/format'
 import { useNavigation } from '@react-navigation/native'
+import * as actions from '../redux/actions'
+import Spinner from 'react-native-loading-spinner-overlay'
+import { getDisplayedAvatar } from '../../utils/format'
+
 
 //Lấy hộ list conversation đi
 const conversations = [
@@ -54,31 +58,48 @@ const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta tru
 
 const Message = () => {
     const navigate = useNavigation()
+    const dispatch = useDispatch()
+    const { token } = useSelector(state => state.auth) 
     const { userInfo } = useSelector(state => state.user)
-    const avatarLink = userInfo.avatar
-    let avatarUri = ''
-    if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
-        const fileId = avatarLink.split('/d/')[1].split('/')[0];
-        avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
-    }
+    const {listConversations} = useSelector(state => state.message)
+    const [dispatchData, setDispatchData] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
 
-    const convertAvtLink = (avatarLink) => {
-        if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
-            const fileId = avatarLink.split('/d/')[1].split('/')[0];
-            avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
+    useEffect(() => {
+        if (dispatchData) {
+            setIsLoading(true)
+            dispatch(actions.getListConversation({
+                token: token,
+                index: "0",
+                count: "100"
+            }))
+            // setTimeout(() => {
+            //     setIsLoading(false)
+            // }, 2000)
+            setIsLoading(false)
+            setDispatchData(false)
         }
-        return avatarUri
-    }
+    })
+    
+
+
 
     return (
         <View style={styles.container}>
+            <Spinner
+                visible={isLoading}
+                textContent={'Loading...'}
+                textStyle={{
+                    color: '#000'
+                }}
+            />
             <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 10
             }}>
                 <Image
-                    source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../assets/default-avatar.jpg')}
+                    source={userInfo.avatar ? { uri: getDisplayedAvatar(userInfo.avatar) } : require('../../../assets/default-avatar.jpg')}
                     style={{
                         width: 40,
                         height: 40,
@@ -115,7 +136,7 @@ const Message = () => {
                 height: height - 200
             }}>
                 <ScrollView>
-                    {conversations.length > 0 ? conversations.map((item, index) => {
+                    {listConversations?.length > 0 ? listConversations.map((item, index) => {
                         return (
                             <TouchableOpacity key={index} onPress={() => navigate.navigate('conversation', { name: item.partner.name, avatar: item.partner.avatar, conversation_id: item.id })}
                                 style={{
@@ -126,7 +147,7 @@ const Message = () => {
                                 }}>
                                 <View>
                                     <Image
-                                        source={item.partner.avatar ? { uri: convertAvtLink(item.partner.avatar) } : require('../../../assets/default-avatar.jpg')}
+                                        source={item.partner.avatar ? { uri: getDisplayedAvatar(item.partner.avatar) } : require('../../../assets/default-avatar.jpg')}
                                         style={{
                                             width: 50,
                                             height: 50,
