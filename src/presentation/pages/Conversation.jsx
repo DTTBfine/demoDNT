@@ -9,50 +9,6 @@ const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta tru
 
 const initConversation = [
     {
-        "message_id": "6670",
-        "message": "lập trình web",
-        "sender": {
-            "id": 9,
-            "name": "Bfbf Gfdnnc",
-            "avatar": null
-        },
-        "created_at": "2024-12-03T22:45:44",
-        "unread": 0
-    },
-    {
-        "message_id": "6669",
-        "message": "Sở hữu bảng mã màu CSS chuẩn, bạn sẽ tự tin hơn khi thiết kế",
-        "sender": {
-            "id": 9,
-            "name": "Bfbf Gfdnnc",
-            "avatar": null
-        },
-        "created_at": "2024-12-03T22:45:40",
-        "unread": 0
-    },
-    {
-        "message_id": "6668",
-        "message": "Test nữa nài",
-        "sender": {
-            "id": 9,
-            "name": "Bfbf Gfdnnc",
-            "avatar": null
-        },
-        "created_at": "2024-12-03T22:45:33",
-        "unread": 0
-    },
-    {
-        "message_id": "6667",
-        "message": "Test nữa nài",
-        "sender": {
-            "id": 9,
-            "name": "Bfbf Gfdnnc",
-            "avatar": null
-        },
-        "created_at": "2024-12-03T22:45:30",
-        "unread": 0
-    },
-    {
         "message_id": "6666",
         "message": "khum chill nữa rồi",
         "sender": {
@@ -98,17 +54,6 @@ const initConversation = [
     },
     {
         "message_id": "6662",
-        "message": "double",
-        "sender": {
-            "id": 9,
-            "name": "Bfbf Gfdnnc",
-            "avatar": null
-        },
-        "created_at": "2024-12-03T22:44:00",
-        "unread": 0
-    },
-    {
-        "message_id": "6661",
         "message": "đừng nói là chưa thấy nhá",
         "sender": {
             "id": 9,
@@ -235,6 +180,7 @@ const Conversation = ({ route }) => {
                     renderItem={renderMessage}
                     inverted={true}  // Đảo ngược thứ tự của danh sách
                     contentContainerStyle={{ paddingBottom: 10 }}  // Đảm bảo các tin nhắn được căn dưới
+                    showsVerticalScrollIndicator={false}
                 />
             </View>
             <View style={{

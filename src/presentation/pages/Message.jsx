@@ -59,9 +59,9 @@ const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta tru
 const Message = () => {
     const navigate = useNavigation()
     const dispatch = useDispatch()
-    const { token } = useSelector(state => state.auth) 
+    const { token } = useSelector(state => state.auth)
     const { userInfo } = useSelector(state => state.user)
-    const {listConversations} = useSelector(state => state.message)
+    const { listConversations } = useSelector(state => state.message)
     const [dispatchData, setDispatchData] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
 
@@ -80,9 +80,6 @@ const Message = () => {
             setDispatchData(false)
         }
     })
-    
-
-
 
     return (
         <View style={styles.container}>
@@ -170,9 +167,9 @@ const Message = () => {
                             </TouchableOpacity>
                         )
                     }) :
-                        <View>
-                            <Text style={{ textAlign: 'center', fontSize: 13, color: 'white' }}>Bạn chưa có cuộc hội thoại nào!</Text>
-                            <Text style={{ textAlign: 'center', fontSize: 20, color: 'white' }}>Hãy bắt đầu trò chuyện</Text>
+                        <View style={{ paddingTop: 50 }}>
+                            <Text style={{ textAlign: 'center', fontSize: 13, color: 'gray' }}>Bạn chưa có cuộc hội thoại nào!</Text>
+                            <Text style={{ textAlign: 'center', fontSize: 20, color: 'gray' }}>Hãy bắt đầu trò chuyện</Text>
                         </View>}
                 </ScrollView>
             </View>
