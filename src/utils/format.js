@@ -27,6 +27,15 @@ export const formatSQLDate = (string_date) => {
     return date + year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day;
 }
 
+export const getHourMinute = (dateStr) => {
+    // Chuyển chuỗi thành đối tượng Date
+    const date = new Date(dateStr);
+    // Lấy giờ và phút từ đối tượng Date
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    return { hour, minute };
+}
+
 export const convertVNDate = (string_date) => {
     // Tạo một đối tượng Date từ chuỗi
     var date_object = new Date(string_date);
