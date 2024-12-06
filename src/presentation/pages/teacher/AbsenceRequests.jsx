@@ -43,7 +43,7 @@ const testData = [
         },
         "absence_date": "2024-12-21",
         "reason": "Sở hữu bảng mã màu CSS chuẩn, bạn sẽ tự tin hơn khi thiết kế, lập trình web, bởi màu sắc là một phần không thể thiếu trong thế giới Internet",
-        "status": "ACCEPTED",
+        "status": "REJECTED",
         "file_url": "https://drive.google.com/file/d/1RRanTlcKWLBUdZCqE_Mue7UDlIY2oTj5/view?usp=drivesdk"
     },
 
@@ -95,8 +95,20 @@ const AbsenceRequests = () => {
                 paddingVertical: 10,
                 paddingHorizontal: 15
             }}>
-                <View style={{ borderBottomWidth: 1, borderColor: '#ddd', paddingVertical: 10 }}>
-                    <Text style={{ fontStyle: 'italic', fontWeight: item.status === 'PENDING' && '600', color: item.status === 'PENDING' ? '#AA0000' : 'gray' }}>Ngày {item.absence_date}</Text>
+                <View style={{ borderBottomWidth: 1, borderColor: '#ddd', paddingVertical: 10, flexDirection: 'row' }}>
+                    <View style={{ flex: 2 }}>
+                        <Text style={{ fontStyle: 'italic', fontWeight: item.status === 'PENDING' && '600', color: item.status === 'PENDING' ? '#AA0000' : 'gray' }}>Ngày {item.absence_date}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={{
+                            textAlign: 'right',
+                            fontSize: 12,
+                            color: item.status === 'PENDING' ? 'goldenrod' : item.status === 'ACCEPTED' ? 'forestgreen' : 'crimson'
+                        }}
+                        >
+                            {item.status === 'PENDING' ? 'Chờ xử lý' : item.status === 'ACCEPTED' ? 'Đã chấp nhận' : 'Đã từ chối'}
+                        </Text>
+                    </View>
                 </View>
                 <View style={{ paddingVertical: 10 }}>
                     <Text style={{ fontSize: 16, fontWeight: item.status === 'PENDING' ? '600' : '400', color: item.status === 'PENDING' ? 'black' : 'gray' }}>{item.student_account.first_name} {item.student_account.last_name} - {item.student_account.student_id}</Text>
