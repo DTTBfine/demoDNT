@@ -1,18 +1,25 @@
 import axiosConfig from '../../../axiosConfig'
 
 export const apiSendNotification = async (payload) => {
+    const formData = new FormData();
+
+    formData.append('token', payload.token);
+    formData.append('message', payload.message);
+    formData.append('toUser', Number(payload.toUser)); 
+    formData.append('type', payload.type);
+    console.log(formData)
+
     const response = await axiosConfig({
         method: 'post',
         url: '/it5023e/send_notification',
-        data: {
-            token: payload.token,
-            message: payload.message,
-            to_user: payload.to_user,
-            type: payload.type ////ABSENCE, ACCEPT_ABSENCE_REQUEST, REJECT_ABSENCE_REQUEST, ASSIGNMENT_GRADE
-        }
-    })
-    return response
-}
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        },
+    });
+
+    return response;
+};
 
 export const apiGetUnreadNotificationCount = async (payload) => {
     const response = await axiosConfig({

@@ -318,7 +318,7 @@ const ClassScreen = ({ route }) => {
 const About = ({ class_id, class_type }) => {
     const { role } = useSelector(state => state.auth)
     const { currentClass, attendanceRecord } = useSelector(state => state.learning)
-
+    console.log("lectuerid:",currentClass.lecturer_account_id);
     return (
         <ScrollView>
             <View style={{ padding: 10, alignItems: 'center' }}>
