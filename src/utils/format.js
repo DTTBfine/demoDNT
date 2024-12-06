@@ -211,3 +211,11 @@ export const getIconForFileType = (fileType) => {
     // Trả về icon tương ứng với kiểu file, nếu không có trả về một icon mặc định
     return fileIcons[fileType] || 'file';
 };
+
+export const getDisplayedAvatar = (driveUrl) => {
+    if (driveUrl?.length > 0 && driveUrl.startsWith("https://drive.google.com")) {
+        const fileId = driveUrl.split('/d/')[1].split('/')[0];
+        return `https://drive.google.com/uc?export=view&id=${fileId}`
+    }
+    return ''
+}

@@ -4,16 +4,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import * as actions from '../redux/actions'
 import { useNavigation } from '@react-navigation/native'
 import Icon from 'react-native-vector-icons/FontAwesome'
+import { getDisplayedAvatar } from '../../utils/format'
 
 const SettingScreen = () => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.user)
-    const avatarLink = userInfo.avatar
-    let avatarUri = ''
-    if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
-        const fileId = avatarLink.split('/d/')[1].split('/')[0];
-        avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
-    }
+    const avatarUri = getDisplayedAvatar(userInfo.avatar)
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const navigate = useNavigation()
     return (
