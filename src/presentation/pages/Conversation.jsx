@@ -1,11 +1,12 @@
-import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, FlatList, Image } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, FlatList, Image, Modal, TouchableWithoutFeedback } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import IconI from 'react-native-vector-icons/Ionicons'
+import Icon6 from 'react-native-vector-icons/FontAwesome6'
 import { useDispatch, useSelector } from 'react-redux';
 import uuid from 'react-native-uuid'
 import * as actions from '../redux/actions'
 import Spinner from 'react-native-loading-spinner-overlay';
-import { getDisplayedAvatar } from '../../utils/format';
+import { getDisplayedAvatar, getHourMinute } from '../../utils/format';
 import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client'
 
@@ -73,16 +74,18 @@ const initConversation = [
 
 const TIME_THRESHOLD = 300 //5 phút 
 
+const LONG_TIME_THRESHOLD = 3600 //1 tiếng
+
 const Conversation = ({ route }) => {
     const dispatch = useDispatch()
     const { name, avatar, partner_id } = route.params
-    
+
     //useSelector
     const { userId, token } = useSelector(state => state.auth)
     const { userInfo } = useSelector(state => state.user)
     const { currentConversation } = useSelector(state => state.message)
-    
-    
+
+
     const [dispatchData, setDispatchData] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
     const [loadingText, setLoadingText] = useState('Loading...')
@@ -91,7 +94,7 @@ const Conversation = ({ route }) => {
     const stompClientRef = useRef(null);
 
     useEffect(() => {
-      // Initialize the STOMP client
+        // Initialize the STOMP client
         const socket = new SockJS(SOCKET_URL)
         const stompClient = Stomp.over(socket)
         stompClientRef.current = stompClient
@@ -119,7 +122,7 @@ const Conversation = ({ route }) => {
         // Cleanup when the component unmounts
         return () => {
             if (stompClientRef.current) {
-            stompClientRef.current.deactivate(); // Deactivate the stompClient when unmounted
+                stompClientRef.current.deactivate(); // Deactivate the stompClient when unmounted
             }
         };
     }, []);
@@ -193,17 +196,22 @@ const Conversation = ({ route }) => {
 
     useEffect(() => {
         if (currentConversation) {
-          setConversation(currentConversation); // Update conversation when currentConversation changes
-          setIsLoading(false); // Set loading to false after conversation data is received
-        // setTimeout(() => {
-        //     setIsLoading(false)
-        // }, 3000)
+            setConversation(currentConversation); // Update conversation when currentConversation changes
+            setIsLoading(false); // Set loading to false after conversation data is received
+            // setTimeout(() => {
+            //     setIsLoading(false)
+            // }, 3000)
         }
-      }, [currentConversation]); 
+    }, [currentConversation]);
 
     const removeTrailingNewline = (message) => {
         return message.replace(/\n$/, '');
     };
+
+    const [curMes, setcurMes] = useState(null)
+    const today = new Date()
+
+    const [showHandleDelete, setShowHandleDelete] = useState(false)
 
     const renderMessage = ({ item, index }) => {
         // Lấy tin nhắn trước đó để so sánh
@@ -219,39 +227,57 @@ const Conversation = ({ route }) => {
         // Điều kiện để ẩn avatar nếu tin nhắn đến từ cùng một người và thời gian cách nhau ít hơn TIME_THRESHOLD
         const showAvatar = !previousMessage || item.sender.id !== previousMessage.sender.id || timeDiff > TIME_THRESHOLD;
 
+        const isTodayMessage = today.toDateString() === currentTime.toDateString()
+
+        const isStartDay = !previousMessage || currentTime.toDateString() !== previousTime.toDateString()
+
+        const showTime = (timeDiff && timeDiff >= LONG_TIME_THRESHOLD) || (curMes && curMes === item) || isStartDay
+
         // Điều chỉnh margin nếu tin nhắn cách nhau gần
         const marginMessageSmall = timeDiff && timeDiff <= TIME_THRESHOLD && item.sender.id === previousMessage.sender.id;
 
         return (
             <View style={{
-                flexDirection: 'row',
-                marginTop: marginMessageSmall ? 3 : 10,
-                gap: 10,
-                justifyContent: item.sender.id == userId ? 'flex-end' : 'flex-start'
+                marginTop: !isTodayMessage ? 3 : marginMessageSmall ? 3 : 10,
             }}>
-                {item.sender.id != userId && showAvatar && <Image
-                    source={item.sender.avatar ? { uri: getDisplayedAvatar(item.sender.avatar) } : require('../../../assets/default-avatar.jpg')}
-                    style={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: 15,
+                {showTime && <Text style={{ textAlign: 'center', fontSize: 12, paddingVertical: 5, color: 'gray' }}>
+                    {isTodayMessage ? `${getHourMinute(item.created_at).hour + ':' + getHourMinute(item.created_at).minute}` :
+                        `${getHourMinute(item.created_at).day + ' TH' + getHourMinute(item.created_at).month + ' LÚC ' + getHourMinute(item.created_at).hour + ':' + getHourMinute(item.created_at).minute}`}
+                </Text>}
+                <View style={{
+                    flexDirection: 'row',
+                    gap: 10,
+                    justifyContent: item.sender.id == userId ? 'flex-end' : 'flex-start'
+                }}>
+                    {item.sender.id != userId && showAvatar && <Image
+                        source={item.sender.avatar ? { uri: getDisplayedAvatar(item.sender.avatar) } : require('../../../assets/default-avatar.jpg')}
+                        style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: 15,
+                        }}
+                    />}
+                    {
+                        item.sender.id != userId && !showAvatar && <View style={{
+                            width: 30,
+                            height: 30,
+                        }} />
+                    }
+                    <Text onLongPress={() => {
+                        setcurMes(item)
+                        setShowHandleDelete(true)
                     }}
-                />}
-                {
-                    item.sender.id != userId && !showAvatar && <View style={{
-                        width: 30,
-                        height: 30,
-                    }} />
-                }
-                <Text style={{
-                    backgroundColor: item.sender.id == userId ? 'mediumpurple' : 'gainsboro',
-                    color: item.sender.id == userId && 'white',
-                    borderRadius: 20,
-                    paddingVertical: 8,
-                    paddingHorizontal: 10,
-                    fontSize: 16,
-                    maxWidth: 250
-                }}>{removeTrailingNewline(item.message)}</Text>
+                        onPress={() => { item === curMes ? setcurMes(null) : setcurMes(item) }}
+                        style={{
+                            backgroundColor: item.sender.id == userId ? 'mediumpurple' : 'gainsboro',
+                            color: item.sender.id == userId && 'white',
+                            borderRadius: 20,
+                            paddingVertical: 8,
+                            paddingHorizontal: 10,
+                            fontSize: 16,
+                            maxWidth: 250
+                        }}> {removeTrailingNewline(item.message)} </Text>
+                </View>
             </View>
         );
     };

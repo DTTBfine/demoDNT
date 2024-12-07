@@ -255,7 +255,7 @@ const AbsenceRequests = ({ route }) => {
 
             }
             <FlatList
-                data={absenceRequests}
+                data={[...absenceRequests].reverse()}
                 keyExtractor={(item) => item.id}
                 renderItem={renderRequest}
                 contentContainerStyle={{ paddingBottom: 10 }}  // Đảm bảo các tin nhắn được căn dưới

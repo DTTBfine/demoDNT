@@ -31,9 +31,18 @@ export const getHourMinute = (dateStr) => {
     // Chuyển chuỗi thành đối tượng Date
     const date = new Date(dateStr);
     // Lấy giờ và phút từ đối tượng Date
-    const hour = date.getHours();
-    const minute = date.getMinutes();
-    return { hour, minute };
+    let hour = date.getHours();
+    let minute = date.getMinutes();
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear()
+
+    // Đảm bảo giờ và phút có 2 chữ số
+    hour = String(hour).padStart(2, '0');
+    minute = String(minute).padStart(2, '0');
+
+    return { hour, minute, day, month, year };
 }
 
 export const convertVNDate = (string_date) => {
