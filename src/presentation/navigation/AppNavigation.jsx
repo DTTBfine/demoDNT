@@ -243,6 +243,7 @@ const TeacherClassList = () => {
             <Stack.Screen name="addMaterial" component={AddMaterial} />
             <Stack.Screen name="attendance" component={Attendance} />
             <Stack.Screen name="absenceRequests" component={AbsenceRequests} />
+
         </Stack.Navigator>
     )
 }
