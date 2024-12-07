@@ -1,4 +1,5 @@
 import axiosConfig from '../../../axiosConfig'
+import axios from "axios";
 
 export const apiSendNotification = async (payload) => {
     const formData = new FormData();
@@ -9,7 +10,7 @@ export const apiSendNotification = async (payload) => {
     formData.append('type', payload.type);
     console.log(formData)
 
-    const response = await axiosConfig({
+    const response = await axios({
         method: 'post',
         url: '/it5023e/send_notification',
         data: formData,

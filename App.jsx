@@ -18,7 +18,7 @@ PushNotification.createChannel(
     importance: 4, // Độ ưu tiên cao
     vibrate: true, // Cho phép rung
   },
-  (created) => console.log(`Channel created: ${created}`) 
+  (created) => console.log(`Channel created: ${created}`)
 );
 
 export default function App() {
@@ -51,12 +51,23 @@ export default function App() {
 
           // Hiển thị thông báo
           PushNotification.localNotification({
-            channelId: "default-channel-id", // ID kênh
+            channelId: "default-channel-id", 
             title: remoteMessage.notification?.title || "Thông báo",
             message: remoteMessage.notification?.body || "Nội dung thông báo",
             playSound: true,
             soundName: 'default',
             importance: 'high',
+          });
+        });
+
+        messaging().setBackgroundMessageHandler(async remoteMessage => {
+          console.log('Thông báo nhận được trong background:', remoteMessage);
+          PushNotification.localNotification({
+            channelId: "default-channel-id",
+            title: remoteMessage.notification?.title || "Thông báo (Background)",
+            message: remoteMessage.notification?.body || "Nội dung thông báo (Background)",
+            playSound: true,
+            soundName: 'default',
           });
         });
 
@@ -69,6 +80,17 @@ export default function App() {
     };
 
     initializeFirebase();
+  }, []);
+
+  useEffect(() => {
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          console.log('Ứng dụng được mở từ thông báo trạng thái quit:', remoteMessage);
+
+        }
+      });
   }, []);
 
   return (
