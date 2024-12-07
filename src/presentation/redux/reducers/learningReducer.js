@@ -13,7 +13,8 @@ const initState = {
     pastDueAssignments: [],
     submissionOfCurrentAssignment: {},
     surveyOfCurrentClass: [],
-    attendanceRecord: {}
+    attendanceRecord: {},
+    absenceRequests: []
 }
 
 const learningReducer = (state = initState, action) => {
@@ -42,6 +43,12 @@ const learningReducer = (state = initState, action) => {
             }
 
         //absence
+        case actionTypes.GET_ABSENCE_REQUEST:
+            console.log("reducer absence requests: " + JSON.stringify(action.data))
+            return {
+                ...state,
+                absenceRequests: action.data || []
+            }
 
         //assignment
         case actionTypes.GET_STUDENT_ASSIGNMENTS:

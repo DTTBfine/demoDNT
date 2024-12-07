@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
 import { useSelector } from 'react-redux';
-import { convertVNDate, days, getDaysOfWeek } from '../../../utils/format';
+import { convertVNDate, days, getDaysOfWeek, getDisplayedAvatar } from '../../../utils/format';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
@@ -12,12 +12,7 @@ const TeacherScreen = () => {
     const { userInfo } = useSelector(state => state.user)
     const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
-    const avatarLink = userInfo.avatar
-    let avatarUri = ''
-    if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
-        const fileId = avatarLink.split('/d/')[1].split('/')[0];
-        avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
-    }
+    const avatarUri = getDisplayedAvatar(userInfo.avatar)
     return (
         <ScrollView>
             <View style={styles.infoBox}>

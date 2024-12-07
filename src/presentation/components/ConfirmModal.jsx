@@ -30,15 +30,16 @@ const ConfirmModal = ({ handleName, handleFunction, showConfirmModal, setShowCon
                     }}>Bạn chắc chắn muốn {handleName}
                     </Text>
 
-                    <TouchableOpacity onPress={() => { setShowConfirmModal(false) }}
-                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
-                        <Text style={{ fontSize: 16, fontWeight: '400' }}>Hủy</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleFunction}
-                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
-                        <Text style={{ fontSize: 16, fontWeight: '400' }}>Xác nhận</Text>
-                    </TouchableOpacity>
-
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
+                        <TouchableOpacity onPress={() => { setShowConfirmModal(false) }}
+                            style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: '#AA0000', borderRadius: 18, width: 100 }}>
+                            <Text style={{ fontSize: 16, fontWeight: '400', color: 'white', fontWeight: '600' }}>Hủy</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleFunction}
+                            style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'limegreen', borderRadius: 18, width: 100 }}>
+                            <Text style={{ fontSize: 16, fontWeight: '400', color: 'white', fontWeight: '600' }}>Xác nhận</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </Pressable>
         </Modal>

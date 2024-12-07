@@ -5,7 +5,7 @@ import FuncBox from '../../components/func';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
-import { convertVNDate, days, getDaysOfWeek } from '../../../utils/format';
+import { convertVNDate, days, getDaysOfWeek, getDisplayedAvatar } from '../../../utils/format';
 import { useNavigation } from '@react-navigation/native';
 import { assignmentStatus } from '../../../utils/constants/class';
 
@@ -17,12 +17,7 @@ const StudentScreen = () => {
     const [dispatchData, setDispatchData] = useState(true)
     const navigate = useNavigation()
     const { userInfo } = useSelector(state => state.user)
-    const avatarLink = userInfo.avatar
-    let avatarUri = ''
-    if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
-        const fileId = avatarLink.split('/d/')[1].split('/')[0];
-        avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
-    }
+    const avatarUri = getDisplayedAvatar(userInfo.avatar)
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 
     if (!userInfo) {

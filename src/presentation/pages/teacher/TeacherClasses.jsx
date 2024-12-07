@@ -121,7 +121,7 @@ const ClassBox = ({ class_id, class_name, class_type, currentId, setCurrentId })
                     navigate.navigate('attendance', { name: class_name, id: class_id, type: class_type })
                 }}> Điểm danh </Text>
                 <Text style={styles.textBar} onPress={() => {
-                    navigate.navigate('absenceManage', { name: class_name, id: class_id, type: class_type })
+                    navigate.navigate('absenceRequests', {name: class_name, class_id: class_id, type: class_type})
                 }}> Các yêu cầu xin phép nghỉ học</Text>
             </View>
             }

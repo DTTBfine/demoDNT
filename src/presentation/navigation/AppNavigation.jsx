@@ -32,9 +32,9 @@ import SubmitSurvey from '../pages/student/SubmitSurvey';
 
 import { classNameCode, getColorForId } from '../../utils/format';
 import CustomTeacherClass from '../components/customTeacherClass';
-import AbsenceManage from '../pages/teacher/AbsenceManage';
 import Message from '../pages/Message';
 import Conversation from '../pages/Conversation';
+import AbsenceRequests from '../pages/teacher/AbsenceRequests';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -220,7 +220,7 @@ const TeacherClassList = () => {
                     if (route.name === "addSurvey") titleName = 'Tạo bài kiểm tra'
                     else if (route.name === "addMaterial") titleName = 'Tải lên tài liệu'
                     else if (route.name === 'attendance') titleName = 'Điểm danh sinh viên'
-                    else if (route.name === 'absenceManage') titleName = 'Yêu cầu nghỉ phép'
+                    else if (route.name === 'absenceRequests') titleName = 'Yêu cầu xin nghỉ'
                     else titleName = 'Lớp của bạn'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
@@ -242,7 +242,8 @@ const TeacherClassList = () => {
             <Stack.Screen name="addSurvey" component={AddSurvey} />
             <Stack.Screen name="addMaterial" component={AddMaterial} />
             <Stack.Screen name="attendance" component={Attendance} />
-            <Stack.Screen name="absenceManage" component={AbsenceManage} />
+            <Stack.Screen name="absenceRequests" component={AbsenceRequests} />
+
         </Stack.Navigator>
     )
 }

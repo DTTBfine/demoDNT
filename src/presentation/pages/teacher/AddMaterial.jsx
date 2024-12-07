@@ -74,13 +74,16 @@ const AddMaterial = ({ route }) => {
     }
 
     const handleSubmit = async () => {
+        if (!validateInput()) {
+            return
+        }
         setIsLoading(true)
         const response = await apis.apiUploadMaterial(payload)
         setIsLoading(false)
         if (response.data?.code !== responseCodes.statusOK) {
             Alert.alert("Error", response.data?.message || "Tải tài liệu lên không thành công")
         } else {
-            Alert.alert("Success", response.data?.message || "Tải tài liệu thành công")
+            Alert.alert("Success", "Tải tài liệu thành công")
         }
 
         resetInput()

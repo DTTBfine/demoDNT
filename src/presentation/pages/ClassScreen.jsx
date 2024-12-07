@@ -592,7 +592,11 @@ const MaterialBox = ({ item }) => {
                 </View>
                 <View>
                     <Text style={{ fontSize: 16, fontWeight: '500' }}>{item?.material_name}</Text>
-                    <Text style={{ color: 'gray' }}>{item?.description}</Text>
+                    <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{ color: 'gray', width: 200 }}
+                    >{item?.description}</Text>
                 </View>
             </View>
             <View>

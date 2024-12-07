@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
 import { assignmentStatus } from '../../../utils/constants/class';
-import { classNameCode, getColorForId } from '../../../utils/format';
+import { classNameCode, getColorForId, getDisplayedAvatar } from '../../../utils/format';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
@@ -17,13 +17,14 @@ const size = {
 }
 
 const days = ['chủ nhật', 'thứ hai', 'thứ ba', 'thứ tư', 'thứ năm', 'thứ sáu', 'thứ bảy']
+const GlobalContext = createContext()
 
 const AssignmentList = () => {
   const [state, setState] = useState('Sắp tới')
   const dispatch = useDispatch()
   const [dispatchData, setDispatchData] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
-  const [displayedAssignments, setDisplayedAssignments] = useState([])
+  // const [displayedAssignments, setDisplayedAssignments] = useState([])
   const { token } = useSelector(state => state.auth)
   const { myClasses, upcomingAssignments, pastDueAssignments, completedAssignments } = useSelector(state => state.learning)
 
@@ -31,7 +32,6 @@ const AssignmentList = () => {
     let classObj = myClasses.find(item => item.class_id == id)
     return classObj.class_name
   }
-
 
   useEffect(() => {
     if (dispatchData) {
@@ -53,47 +53,45 @@ const AssignmentList = () => {
         type: assignmentStatus.pastDue,
         class_id: null
       }))
-
+      // setTimeout(() => {
+      //   setIsLoading(false)
+      // }, 2000)
       setIsLoading(false)
       setDispatchData(false)
     }
   }, [])
 
-  useEffect(() => {
-    switch (state) {
-      case "Sắp tới":
-        setDisplayedAssignments(upcomingAssignments);
-        break;
-      case "Quá hạn":
-        setDisplayedAssignments(pastDueAssignments)
-        break
-      case "Đã hoàn thành":
-        setDisplayedAssignments(completedAssignments)
-        break
-      default:
-        setDisplayedAssignments([])
-    }
-  }, [state])
+  // useEffect(() => {
+  //   switch (state) {
+  //     case "Sắp tới":
+  //       setDisplayedAssignments(upcomingAssignments);
+  //       break;
+  //     case "Quá hạn":
+  //       setDisplayedAssignments(pastDueAssignments)
+  //       break
+  //     case "Đã hoàn thành":
+  //       setDisplayedAssignments(completedAssignments)
+  //       break
+  //     default:
+  //       setDisplayedAssignments([])
+  //   }
+  // }, [state])
 
 
   const navigate = useNavigation()
 
   const { userInfo } = useSelector(state => state.user)
-  const avatarLink = userInfo.avatar
-  let avatarUri = ''
-  if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
-    const fileId = avatarLink.split('/d/')[1].split('/')[0];
-    avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
-  }
+  const avatarUri = getDisplayedAvatar(userInfo.avatar)
 
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
+        <GlobalContext.Provider value={{isLoading, setIsLoading}}>
         <Spinner
           visible={isLoading}
           textContent={'Load dữ liệu bài tập...'}
           textStyle={{
-            color: '#FFF'
+            color: '#000'
           }}
         />
         <View style={{
@@ -140,8 +138,10 @@ const AssignmentList = () => {
             >Đã hoàn thành</Text>
           </View>
         </View>
+        
 
-        <View style={styles.list}>
+        <ShowAssignmentsList state={state} />
+        {/* <View style={styles.list}>
           <ScrollView>
             {displayedAssignments?.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
             {
@@ -175,7 +175,8 @@ const AssignmentList = () => {
               })
             }
           </ScrollView>
-        </View>
+        </View> */}
+        </GlobalContext.Provider>
       </View>
     </View>
   )
@@ -233,6 +234,71 @@ const AssignmentItem = ({ item, class_name }) => {
       </View>
     </View>
   )
+}
+
+const ShowAssignmentsList = ({state}) => {
+  const {isLoading, setIsLoading} = useContext(GlobalContext)
+  const { myClasses, upcomingAssignments, pastDueAssignments, completedAssignments } = useSelector(state => state.learning)
+  const [ displayedAssignments, setDisplayedAssignments] = useState([])
+  const getClassNameById = (id) => {
+    let classObj = myClasses.find(item => item.class_id == id)
+    return classObj.class_name
+  }
+  
+  useEffect(() => {
+    switch (state) {
+      case "Sắp tới":
+        setDisplayedAssignments(upcomingAssignments);
+        break;
+      case "Quá hạn":
+        setDisplayedAssignments(pastDueAssignments)
+        break
+      case "Đã hoàn thành":
+        setDisplayedAssignments(completedAssignments)
+        break
+      default:
+        setDisplayedAssignments([])
+    }
+  }, [state, isLoading])
+
+  return (
+    <View style={styles.list}>
+          <ScrollView>
+            {displayedAssignments?.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
+            {
+              displayedAssignments?.length > 0 && !isLoading && displayedAssignments?.map((item, index) => {
+                const day = new Date(item.deadline)
+                return (
+                  <View key={index} style={{
+                    gap: 10
+                  }}>
+                    <View style={{
+                      flexDirection: "row",
+                      alignItems: 'baseline',
+                    }}>
+                      <Text style={{
+                        paddingHorizontal: 10,
+                        fontSize: 17,
+                        fontWeight: '600'
+                      }}>
+                        {day.getDate()} thg {day.getMonth() + 1}
+                      </Text>
+                      <Text style={{
+                        color: 'gray',
+                        fontSize: 14
+                      }}>
+                        {days[day.getDay()]}
+                      </Text>
+                    </View>
+                    <AssignmentItem item={item} class_name={getClassNameById(item.class_id)} />
+                  </View>
+                )
+              })
+            }
+          </ScrollView>
+        </View>
+  )
+
 }
 
 const styles = StyleSheet.create({
