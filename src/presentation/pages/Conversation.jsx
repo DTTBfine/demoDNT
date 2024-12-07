@@ -92,10 +92,6 @@ const Conversation = ({ route }) => {
 
     useEffect(() => {
       // Initialize the STOMP client
-        // const ws = new WebSocket(SOCKET_URL)
-        // ws.onerror = (error) => {
-        //     console.log(error)
-        // }
         const socket = new SockJS(SOCKET_URL)
         const stompClient = Stomp.over(socket)
         stompClientRef.current = stompClient
@@ -109,7 +105,8 @@ const Conversation = ({ route }) => {
                     token: token,
                     index: "0",
                     count: "1000",
-                    partner_id: partner_id
+                    partner_id: partner_id,
+                    mark_as_read: "true"
                 }))
             });
         })
@@ -186,9 +183,9 @@ const Conversation = ({ route }) => {
                 token: token,
                 index: "0",
                 count: "1000",
-                partner_id: partner_id
+                partner_id: partner_id,
+                mark_as_read: "true"
             }))
-            console.log("current conversation: " + JSON.stringify(currentConversation))
             // setIsLoading(false)
             setDispatchData(false)
         }
