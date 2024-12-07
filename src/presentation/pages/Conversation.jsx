@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, Keyboa
 import React, { useState } from 'react'
 import IconI from 'react-native-vector-icons/Ionicons'
 import { useSelector } from 'react-redux';
-import uuid from 'react-native-uuid'
+import SockJS from 'sockjs-client'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính

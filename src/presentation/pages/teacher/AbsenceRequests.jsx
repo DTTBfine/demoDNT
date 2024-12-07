@@ -8,70 +8,10 @@ import * as constants from '../../../utils/constants'
 import Spinner from 'react-native-loading-spinner-overlay'
 import * as apis from '../../../data/api'
 
-const testData = [
-    {
-        "id": "293",
-        "student_account": {
-            "account_id": "197",
-            "last_name": "Hương",
-            "first_name": "Hoàng Thu",
-            "email": "Huonght@hust.edu.vn",
-            "student_id": "95"
-        },
-        "absence_date": "2024-12-21",
-        "reason": "Xin nghỉ vì lí do ốm",
-        "status": "PENDING",
-        "file_url": "https://drive.google.com/file/d/1uyK7_mpeq1waLNv3gfAiOoYF6RWZ52jx/view?usp=drivesdk"
-    },
-    {
-        "id": "292",
-        "student_account": {
-            "account_id": "195",
-            "last_name": "Hoàng",
-            "first_name": "Nguyễn Đức",
-            "email": "Hoangnd@hust.edu.vn",
-            "student_id": "94"
-        },
-        "absence_date": "2024-12-21",
-        "reason": "Sở hữu bảng mã màu CSS chuẩn, bạn sẽ tự tin hơn khi thiết kế, lập trình web, bởi màu sắc là một phần không thể thiếu trong thế giới Internet",
-        "status": "ACCEPTED",
-        "file_url": "https://drive.google.com/file/d/1RRanTlcKWLBUdZCqE_Mue7UDlIY2oTj5/view?usp=drivesdk"
-    },
-    {
-        "id": "291",
-        "student_account": {
-            "account_id": "195",
-            "last_name": "Hoàng",
-            "first_name": "Nguyễn Đức",
-            "email": "Hoangnd@hust.edu.vn",
-            "student_id": "94"
-        },
-        "absence_date": "2024-12-21",
-        "reason": "Sở hữu bảng mã màu CSS chuẩn, bạn sẽ tự tin hơn khi thiết kế, lập trình web, bởi màu sắc là một phần không thể thiếu trong thế giới Internet",
-        "status": "REJECTED",
-        "file_url": "https://drive.google.com/file/d/1RRanTlcKWLBUdZCqE_Mue7UDlIY2oTj5/view?usp=drivesdk"
-    },
-
-    {
-        "id": "290",
-        "student_account": {
-            "account_id": "195",
-            "last_name": "Hoàng",
-            "first_name": "Nguyễn Đức",
-            "email": "Hoangnd@hust.edu.vn",
-            "student_id": "94"
-        },
-        "absence_date": "2024-12-21",
-        "reason": "Sở hữu bảng mã màu CSS chuẩn, bạn sẽ tự tin hơn khi thiết kế, lập trình web, bởi màu sắc là một phần không thể thiếu trong thế giới Internet",
-        "status": "PENDING",
-        "file_url": "https://drive.google.com/file/d/1RRanTlcKWLBUdZCqE_Mue7UDlIY2oTj5/view?usp=drivesdk"
-    }
-]
-
 const absenceStatus = constants.absenceStatus
 
 const AbsenceRequests = ({ route }) => {
-    const { name, class_id, type } = route.params 
+    const { name, class_id, type } = route.params
     const dispatch = useDispatch()
     const { token } = useSelector(state => state.auth)
     const [currentRequest, setCurrentRequest] = useState(null)
@@ -175,7 +115,7 @@ const AbsenceRequests = ({ route }) => {
                     </View>
                 </View>
                 <View style={{ paddingVertical: 10 }}>
-                    <Text style={{ fontSize: 16, fontWeight: item.status === absenceStatus.pending ? '600' : '400', color: item.status ===  absenceStatus.pending ? 'black' : 'gray' }}>{item.student_account.first_name} {item.student_account.last_name} - {item.student_account.student_id}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: item.status === absenceStatus.pending ? '600' : '400', color: item.status === absenceStatus.pending ? 'black' : 'gray' }}>{item.student_account.first_name} {item.student_account.last_name} - {item.student_account.student_id}</Text>
                     <Text
                         numberOfLines={1}
                         ellipsizeMode="tail"
@@ -208,7 +148,7 @@ const AbsenceRequests = ({ route }) => {
                 visible={isLoading}
                 textContent={loadingText}
                 textStyle={{
-                    color: '#000'
+                    color: '#AA000'
                 }}
             />
             {
@@ -308,10 +248,10 @@ const AbsenceRequests = ({ route }) => {
                 )
             }
             {
-                currentRequest && currentHandle === 'Accept' && showConfirmModal && <ConfirmModal handleName={"Chấp nhận"} handleFunction={async () => {await handleAccept()}} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
+                currentRequest && currentHandle === 'Accept' && showConfirmModal && <ConfirmModal handleName={"Chấp nhận"} handleFunction={async () => { await handleAccept() }} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
             }
             {
-                currentRequest && currentHandle === 'Reject' && showConfirmModal && <ConfirmModal handleName={"Từ chối"} handleFunction={async () => {await handleReject()}} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
+                currentRequest && currentHandle === 'Reject' && showConfirmModal && <ConfirmModal handleName={"Từ chối"} handleFunction={async () => { await handleReject() }} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
 
             }
             <FlatList

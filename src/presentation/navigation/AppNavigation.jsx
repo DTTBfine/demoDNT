@@ -35,6 +35,9 @@ import CustomTeacherClass from '../components/customTeacherClass';
 import Message from '../pages/Message';
 import Conversation from '../pages/Conversation';
 import AbsenceRequests from '../pages/teacher/AbsenceRequests';
+import EditMaterial from '../pages/teacher/EditMaterial';
+import EditSurvey from '../pages/teacher/EditSurvey';
+import SurveyResponse from '../pages/teacher/SurveyResponse';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -218,7 +221,10 @@ const TeacherClassList = () => {
 
                     let titleName
                     if (route.name === "addSurvey") titleName = 'Tạo bài kiểm tra'
+                    else if (route.name === "editSurvey") titleName = 'Chỉnh sửa bài kiểm tra'
+                    else if (route.name === "surveyResponse") titleName = 'Danh sách bài nộp'
                     else if (route.name === "addMaterial") titleName = 'Tải lên tài liệu'
+                    else if (route.name === "editMaterial") titleName = 'Chỉnh sửa tài liệu'
                     else if (route.name === 'attendance') titleName = 'Điểm danh sinh viên'
                     else if (route.name === 'absenceRequests') titleName = 'Yêu cầu xin nghỉ'
                     else titleName = 'Lớp của bạn'
@@ -240,7 +246,10 @@ const TeacherClassList = () => {
             <Stack.Screen name="teacherClasses" component={TeacherClasses} />
             <Stack.Screen name="teacherClassScreen" component={ClassScreen} />
             <Stack.Screen name="addSurvey" component={AddSurvey} />
+            <Stack.Screen name="editSurvey" component={EditSurvey} />
+            <Stack.Screen name="surveyResponse" component={SurveyResponse} />
             <Stack.Screen name="addMaterial" component={AddMaterial} />
+            <Stack.Screen name="editMaterial" component={EditMaterial} />
             <Stack.Screen name="attendance" component={Attendance} />
             <Stack.Screen name="absenceRequests" component={AbsenceRequests} />
         </Stack.Navigator>

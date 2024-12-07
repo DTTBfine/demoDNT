@@ -57,16 +57,16 @@ const AddMaterial = ({ route }) => {
 
             console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
-                const {mimeType, uri, name} = result.assets[0]
-                setPayload(prev => ({ 
-                    ...prev, 
+                const { mimeType, uri, name } = result.assets[0]
+                setPayload(prev => ({
+                    ...prev,
                     'file': {
-                    type: mimeType,
-                    uri: uri,
-                    name: name
+                        type: mimeType,
+                        uri: uri,
+                        name: name
                     },
                     'materialType': mimeType
-            }))
+                }))
             }
         } catch (err) {
             console.error('Error picking document:', err);
@@ -152,7 +152,7 @@ const AddMaterial = ({ route }) => {
                     style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInput() ? '#AA0000' : '#CCCCCC' }]}
                     onPress={async () => {
                         await handleSubmit()
-                     }}>
+                    }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>

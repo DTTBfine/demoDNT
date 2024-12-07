@@ -175,7 +175,10 @@ const ClassScreen = ({ route }) => {
                                             >
                                                 <Text style={styles.buttonText}>Xóa</Text>
                                             </TouchableOpacity>
-                                            <TouchableOpacity
+                                            <TouchableOpacity onPress={() => {
+                                                setShowSurveyInfo(false)
+                                                navigate.navigate("editSurvey", { currentSurvey })
+                                            }}
                                                 style={styles.button}
                                             >
                                                 <Text style={styles.buttonText}>Chỉnh sửa</Text>
@@ -201,7 +204,10 @@ const ClassScreen = ({ route }) => {
                                     }
                                     {
                                         role === 'LECTURER' && <TouchableOpacity
-                                            onPress={() => { }}
+                                            onPress={() => {
+                                                setShowSurveyInfo(false)
+                                                navigate.navigate("surveyResponse")
+                                            }}
                                             style={{
                                                 flexDirection: 'row',
                                                 justifyContent: 'flex-end',
@@ -256,7 +262,11 @@ const ClassScreen = ({ route }) => {
                                         <IconFe name='external-link' size={20} color='gray' />
                                         <Text style={{ fontSize: 16, fontWeight: '400' }}>Mở</Text>
                                     </TouchableOpacity>
-                                    {role === 'LECTURER' && <TouchableOpacity style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
+                                    {role === 'LECTURER' && <TouchableOpacity onPress={() => {
+                                        setShowMaterialHandle(false)
+                                        navigate.navigate('editMaterial', { currentMaterial })
+                                    }}
+                                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
                                         <IconFe name='edit-3' size={20} color='gray' />
                                         <Text style={{ fontSize: 16, fontWeight: '400' }}>Chỉnh sửa</Text>
                                     </TouchableOpacity>}

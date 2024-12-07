@@ -38,6 +38,7 @@
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^3.1.0",
+    "sockjs-client": "^1.6.1",
     "tailwind-react-native-classnames": "^1.5.1"
   },
   "devDependencies": {
