@@ -68,6 +68,22 @@ export const getBasicClassInfo = (payload) => async (dispatch) => {
 }
 
 //absence
+export const getAbsenceRequests = (payload) => async (dispatch) => {
+    const response = await apis.apiGetAbsenceRequests(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_ABSENCE_REQUEST,
+            data: response.data.data.page_content
+        })
+    }
+    dispatch({
+        type: actionTypes.GET_ABSENCE_REQUEST,
+        data: null
+    })
+}
+
+
+//attendance
 export const getAttendanceRecord = (payload) => async (dispatch) => {
     const response = await apis.apiGetAttendanceRecord(payload)
     if (response?.data?.meta?.code !== responseCodes.statusOK) {
@@ -83,9 +99,6 @@ export const getAttendanceRecord = (payload) => async (dispatch) => {
     })
 
 }
-
-
-//attendance
 
 
 //assignment
