@@ -8,7 +8,6 @@ import * as actions from '../redux/actions'
 import Spinner from 'react-native-loading-spinner-overlay'
 import { getDisplayedAvatar } from '../../utils/format'
 
-
 //Lấy hộ list conversation đi
 const conversations = [
     {
@@ -145,6 +144,7 @@ const Message = () => {
                                 <View>
                                     <Image
                                         source={item.partner.avatar ? { uri: getDisplayedAvatar(item.partner.avatar) } : require('../../../assets/default-avatar.jpg')}
+
                                         style={{
                                             width: 50,
                                             height: 50,
@@ -170,6 +170,7 @@ const Message = () => {
                         <View style={{ paddingTop: 50 }}>
                             <Text style={{ textAlign: 'center', fontSize: 13, color: 'gray' }}>Bạn chưa có cuộc hội thoại nào!</Text>
                             <Text style={{ textAlign: 'center', fontSize: 20, color: 'gray' }}>Hãy bắt đầu trò chuyện</Text>
+
                         </View>}
                 </ScrollView>
             </View>

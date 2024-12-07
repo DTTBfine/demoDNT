@@ -1,4 +1,4 @@
-package com.anonymous.sampleapp
+package com.it4788.crossplatform
 
 import android.os.Build
 import android.os.Bundle
