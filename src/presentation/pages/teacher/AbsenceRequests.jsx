@@ -199,24 +199,38 @@ const AbsenceRequests = () => {
                                         </TouchableOpacity>
                                     </View>
                                 </View>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
-                                    <TouchableOpacity onPress={() => {
-                                        setCurrentHandle('Reject')
-                                        setShowConfirmModal(true)
-                                    }}
-                                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: '#AA0000', borderRadius: 18, width: 100 }}
-                                    >
-                                        <Text style={{ fontSize: 16, fontWeight: '400', color: 'white', fontWeight: '600' }}>Từ chối</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => {
-                                        setCurrentHandle('Accept')
-                                        setShowConfirmModal(true)
-                                    }}
-                                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'limegreen', borderRadius: 18, width: 100 }}
-                                    >
-                                        <Text style={{ fontSize: 16, fontWeight: '400', color: 'white', fontWeight: '600' }}>Chấp nhận</Text>
-                                    </TouchableOpacity>
-                                </View>
+                                {currentRequest.status === 'PENDING' ?
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
+                                        <TouchableOpacity onPress={() => {
+                                            setCurrentHandle('Reject')
+                                            setShowConfirmModal(true)
+                                        }}
+                                            style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: '#AA0000', borderRadius: 18, width: 100 }}
+                                        >
+                                            <Text style={{ fontSize: 16, fontWeight: '400', color: 'white', fontWeight: '600' }}>Từ chối</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => {
+                                            setCurrentHandle('Accept')
+                                            setShowConfirmModal(true)
+                                        }}
+                                            style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'limegreen', borderRadius: 18, width: 100 }}
+                                        >
+                                            <Text style={{ fontSize: 16, fontWeight: '400', color: 'white', fontWeight: '600' }}>Chấp nhận</Text>
+                                        </TouchableOpacity>
+                                    </View> :
+                                    <View style={{ marginTop: 20 }}>
+                                        <Text style={{
+                                            backgroundColor: currentRequest.status === 'ACCEPTED' ? 'forestgreen' : 'crimson',
+                                            color: 'white',
+                                            padding: 10,
+                                            borderRadius: 15,
+                                            fontSize: 16,
+                                            fontWeight: '600',
+                                            textAlign: 'center'
+                                        }}
+                                        >{currentRequest.status === 'ACCEPTED' ? 'Đã chấp nhận' : 'Đã từ chối'}</Text>
+                                    </View>
+                                }
                             </View>
                         </Pressable>
                     </Modal>
