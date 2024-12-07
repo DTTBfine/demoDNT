@@ -15,3 +15,18 @@ export const getListConversation = (payload) => async (dispatch) => {
         data: null
     })
 }
+
+export const getConversation = (payload) => async (dispatch) => {
+    const response = await apis.apiGetConversation(payload)
+    console.log("get conversation: " + JSON.stringify(response.data.data))
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_CONVERSATION,
+            data: response.data.data.conversation
+        })
+    }
+    return dispatch({
+        type: actionTypes.GET_CONVERSATION,
+        data: null
+    })
+}
