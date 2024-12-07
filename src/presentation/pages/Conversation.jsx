@@ -1,9 +1,15 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, FlatList, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import IconI from 'react-native-vector-icons/Ionicons'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import uuid from 'react-native-uuid'
+import * as actions from '../redux/actions'
+import Spinner from 'react-native-loading-spinner-overlay';
+import { getDisplayedAvatar } from '../../utils/format';
+import { Client, Stomp } from '@stomp/stompjs';
+import SockJS from 'sockjs-client'
 
+const SOCKET_URL = 'http://157.66.24.126:8080/ws';
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
 
@@ -68,12 +74,60 @@ const initConversation = [
 const TIME_THRESHOLD = 300 //5 phút 
 
 const Conversation = ({ route }) => {
-    const { name, avatar, conversation_id } = route.params
-    const { userId } = useSelector(state => state.auth)
+    const dispatch = useDispatch()
+    const { name, avatar, partner_id } = route.params
+    
+    //useSelector
+    const { userId, token } = useSelector(state => state.auth)
     const { userInfo } = useSelector(state => state.user)
-    console.log(JSON.stringify(userInfo))
+    const { currentConversation } = useSelector(state => state.message)
+    
+    
+    const [dispatchData, setDispatchData] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
+    const [loadingText, setLoadingText] = useState('Loading...')
 
-    const [conversation, setConversation] = useState(initConversation)
+    //
+    const stompClientRef = useRef(null);
+
+    useEffect(() => {
+      // Initialize the STOMP client
+        // const ws = new WebSocket(SOCKET_URL)
+        // ws.onerror = (error) => {
+        //     console.log(error)
+        // }
+        const socket = new SockJS(SOCKET_URL)
+        const stompClient = Stomp.over(socket)
+        stompClientRef.current = stompClient
+
+        stompClient.connect({}, (frame) => {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe(`/user/${userId}/inbox`, (message) => {
+                const msg = JSON.parse(message.body);
+                console.log('Received message from inbox:', msg);
+                dispatch(actions.getConversation({
+                    token: token,
+                    index: "0",
+                    count: "1000",
+                    partner_id: partner_id
+                }))
+            });
+        })
+
+        stompClient.onStompError = (frame) => {
+            console.error('STOMP error: ', frame.headers['message']);
+            console.error('Details: ', frame.body);
+        };
+
+        // Cleanup when the component unmounts
+        return () => {
+            if (stompClientRef.current) {
+            stompClientRef.current.deactivate(); // Deactivate the stompClient when unmounted
+            }
+        };
+    }, []);
+
+    const [conversation, setConversation] = useState([])
     const [message, setMessage] = useState({
         message_id: null,
         message: '',
@@ -85,10 +139,31 @@ const Conversation = ({ route }) => {
         created_at: '',
         unread: 0
     })
-    console.log(JSON.stringify(message))
+
+    const sendMessage = (content) => {
+        if (stompClientRef.current && message.message) {
+            const payload = {
+                receiver: {
+                    id: partner_id
+                },
+                content: content,
+                sender: userInfo.email,
+                token: token
+            }
+            stompClientRef.current.send(
+                '/chat/message',
+                {},
+                JSON.stringify(payload)
+            )
+        } else {
+            console.error('STOMP client not initialized or message is empty');
+        }
+    }
+
     const handleSend = () => {
-        if (!message.message_id) return
+        if (!message?.message_id) return
         setConversation([message, ...conversation])
+        sendMessage(message.message)
         setMessage({
             message_id: null,
             message: '',
@@ -97,19 +172,38 @@ const Conversation = ({ route }) => {
                 name: userInfo?.name,
                 avatar: userInfo?.avatar
             },
-            created_at: new Date().toISOString(),
+            created_at: (new Date()).toISOString().split(".")[0],
             unread: 0
         })
     }
 
-    const convertAvtLink = (avatarLink) => {
-        let avatarUri = ''
-        if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
-            const fileId = avatarLink.split('/d/')[1].split('/')[0];
-            avatarUri = `https://drive.google.com/uc?export=view&id=${fileId}`
+
+    //get current conversation
+    useEffect(() => {
+        if (dispatchData) {
+            setIsLoading(true)
+            dispatch(actions.getConversation({
+                token: token,
+                index: "0",
+                count: "1000",
+                partner_id: partner_id
+            }))
+            setConversation(currentConversation)
+            // setIsLoading(false)
+            setDispatchData(false)
+
         }
-        return avatarUri
-    }
+    }, [])
+
+    useEffect(() => {
+        if (currentConversation) {
+          setConversation(currentConversation); // Update conversation when currentConversation changes
+          setIsLoading(false); // Set loading to false after conversation data is received
+        // setTimeout(() => {
+        //     setIsLoading(false)
+        // }, 3000)
+        }
+      }, [currentConversation]); 
 
     const removeTrailingNewline = (message) => {
         return message.replace(/\n$/, '');
@@ -140,7 +234,7 @@ const Conversation = ({ route }) => {
                 justifyContent: item.sender.id == userId ? 'flex-end' : 'flex-start'
             }}>
                 {item.sender.id != userId && showAvatar && <Image
-                    source={item.sender.avatar ? { uri: convertAvtLink(item.sender.avatar) } : require('../../../assets/default-avatar.jpg')}
+                    source={item.sender.avatar ? { uri: getDisplayedAvatar(item.sender.avatar) } : require('../../../assets/default-avatar.jpg')}
                     style={{
                         width: 30,
                         height: 30,
@@ -168,6 +262,13 @@ const Conversation = ({ route }) => {
 
     return (
         <KeyboardAvoidingView style={styles.container}>
+            <Spinner
+                visible={isLoading}
+                textContent={loadingText}
+                textStyle={{
+                    color: '#000'
+                }}
+            />
             <View style={{
                 flex: 1,
                 padding: 10,
@@ -213,7 +314,7 @@ const Conversation = ({ route }) => {
                             ...prev,
                             'message_id': +conversation[0].message_id + 1 + '',
                             'message': text,
-                            'created_at': new Date().toISOString()
+                            'created_at': new Date().toISOString().split('.')[0]
                         }))
                     }}
                     onFocus={() => {

@@ -135,7 +135,7 @@ const Message = () => {
                 <ScrollView>
                     {listConversations?.length > 0 ? listConversations.map((item, index) => {
                         return (
-                            <TouchableOpacity key={index} onPress={() => navigate.navigate('conversation', { name: item.partner.name, avatar: item.partner.avatar, conversation_id: item.id })}
+                            <TouchableOpacity key={index} onPress={() => navigate.navigate('conversation', { name: item.partner.name, avatar: item.partner.avatar, partner_id: item.partner.id })}
                                 style={{
                                     marginVertical: 8,
                                     flexDirection: 'row',
