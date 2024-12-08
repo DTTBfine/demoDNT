@@ -60,12 +60,21 @@ const Conversation = ({ route }) => {
             stompClient.subscribe(`/user/${userId}/inbox`, (message) => {
                 const msg = JSON.parse(message.body);
                 console.log('Received message from inbox:', msg);
+                mark_as_read = "false"
+                if (msg.sender.id === partner_id) {
+                    mark_as_read = "true"
+                }
                 dispatch(actions.getConversation({
                     token: token,
                     index: "0",
                     count: "1000",
                     partner_id: partner_id,
-                    mark_as_read: "true"
+                    mark_as_read: mark_as_read
+                }))
+                dispatch(actions.getListConversation({
+                    token: token,
+                    index: "0",
+                    count: "1000"
                 }))
             });
         })

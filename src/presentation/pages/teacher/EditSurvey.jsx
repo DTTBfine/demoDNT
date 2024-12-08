@@ -1,14 +1,16 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Alert } from 'react-native'
 import React, { useState, useCallback, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as apis from '../../../data/api'
 import { responseCodes } from '../../../utils/constants/responseCodes';
 import Spinner from 'react-native-loading-spinner-overlay';
+import * as actions from '../../redux/actions'
 
 const EditSurvey = ({ route }) => {
+    const dispatch = useDispatch()
     const { currentSurvey } = route.params
     const { token } = useSelector(state => state.auth)
     const [isLoading, setIsLoading] = useState(false)
@@ -26,7 +28,6 @@ const EditSurvey = ({ route }) => {
         deadline: currentSurvey.deadline, //định dạng: 2024-12-11T14:30:00
         description: currentSurvey.description
     })
-    console.log(payload)
 
     useEffect(() => {
         if (startDate) {
@@ -64,7 +65,8 @@ const EditSurvey = ({ route }) => {
     }
 
     const validateInput = () => {
-        return payload.title && endDate
+        if (endDate) return true;
+        return false
     }
 
     const handleDocumentSelection = async () => {
@@ -98,15 +100,19 @@ const EditSurvey = ({ route }) => {
 
     const handleSubmit = async () => {
         setIsLoading(true)
-        // const response = await apis.apiCreateSurvey(payload)
-        // setIsLoading(false)
-        // if (response.data?.meta?.code !== responseCodes.statusOK) {
-        //     Alert.alert("Error", response.data?.meta?.message || "Tạo bài kiểm tra không thành công")
-        // } else {
-        //     Alert.alert("Success", response.data?.meta?.message || "Tạo bài kiểm tra thành công")
-        // }
+        const response = await apis.apiEditSurvey(payload)
+        setIsLoading(false)
+        if (response.data?.meta?.code !== responseCodes.statusOK) {
+            Alert.alert("Error", response.data?.meta?.message || "Tạo bài kiểm tra không thành công")
+        } else {
+            Alert.alert("Success", response.data?.meta?.message || "Tạo bài kiểm tra thành công")
+            dispatch(actions.getAllSurveys({
+                token: token,
+                class_id: currentSurvey.class_id
+            }))
+        }
 
-        resetInput()
+        // resetInput()
     }
 
     return (

@@ -72,7 +72,7 @@ const Message = () => {
             dispatch(actions.getListConversation({
                 token: token,
                 index: "0",
-                count: "100"
+                count: "1000"
             }))
             // setTimeout(() => {
             //     setIsLoading(false)

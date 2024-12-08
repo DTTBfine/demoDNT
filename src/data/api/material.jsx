@@ -59,6 +59,30 @@ export const apiUploadMaterial = async (payload) => {
 export const apiEditMaterial = async (payload) => {
     console.log(payload)
     //như upload
+    var bodyFormData = new FormData();
+    for (const key in payload) {
+        if (payload[key]) {
+            bodyFormData.append(key, payload[key])
+        }
+    }
+    console.log("body: " + JSON.stringify(bodyFormData))
+    try {
+        const response = await axiosConfig(
+            {
+                method: 'post',
+                url: '/it5023e/edit_material',
+                data: bodyFormData,
+                headers: { "Content-Type": "multipart/form-data" },
+            }
+        )
+        console.log("edit material response: " + JSON.stringify(response.data))
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("error uploading material: " + error)
+        }
+        return error.response
+    }
 }
 
 export const apiDeleteMaterial = async (payload) => {

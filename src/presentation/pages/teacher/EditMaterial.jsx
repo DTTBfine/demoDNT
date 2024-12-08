@@ -1,12 +1,14 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native'
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import * as apis from '../../../data/api'
 import { responseCodes } from '../../../utils/constants/responseCodes';
 import Spinner from 'react-native-loading-spinner-overlay';
+import * as actions from '../../redux/actions'
 
 const EditMaterial = ({ route }) => {
+    const dispatch = useDispatch()
     const { currentMaterial } = route.params
     const { class_id } = route.params
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
@@ -22,7 +24,6 @@ const EditMaterial = ({ route }) => {
         token: token
     })
     const [focusField, setFocusField] = useState('')
-
     const validateInput = () => {
         if (!payload) {
             return false
@@ -76,16 +77,20 @@ const EditMaterial = ({ route }) => {
 
     const handleSubmit = async () => {
         if (!validateInput()) {
-            return
+            return Alert.alert("Warning", "Cần nhập đúng thông tin các trường")
         }
-        // setIsLoading(true)
-        // const response = await apis.apiUploadMaterial(payload)
-        // setIsLoading(false)
-        // if (response.data?.code !== responseCodes.statusOK) {
-        //     Alert.alert("Error", response.data?.message || "Tải tài liệu lên không thành công")
-        // } else {
-        //     Alert.alert("Success", "Tải tài liệu thành công")
-        // }
+        setIsLoading(true)
+        const response = await apis.apiEditMaterial(payload)
+        setIsLoading(false)
+        if (response.data?.code !== responseCodes.statusOK) {
+            Alert.alert("Error", response.data?.message || "Tải tài liệu lên không thành công")
+        } else {
+            Alert.alert("Success", "Tải tài liệu thành công")
+            dispatch(actions.getMaterialList({
+                token: token,
+                class_id: currentMaterial.class_id
+            }))
+        }
 
         resetInput()
     }
