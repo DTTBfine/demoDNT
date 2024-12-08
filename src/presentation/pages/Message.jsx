@@ -2,6 +2,7 @@ import { View, Text, Image, StyleSheet, TextInput, Dimensions, ScrollView, Touch
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
+import IconM from 'react-native-vector-icons/MaterialIcons'
 import { getHourMinute } from '../../utils/format'
 import { useNavigation } from '@react-navigation/native'
 import * as actions from '../redux/actions'
@@ -59,7 +60,7 @@ const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta tru
 const Message = () => {
     const navigate = useNavigation()
     const dispatch = useDispatch()
-    const { token } = useSelector(state => state.auth)
+    const { token, userId } = useSelector(state => state.auth)
     const { userInfo } = useSelector(state => state.user)
     const { listConversations } = useSelector(state => state.message)
     const [dispatchData, setDispatchData] = useState(true)
@@ -79,7 +80,7 @@ const Message = () => {
             setIsLoading(false)
             setDispatchData(false)
         }
-    })
+    }, [])
 
     return (
         <View style={styles.container}>
@@ -91,24 +92,34 @@ const Message = () => {
                 }}
             />
             <View style={{
+                marginVertical: 10,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 10
+                justifyContent: 'space-between'
             }}>
-                <Image
-                    source={userInfo.avatar ? { uri: getDisplayedAvatar(userInfo.avatar) } : require('../../../assets/default-avatar.jpg')}
-                    style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 23,
-                        borderWidth: 2,
-                        borderColor: '#AA0000'
-                    }}
-                />
-                <Text style={{
-                    fontSize: 24,
-                    fontWeight: '600'
-                }}>Đoạn chat</Text>
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 10
+                }}>
+                    <Image
+                        source={userInfo.avatar ? { uri: getDisplayedAvatar(userInfo.avatar) } : require('../../../assets/default-avatar.jpg')}
+                        style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 23,
+                            borderWidth: 2,
+                            borderColor: '#AA0000'
+                        }}
+                    />
+                    <Text style={{
+                        fontSize: 24,
+                        fontWeight: '600'
+                    }}>Đoạn chat</Text>
+                </View>
+                <View style={{ backgroundColor: 'gainsboro', padding: 8, borderRadius: 20 }}>
+                    <IconM name="edit" size={20} onPress={() => { navigate.navigate("searchAccount") }} />
+                </View>
             </View>
 
             <View style={{
@@ -155,6 +166,7 @@ const Message = () => {
                                 <View>
                                     <Text style={{ fontSize: 17, fontWeight: item.last_message.unread ? '600' : '400' }}>{item.partner.name}</Text>
                                     <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+                                        {item.last_message.sender.id == userId && <Text style={{ fontWeight: '400', color: 'dimgray' }}>Bạn:</Text>}
                                         <Text style={{
                                             fontWeight: item.last_message.unread ? '600' : '400',
                                             color: item.last_message.unread ? 'black' : 'dimgray'

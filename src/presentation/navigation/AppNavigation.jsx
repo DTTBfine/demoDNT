@@ -38,6 +38,7 @@ import AbsenceRequests from '../pages/teacher/AbsenceRequests';
 import EditMaterial from '../pages/teacher/EditMaterial';
 import EditSurvey from '../pages/teacher/EditSurvey';
 import SurveyResponse from '../pages/teacher/SurveyResponse';
+import SearchAccount from '../pages/SearchAccount';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -90,10 +91,15 @@ const MessageRoute = () => {
                             <IconI name='videocam' color='mediumpurple' size={22} />
                         </View>
                     </View>
+                } : route.name === 'searchAccount' ? () => {
+                    return <View>
+                        <Text style={{ fontSize: 20, fontWeight: '500' }}>Tin nhắn mới</Text>
+                    </View>
                 } : undefined,
             })}>
             <Stack.Screen name="conversationList" component={Message} />
             <Stack.Screen name="conversation" component={Conversation} />
+            <Stack.Screen name="searchAccount" component={SearchAccount} />
         </Stack.Navigator >
     )
 }

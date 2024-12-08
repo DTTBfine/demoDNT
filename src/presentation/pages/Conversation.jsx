@@ -25,50 +25,6 @@ const initConversation = [
         },
         "created_at": "2024-12-03T22:45:04",
         "unread": 0
-    },
-    {
-        "message_id": "6665",
-        "message": "x3 luôn là saoooo\n",
-        "sender": {
-            "id": 122,
-            "name": "Do Binh",
-            "avatar": "https://drive.google.com/file/d/16JvbkQYKvaVWc9BfrK0no3o06xCP8dZD/view?usp=drivesdk"
-        },
-        "created_at": "2024-12-03T22:44:35",
-        "unread": 0
-    },
-    {
-        "message_id": "6664",
-        "message": "lag?\n",
-        "sender": {
-            "id": 9,
-            "name": "Bfbf Gfdnnc",
-            "avatar": null
-        },
-        "created_at": "2024-12-03T22:44:15",
-        "unread": 0
-    },
-    {
-        "message_id": "6663",
-        "message": "Lag rồi\n",
-        "sender": {
-            "id": 122,
-            "name": "Do Binh",
-            "avatar": "https://drive.google.com/file/d/16JvbkQYKvaVWc9BfrK0no3o06xCP8dZD/view?usp=drivesdk"
-        },
-        "created_at": "2024-12-03T22:44:06",
-        "unread": 0
-    },
-    {
-        "message_id": "6662",
-        "message": "đừng nói là chưa thấy nhá",
-        "sender": {
-            "id": 9,
-            "name": "Bfbf Gfdnnc",
-            "avatar": null
-        },
-        "created_at": "2024-12-03T22:43:58",
-        "unread": 0
     }
 ]
 
@@ -334,7 +290,7 @@ const Conversation = ({ route }) => {
                     onChangeText={(text) => {
                         setMessage(prev => ({
                             ...prev,
-                            'message_id': +conversation[0].message_id + 1 + '',
+                            'message_id': conversation[0] ? +conversation[0].message_id + 1 + '' : '1',
                             'message': text,
                             'created_at': new Date().toISOString().split('.')[0]
                         }))
