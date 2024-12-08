@@ -39,7 +39,7 @@ const SearchAccount = () => {
 
     const renderAccount = ({ item, index }) => {
         return (
-            <TouchableOpacity onPress={() => { navigate.navigate('conversation', { name: item.first_name + ' ' + item.last_name, avatar: null, partner_id: item.account_id }) }}
+            <TouchableOpacity onPress={() => { navigate.navigate('conversation', { name: item.first_name + ' ' + item.last_name, avatar: item.avatar ? item.avatar : null, partner_id: item.account_id }) }}
                 style={{
                     padding: 15,
                     flexDirection: 'row',
