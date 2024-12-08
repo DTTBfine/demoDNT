@@ -2,6 +2,8 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, Image } from 'react-
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { getDisplayedAvatar } from '../../utils/format'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import IconI from 'react-native-vector-icons/Ionicons'
 
 const testData = [
     {
@@ -29,6 +31,11 @@ const SearchAccount = () => {
     const navigate = useNavigation()
 
     const [nameSearch, setNameSearch] = useState('')
+
+    const handleSearch = () => {
+        console.log('Xử lý đi')
+        setNameSearch('')
+    }
 
     const renderAccount = ({ item, index }) => {
         return (
@@ -62,17 +69,27 @@ const SearchAccount = () => {
                 alignItems: 'center',
                 paddingHorizontal: 10,
                 paddingVertical: 5,
-                gap: 10,
-                elevation: 5
+                elevation: 5,
+                justifyContent: 'space-between'
             }}>
-                <Text style={{ fontSize: 16, color: 'gray' }}>Đến: </Text>
-                <TextInput
-                    style={{ fontSize: 16, }}
-                    placeholder='Hãy nhập tên hoặc email'
-                    placeholderTextColor="darkgrey"
-                    value={nameSearch}
-                    onChangeText={(text) => { setNameSearch(text) }}
-                />
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 10
+                }}>
+                    <Text style={{ fontSize: 16, color: 'gray' }}>Đến: </Text>
+                    <TextInput
+                        style={{ fontSize: 16, }}
+                        placeholder='Hãy nhập tên hoặc email'
+                        placeholderTextColor="darkgrey"
+                        value={nameSearch}
+                        onChangeText={(text) => { setNameSearch(text) }}
+                    />
+                </View>
+                <TouchableOpacity onPress={handleSearch}>
+                    {/* <Icon name='magic' color='thistle' size={22} /> */}
+                    <IconI name='send' color="thistle" size={25} />
+                </TouchableOpacity>
             </View>
             <View>
                 <FlatList
