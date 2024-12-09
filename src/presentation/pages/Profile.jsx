@@ -237,8 +237,9 @@ const ProfileScreen = () => {
                 </View>
                 <View style={{
                     flexDirection: 'row',
-                    gap: 5,
-                    marginVertical: 10
+                    gap: 15,
+                    marginVertical: 20,
+                    paddingHorizontal: 10
                 }}>
                     <TouchableOpacity
                         style={{
@@ -246,14 +247,13 @@ const ProfileScreen = () => {
                             backgroundColor: "#BB0000",
                             alignItems: 'center',
                             justifyContent: 'center',
-                            borderRadius: 15,
+                            borderRadius: 20,
                             paddingVertical: 10
                         }}
                         onPress={handleCancelChanges}>
                         <Text style={{
                             color: 'white',
                             fontWeight: 'bold',
-                            fontStyle: 'italic',
                             fontSize: 16
                         }}
                         >
@@ -266,7 +266,7 @@ const ProfileScreen = () => {
                             backgroundColor: "#BB0000",
                             alignItems: 'center',
                             justifyContent: 'center',
-                            borderRadius: 15,
+                            borderRadius: 20,
                             paddingVertical: 10
                         }}
                         onPress={async () => {
@@ -275,7 +275,6 @@ const ProfileScreen = () => {
                         <Text style={{
                             color: 'white',
                             fontWeight: 'bold',
-                            fontStyle: 'italic',
                             fontSize: 16
                         }}>
                             Lưu thay đổi

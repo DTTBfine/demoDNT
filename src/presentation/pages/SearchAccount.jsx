@@ -38,7 +38,7 @@ const SearchAccount = () => {
     const [searchedUsers, setSearchedUsers] = useState([])
     const [currentPageInfo, setCurrentPageInfo] = useState(null)
 
-    const [nameSearch, setNameSearch] = useState('')
+    const [nameSearch, setNameSearch] = useState(null)
 
     const loadMoreData = async () => {
         if (currentPageInfo?.next_page && nameSearch) {
@@ -62,7 +62,7 @@ const SearchAccount = () => {
                 setCurrentPageInfo(response?.data?.data?.page_info)
             }
         }
-        
+
     }
 
     const handleSearch = async () => {
@@ -155,16 +155,16 @@ const SearchAccount = () => {
             <View>
                 {searchedUsers?.length > 0 ? (
                     <FlatList
-                    data={searchedUsers}
-                    keyExtractor={(item) => item.account_id}
-                    renderItem={renderAccount}
-                    contentContainerStyle={{ paddingBottom: 10 }}
-                    showsVerticalScrollIndicator={false}
-                    onEndReached={async () => {await loadMoreData()}}
-                    onEndReachedThreshold={0.9}
+                        data={searchedUsers}
+                        keyExtractor={(item) => item.account_id}
+                        renderItem={renderAccount}
+                        contentContainerStyle={{ paddingBottom: 40 }}
+                        showsVerticalScrollIndicator={false}
+                        onEndReached={async () => { await loadMoreData() }}
+                        onEndReachedThreshold={0.9}
                     />
                 ) : (
-                    <Text>No results found</Text> // Optionally show a fallback message
+                    <Text style={{ color: 'gray', textAlign: 'center', marginTop: 20, fontSize: 16 }}>No results found</Text> // Optionally show a fallback message
                 )}
             </View>
         </View>

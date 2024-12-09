@@ -168,12 +168,12 @@ const Message = () => {
                                     <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
                                         {item.last_message.sender.id == userId && <Text style={{ fontWeight: '400', color: 'dimgray' }}>Bạn:</Text>}
                                         <Text style={{
-                                            fontWeight: item.last_message.unread ? '600' : '400',
-                                            color: item.last_message.unread ? 'black' : 'dimgray'
+                                            fontWeight: (item.last_message.sender.id != userId && item.last_message.unread) ? '600' : '400',
+                                            color: (item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray'
                                         }}
                                         >{item.last_message.message}</Text>
-                                        <Icon name='circle' color={item.last_message.unread ? 'black' : 'dimgray'} size={3} />
-                                        <Text style={{ color: item.last_message.unread ? 'black' : 'dimgray' }}>{getHourMinute(item.last_message.created_at).hour}:{getHourMinute(item.last_message.created_at).minute}</Text>
+                                        <Icon name='circle' color={(item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray'} size={3} />
+                                        <Text style={{ color: (item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray' }}>{getHourMinute(item.last_message.created_at).hour}:{getHourMinute(item.last_message.created_at).minute}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
