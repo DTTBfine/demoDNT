@@ -11,3 +11,10 @@ export const absenceStatus = {
     pending: "PENDING",
     rejected: "REJECTED"
 }
+
+//attendance
+export const attendanceStatus = {
+    present: "PRESENT",
+    excusedAbsence: "EXCUSED_ABSENCE",
+    unexcusedAbsence: "UNEXCUSED_ABSENCE"
+}

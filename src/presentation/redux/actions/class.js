@@ -100,6 +100,21 @@ export const getAttendanceRecord = (payload) => async (dispatch) => {
 
 }
 
+export const getAttendanceDates = (payload) => async (dispatch) => {
+    const response = await apis.apiGetAttendanceDates(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_ATTENDANCE_DATES,
+            data: response?.data?.data
+        })
+    }
+
+    return dispatch({
+        type: actionTypes.GET_ATTENDANCE_DATES,
+        data: null
+    })
+}
+
 
 //assignment
 export const getStudentAssignments = (payload) => async (dispatch) => {

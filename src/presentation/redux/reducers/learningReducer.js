@@ -14,7 +14,8 @@ const initState = {
     submissionOfCurrentAssignment: {},
     surveyOfCurrentClass: [],
     attendanceRecord: {},
-    absenceRequests: []
+    attendanceDates: [],
+    absenceRequests: [],
 }
 
 const learningReducer = (state = initState, action) => {
@@ -40,6 +41,11 @@ const learningReducer = (state = initState, action) => {
             return {
                 ...state,
                 attendanceRecord: action.data || {}
+            }
+        case actionTypes.GET_ATTENDANCE_DATES:
+            return {
+                ...state,
+                attendanceDates: action.data || []
             }
 
         //absence
