@@ -48,9 +48,21 @@ const Attendance = ({ route }) => {
     const new_date = new Date()
     const [currentDate, setCurrentDate] = useState(formatSQLDate(new_date))
 
-    const [attendStatus, setAttendStatus] = useState(Array.isArray(currentClass.student_accounts) && currentClass.student_accounts.length > 0 ?
-        Object.fromEntries(currentClass.student_accounts?.map(item => [item.student_id, true])) : {}
-    )
+    // const [attendStatus, setAttendStatus] = useState(Array.isArray(currentClass.student_accounts) && currentClass.student_accounts.length > 0 ?
+    //     Object.fromEntries(currentClass.student_accounts?.map(item => [item.student_id, true])) : {}
+    // )
+
+    const [attendStatus, setAttendStatus] = useState({})
+
+    // useEffect(() => {
+    //     if (currentClass) {
+    //         console.log("setting attend status")
+    //         setAttendStatus(Array.isArray(currentClass.student_accounts) && currentClass.student_accounts.length > 0 ?
+    //             Object.fromEntries(currentClass.student_accounts?.map(item => [item.student_id, true])) : {}
+    //         )
+    //     }
+      
+    // }, [currentClass])
     console.log("attend status: " + JSON.stringify(attendStatus))
     const handleChangeStatus = (id) => {
         if (dateAttended) {
@@ -66,7 +78,7 @@ const Attendance = ({ route }) => {
             date: date,
             pageable_request: null
         })
-        console.log("get attendance list response: " + JSON.stringify(response?.data))
+        // console.log("get attendance list response: " + JSON.stringify(response?.data))
         if (response?.data?.meta?.code === responseCodes.statusOK) {
             return response?.data?.data?.attendance_student_details
         }
@@ -80,19 +92,13 @@ const Attendance = ({ route }) => {
         console.log("getting attendance list")
         const attendanceList = await getAttendanceList(date);
         setIsLoading(false)
-        console.log('attendance list: ' + JSON.stringify(attendanceList))
+        // console.log('attendance list: ' + JSON.stringify(attendanceList))
         if (attendanceList?.length > 0) {
             attendanceList.forEach(item => {
                 // Use student_id as key and status as value
-                currentDateAttendStatus[item.student_id] = item.status === constants.attendanceStatus.present;
+                currentDateAttendStatus[item.student_id] = item.status !== constants.attendanceStatus.present;
             });
-        } else {
-            currentClass?.student_accounts?.forEach(item => {
-                // Default to 'true' if no attendance list available
-                currentDateAttendStatus[item.student_id] = true;
-            });
-        }
-        
+        } 
         
         // Update state with the object
         setAttendStatus(currentDateAttendStatus);
@@ -103,7 +109,7 @@ const Attendance = ({ route }) => {
             if (dateAttended) {
                 fetchAttendStatus(dateAttended)
             } else {
-                // console.log("default date here")
+                console.log("default date here")
                 fetchAttendStatus(currentDate)
             }
         }
@@ -123,7 +129,7 @@ const Attendance = ({ route }) => {
             token: token,
             class_id: id,
             date: currentDate,
-            attendance_list: currentClass.student_accounts.map(item => !attendStatus[item.student_id] ? item.student_id : null).filter(id => id !== null)
+            attendance_list: currentClass.student_accounts.map(item => attendStatus[item.student_id] ? item.student_id : null).filter(id => id !== null)
         }
         setIsLoading(true)
         const response = await apis.apiTakeAttendance(payload)
@@ -195,7 +201,9 @@ const Attendance = ({ route }) => {
                                                 <Cell isHeader={false} width={100} data={index + 1} />
                                                 <Cell isHeader={false} width={100} data={item.student_id} />
                                                 <Cell isHeader={false} width={250} data={item.first_name + ' ' + item.last_name} />
-                                                <Cell isHeader={false} width={100} data={attendStatus[item.student_id] ? <Icon name='check-circle' color='deepskyblue' size={24} onPress={() => handleChangeStatus(item.student_id)} /> :
+                                                {/* presented in attend status means absence  */}
+                                            
+                                                <Cell isHeader={false} width={100} data={!attendStatus[item.student_id] ? <Icon name='check-circle' color='deepskyblue' size={24} onPress={() => handleChangeStatus(item.student_id)} /> :
                                                     <Icon5 name='ban' color='#BB0000' size={22} onPress={() => handleChangeStatus(item.student_id)} />} />
                                                 <Cell isHeader={false} width={100} data={''} />
                                                 <Cell isHeader={false} width={100} data={''} />

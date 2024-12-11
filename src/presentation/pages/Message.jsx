@@ -164,7 +164,7 @@ const Message = () => {
                                     />
                                 </View>
                                 <View>
-                                    <Text style={{ fontSize: 17, fontWeight: item.last_message.unread ? '600' : '400' }}>{item.partner.name}</Text>
+                                    <Text style={{ fontSize: 17, fontWeight:item.last_message.sender.id != userId && item.last_message.unread ? '600' : '400' }}>{item.partner.name}</Text>
                                     <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
                                         {item.last_message.sender.id == userId && <Text style={{ fontWeight: '400', color: 'dimgray' }}>Bạn:</Text>}
                                         <Text style={{

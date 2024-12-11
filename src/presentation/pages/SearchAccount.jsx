@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, FlatList, Image } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator, Keyboard, KeyboardAvoidingView } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { getDisplayedAvatar } from '../../utils/format'
@@ -50,8 +50,11 @@ const SearchAccount = () => {
                     page_size: currentPageInfo.page_size
                 }
             })
-            setIsLoading(false)
-            console.log("response loading more data: " + JSON.stringify(response?.data?.data?.page_content))
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 500)
+            // setIsLoading(false)
+            // console.log("response loading more data: " + JSON.stringify(response?.data?.data?.page_content))
             if (response?.data?.meta?.code !== responseCodes.statusOK) {
                 setCurrentPageInfo(null)
                 console.log("error fetching next page: " + response?.data?.meta?.message)
@@ -65,17 +68,21 @@ const SearchAccount = () => {
 
     }
 
-    const handleSearch = async () => {
+    const handleSearch = async (text) => {
         // setNameSearch('')
-        setIsLoading(true)
+        // Keyboard.dismiss()
+        // setIsLoading(true)
         const response = await apis.apiSearchAccount(({
-            search: nameSearch,
+            search: text ? text : nameSearch,
             pageable_request: {
                 page: "0",
-                page_size: "10"
+                page_size: "20"
             }
         }))
-        setIsLoading(false)
+        // setTimeout(() => {
+        //     setIsLoading(false)
+        // }, 500)
+        // setIsLoading(false)
 
         if (response?.data?.meta?.code !== responseCodes.statusOK) {
             setSearchedUsers([])
@@ -83,13 +90,14 @@ const SearchAccount = () => {
             return
         }
         const listUsers = response?.data?.data?.page_content
-        // console.log("list user response: " + JSON.stringify(listUsers))
 
         if (listUsers) {
             setSearchedUsers(listUsers)
             setCurrentPageInfo(response?.data?.data?.page_info)
+            // console.log("current page info: " + JSON.stringify(response?.data?.data?.page_info))
         }
     }
+
 
     const renderAccount = ({ item, index }) => {
         return (
@@ -116,7 +124,7 @@ const SearchAccount = () => {
     }
 
     return (
-        <View>
+        <KeyboardAvoidingView>
             <Spinner
                 visible={isLoading}
                 textContent={'Chờ xử lý...'}
@@ -144,10 +152,20 @@ const SearchAccount = () => {
                         placeholder='Hãy nhập tên hoặc email'
                         placeholderTextColor="darkgrey"
                         value={nameSearch}
-                        onChangeText={(text) => { setNameSearch(text) }}
+                        onChangeText={async (text) => { 
+                            setNameSearch(text) 
+                            setIsLoading(true)
+                            await handleSearch(text)
+                            setIsLoading(false)
+                        }}
                     />
                 </View>
-                <TouchableOpacity onPress={handleSearch}>
+                <TouchableOpacity onPress={async () => {
+                    setIsLoading(true)
+                    Keyboard.dismiss()
+                    await handleSearch()
+                    setIsLoading(false)
+                }}>
                     {/* <Icon name='magic' color='thistle' size={22} /> */}
                     <IconI name='send' color="thistle" size={25} />
                 </TouchableOpacity>
@@ -161,13 +179,29 @@ const SearchAccount = () => {
                         contentContainerStyle={{ paddingBottom: 40 }}
                         showsVerticalScrollIndicator={false}
                         onEndReached={async () => { await loadMoreData() }}
-                        onEndReachedThreshold={0.9}
+                        onEndReachedThreshold={0.1}
+                        onScrollBeginDrag={(event) => {
+                            setIsLoading(true)
+                        }}
+                        onScrollEndDrag={async (event) => {
+                            var currentPosition = event.nativeEvent.contentOffset.y
+                            if (currentPosition <= 0) {
+                                setIsLoading(true)
+                                await handleSearch(nameSearch)
+                                setTimeout(() => {
+                                    setIsLoading(false)
+                                }, 500)
+                            } else {
+                                setIsLoading(false)
+                            }
+                        }}
+
                     />
                 ) : (
                     <Text style={{ color: 'gray', textAlign: 'center', marginTop: 20, fontSize: 16 }}>No results found</Text> // Optionally show a fallback message
                 )}
             </View>
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 

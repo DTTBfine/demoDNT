@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, FlatList, Image, Modal, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, FlatList, Image, Modal, TouchableWithoutFeedback, Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import IconI from 'react-native-vector-icons/Ionicons'
 import Icon6 from 'react-native-vector-icons/FontAwesome6'
@@ -9,6 +9,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { getDisplayedAvatar, getHourMinute } from '../../utils/format';
 import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client'
+import * as apis from '../../data/api'
 
 const SOCKET_URL = 'http://157.66.24.126:8080/ws';
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
@@ -32,6 +33,8 @@ const TIME_THRESHOLD = 300 //5 phút
 
 const LONG_TIME_THRESHOLD = 3600 //1 tiếng
 
+const DEFAULT_COUNT = 15
+
 const Conversation = ({ route }) => {
     const dispatch = useDispatch()
     const { name, avatar, partner_id } = route.params
@@ -45,6 +48,11 @@ const Conversation = ({ route }) => {
     const [dispatchData, setDispatchData] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
     const [loadingText, setLoadingText] = useState('Loading...')
+    const [loadMoreData, setLoadMoreData] = useState(false)
+    const [reloadData, setReloadData] = useState(false)
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [hasMoreData, setHasMoreData] = useState(true)
+    const [initConversation, setInitConversation] = useState(true)
 
     //
     const stompClientRef = useRef(null);
@@ -64,13 +72,15 @@ const Conversation = ({ route }) => {
                 if (msg.sender.id === partner_id) {
                     mark_as_read = "true"
                 }
+                setLoadMoreData(false)
                 dispatch(actions.getConversation({
                     token: token,
-                    index: "0",
-                    count: "1000",
+                    index: 0,
+                    count: DEFAULT_COUNT,
                     partner_id: partner_id,
                     mark_as_read: mark_as_read
                 }))
+                setCurrentIndex(0)
                 dispatch(actions.getListConversation({
                     token: token,
                     index: "0",
@@ -143,29 +153,48 @@ const Conversation = ({ route }) => {
     }
 
 
-    //get current conversation
+
+    //init conversation
     useEffect(() => {
         if (dispatchData) {
             setIsLoading(true)
             dispatch(actions.getConversation({
                 token: token,
-                index: "0",
-                count: "1000",
+                index: 0,
+                count: DEFAULT_COUNT,
                 partner_id: partner_id,
                 mark_as_read: "true"
             }))
+            setIsLoading(false)
+            setCurrentIndex(0)
             // setIsLoading(false)
             setDispatchData(false)
         }
     }, [])
 
+
+    //maybe set a init conversation state?
     useEffect(() => {
+        if (initConversation) {
+            if (currentConversation) {
+                setConversation(currentConversation)
+            }
+            setInitConversation(false)
+            return
+        }
         if (currentConversation) {
-            setConversation(currentConversation); // Update conversation when currentConversation changes
-            setIsLoading(false); // Set loading to false after conversation data is received
+            if (loadMoreData) {
+                // console.log("loading more data...")
+                setConversation((prev) => [...prev, ...currentConversation])
+            } else if (reloadData) {
+                setConversation(currentConversation);
+            }
+        
             // setTimeout(() => {
             //     setIsLoading(false)
-            // }, 3000)
+            // }, 500)
+        } else {
+            Alert.alert("Info", "Đã load hết tin nhắn")
         }
     }, [currentConversation]);
 
@@ -269,6 +298,44 @@ const Conversation = ({ route }) => {
                     inverted={true}  // Đảo ngược thứ tự của danh sách
                     contentContainerStyle={{ paddingBottom: 10 }}  // Đảm bảo các tin nhắn được căn dưới
                     showsVerticalScrollIndicator={false}
+                    onEndReached={() => {
+                        setIsLoading(true)
+                        setLoadMoreData(true)
+                        setReloadData(false)
+                        console.log("loading more conversations, index: " + (currentIndex + DEFAULT_COUNT) )
+                        dispatch(actions.getConversation({
+                            token: token,
+                            index: currentIndex + DEFAULT_COUNT,
+                            count: DEFAULT_COUNT,
+                            partner_id: partner_id,
+                            mark_as_read: "true"
+                        }))
+                        setCurrentIndex(currentIndex + DEFAULT_COUNT)
+                        setIsLoading(false)
+                    }}
+                    onEndReachedThreshold={0.1}
+                    onScrollBeginDrag={(event) => {
+                        setIsLoading(true)
+                    }}
+                    onScrollEndDrag={(event) => {
+                        if (event.nativeEvent.contentOffset.y <= 0) {
+                            setLoadMoreData(false)
+                            setReloadData(true)
+                            dispatch(actions.getConversation({
+                                token: token,
+                                index: 0,
+                                count: DEFAULT_COUNT,
+                                partner_id: partner_id,
+                                mark_as_read: "true"
+                            }))
+                            setCurrentIndex(0)
+                            setTimeout(() => {
+                                setIsLoading(false)
+                            }, 500);
+                        } else {
+                            setIsLoading(false)
+                        }
+                    }}  
                 />
             </View>
             <View style={{

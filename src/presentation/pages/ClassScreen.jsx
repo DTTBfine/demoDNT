@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert } from 'react-native'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert, FlatList } from 'react-native'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import Icon5 from 'react-native-vector-icons/FontAwesome5'
@@ -11,6 +11,7 @@ import { convertVNDate, getColorForId, getIconForFileType } from '../../utils/fo
 import ConfirmModal from '../components/ConfirmModal'
 import * as apis from '../../data/api'
 import { responseCodes } from '../../utils/constants/responseCodes'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -25,6 +26,9 @@ const ClassScreen = ({ route }) => {
     const dispatch = useDispatch()
     const navigate = useNavigation()
     const [loadData, setLoadData] = useState(true)
+
+    const [isLoading, setIsLoading] = useState(false)
+    const [loadingText, setLoadingText] = useState('Loading...')
 
     const [currentSurvey, setCurrentSurvey] = useState(null)
     const [showSurveyInfo, setShowSurveyInfo] = useState(false)
@@ -54,7 +58,6 @@ const ClassScreen = ({ route }) => {
                     class_id: id
                 }))
             }
-
 
             dispatch(actions.getClassInfo({
                 token: token,
@@ -118,6 +121,13 @@ const ClassScreen = ({ route }) => {
 
     return (
         <View style={styles.cotainer}>
+            <Spinner
+                visible={isLoading}
+                textContent={loadingText}
+                textStyle={{
+                    color: '#FFF'
+                }}
+            />
             <GlobalContext.Provider value={{ currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo, currentMaterial, setCurrentMaterial, showMaterialHandle, setShowMaterialHandle }} >
                 {
                     currentSurvey && (
@@ -318,7 +328,7 @@ const ClassScreen = ({ route }) => {
                 <View style={{ height: height - 80, paddingVertical: 10 }}>
                     {currentTab === 'Chung' && <About class_id={id} class_type={type} />}
                     {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} />}
-                    {currentTab === 'Tài liệu' && <MaterialList />}
+                    {currentTab === 'Tài liệu' && <MaterialList setIsLoading={setIsLoading} dispatch={dispatch} class_id={id}/>}
                 </View>
             </GlobalContext.Provider>
         </View>
@@ -551,15 +561,49 @@ const AssignmentItem = ({ item }) => {
     )
 }
 
-const MaterialList = () => {
+const MaterialList = ({ setIsLoading, dispatch, class_id }) => {
     const { classMaterial } = useSelector(state => state.learning)
-
+    const { token } = useSelector(state => state.auth)
+    const renderMaterial = ({ item, index }) => {
+        return (
+            <View key={index}>
+                <MaterialBox item={item} />
+            </View>
+        )
+    }
     return (
         <View style={{
             marginBottom: 20
         }}>
             {classMaterial.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Tài liệu lớp trống !</Text>}
-            <ScrollView >
+            {classMaterial?.length > 0 && (
+                <FlatList
+                    data={[...classMaterial].reverse()}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderMaterial}
+                    contentContainerStyle={{ paddingBottom: 40 }}
+                    showsVerticalScrollIndicator={false}
+                    onScrollBeginDrag={(event) => {
+                        setIsLoading(true)
+                    }}
+                    onScrollEndDrag={(event) => {
+                        if (event.nativeEvent.contentOffset.y <= 0) {
+                            dispatch(actions.getMaterialList({
+                                token: token,
+                                class_id: class_id
+                            }))
+                            setTimeout(() => {
+                                setIsLoading(false)
+                            }, 500);
+                        } else {
+                            setIsLoading(false)
+                        }
+                    }}
+                />
+            )}
+            
+            
+            {/* <ScrollView >
                 {
                     classMaterial?.length > 0 && classMaterial.map((item, index) => {
                         return (
@@ -569,7 +613,7 @@ const MaterialList = () => {
                         )
                     })
                 }
-            </ScrollView>
+            </ScrollView> */}
         </View>
     )
 }

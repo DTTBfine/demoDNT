@@ -1,7 +1,7 @@
 import axiosConfig from '../../../axiosConfig'
 
 export const apiGetAttendanceList = async (payload) => {
-    console.log("get attendance list payload: " + JSON.stringify(payload))
+    // console.log("get attendance list payload: " + JSON.stringify(payload))
     try {
         const response = await axiosConfig({
             method: 'post',
