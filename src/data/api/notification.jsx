@@ -39,7 +39,7 @@ export const apiMarkNotificationAsRead = async (payload) => {
         url: '/it5023e/mark_notification_as_read',
         data: {
             token: payload.token,
-            notification_ids: payload.notification_ids //mảng các id
+            notification_id: payload.notification_id
         }
     })
     return response

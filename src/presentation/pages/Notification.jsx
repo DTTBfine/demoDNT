@@ -1,70 +1,148 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import NoteItem from '../components/NoteItem';
-import { apiGetNotifications } from '../../data/api/notification';
+import { apiGetNotifications, apiMarkNotificationAsRead } from '../../data/api';
 import { useSelector } from 'react-redux';
 
-const Notification = () => {
+const Notification = ({refreshTrigger}) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { token } = useSelector((state) => state.auth); // Lấy token từ Redux
+    const [markingAll, setMarkingAll] = useState(false); // Trạng thái loading của nút "Đánh dấu tất cả đã đọc"
+    const { token } = useSelector(state => state.auth);
 
+    // Hàm lấy danh sách thông báo
     const fetchNotifications = async () => {
-        console.log('Start fetching notifications'); // Log bắt đầu hàm
         setLoading(true);
         try {
-            console.log('Token:', token); // Log token
             const response = await apiGetNotifications({
                 token: token,
-                index: 0, // Bắt đầu từ index 0
+                index: 0,
                 count: 1000,
             });
-            console.log('API response:', response.data); // Log kết quả trả về từ API
 
-            if (response.data ) {
-                console.log('Fetched notifications:', response.data.data); // Log thông báo
+            if (response.data) {
                 setNotifications(response.data.data);
             } else {
-                console.log('No notifications found'); // Log khi không có dữ liệu
                 setNotifications([]);
             }
         } catch (error) {
-            console.error('API call failed:', error); // Log lỗi
             Alert.alert('Lỗi', 'Không thể tải danh sách thông báo. Vui lòng thử lại.');
         } finally {
-            console.log('Finished fetching notifications'); // Log khi kết thúc hàm
             setLoading(false);
         }
     };
 
+    // Hàm đánh dấu một thông báo là đã đọc
+    const handleNotificationRead = (id) => {
+        setNotifications(prevNotifications =>
+            prevNotifications.map(notification =>
+                notification.id === id ? { ...notification, status: 'READ' } : notification
+            )
+        );
+    };
+
+    // Hàm đánh dấu tất cả thông báo là đã đọc
+    const handleMarkAllAsRead = async () => {
+        setMarkingAll(true); // Hiển thị trạng thái loading cho nút
+
+        // Lọc tất cả các thông báo chưa đọc
+        const unreadNotifications = notifications.filter(notification => notification.status === 'UNREAD');
+        
+        try {
+            // Gọi API cho từng thông báo chưa đọc
+            for (const notification of unreadNotifications) {
+                await apiMarkNotificationAsRead({ 
+                    token, 
+                    notification_id: notification.id 
+                });
+            }
+
+            // Cập nhật trạng thái của tất cả thông báo thành 'READ'
+            setNotifications(prevNotifications =>
+                prevNotifications.map(notification => ({ ...notification, status: 'READ' }))
+            );
+        } catch (error) {
+            Alert.alert('Lỗi', 'Không thể đánh dấu tất cả thông báo là đã đọc.');
+        } finally {
+            setMarkingAll(false); // Ẩn trạng thái loading cho nút
+        }
+    };
+
     useEffect(() => {
-            fetchNotifications();
+        fetchNotifications();
     }, []);
 
-    console.log(notifications)
-
     return (
-        <ScrollView style={styles.container}>
+        <View style={styles.container}>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />
-            ) : notifications.length > 0 ? (
-                <View style={styles.body}>
-                    {notifications.map((notification) => {
-                        console.log('Rendering Notification:', notification); // Log từng thông báo trước khi truyền
-                        return <NoteItem key={notification.id} data={notification} />;
-                    })}
-                </View>
             ) : (
-                <Text style={styles.noData}>Hiện tại bạn chưa có thông báo nào.</Text>
+                <>
+                    {notifications.length > 0 && (
+                        <TouchableOpacity 
+                            style={[styles.markAllButton, markingAll && styles.markAllButtonDisabled]} 
+                            onPress={handleMarkAllAsRead} 
+                            disabled={markingAll}
+                        >
+                            {markingAll ? (
+                                <ActivityIndicator size="small" color="#FFFFFF" />
+                            ) : (
+                                <Text style={styles.markAllButtonText}>Đánh dấu tất cả đã đọc</Text>
+                            )}
+                        </TouchableOpacity>
+                    )}
+
+                    <ScrollView style={styles.notificationList}>
+                        {notifications.length > 0 ? (
+                            <View style={styles.body}>
+                                {notifications.map((notification) => (
+                                    <NoteItem 
+                                        key={notification.id} 
+                                        data={notification} 
+                                        onNotificationRead={() => handleNotificationRead(notification.id)} 
+                                    />
+                                ))}
+                            </View>
+                        ) : (
+                            <Text style={styles.noData}>Hiện tại bạn chưa có thông báo nào.</Text>
+                        )}
+                    </ScrollView>
+                </>
             )}
-        </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#EEEEEE',
+        backgroundColor: '#F5F5F5',
+    },
+    notificationList: {
+        flex: 1,
+    },
+    markAllButton: {
+        backgroundColor: '#4CAF50',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 25,
+        marginHorizontal: 15,
+        marginVertical: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5, // Đổ bóng cho Android
+    },
+    markAllButtonDisabled: {
+        backgroundColor: '#A5A5A5', // Màu khi nút bị disabled
+    },
+    markAllButtonText: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
     body: {
         flexDirection: 'column',

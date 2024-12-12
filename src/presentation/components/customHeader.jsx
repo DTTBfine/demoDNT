@@ -27,7 +27,7 @@ const CustomHeader = () => {
     
         const intervalId = setInterval(() => {
             fetchUnreadNotifications();
-        }, 10000); 
+        }, 1000); 
     
         return () => clearInterval(intervalId);
     }, [token])
@@ -59,6 +59,8 @@ const CustomHeader = () => {
                     
                 }}
             />
+            {
+            unreadNotificationCount!=0 &&
             <View style={{
                 width: 20,
                 height: 20,
@@ -71,6 +73,7 @@ const CustomHeader = () => {
             }}>
                 <Text style={{ color: 'white', fontWeight: '400', fontSize: 12, textAlign: 'center' }}>{unreadNotificationCount}</Text>
             </View>
+            }
         </View>
     )
 }
