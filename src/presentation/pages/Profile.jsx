@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, TextInput, Modal } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, TextInput, Modal, ScrollView, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/AntDesign'
@@ -6,6 +6,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as apis from '../../data/api/index'
 import { responseCodes } from '../../utils/constants/responseCodes';
 import * as actions from '../redux/actions'
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
 const ProfileScreen = () => {
@@ -29,6 +30,7 @@ const ProfileScreen = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [submitInfo, setSubmitInfo] = useState('')
     const [passwordError, setPasswordError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
     const handleIconPress = () => {
         setIsEditable(true); // Enable editing
@@ -113,28 +115,32 @@ const ProfileScreen = () => {
         }
 
         setSubmitInfo('Đang chờ thay đổi từ server...')
+        setIsLoading(true)
         const response = await apis.apiChangeInfoAfterSignUp({
             token: token,
             name: name,
             file: file
         })
+        setIsLoading(false)
 
         if (response?.data.code !== responseCodes.statusOK) {
-            setInvalidFields(prev => {
-                const newFields = new Map(prev)
-                newFields.set(invalidFieldsSubmit, "Không thể lưu thay đổi: " + response.data.message)
+            // setInvalidFields(prev => {
+            //     const newFields = new Map(prev)
+            //     newFields.set(invalidFieldsSubmit, "Không thể lưu thay đổi: " + response.data.message)
 
-                return newFields
-            })
-            return
+            //     return newFields
+            // })
+            console.log("error change info: " + JSON.stringify(response?.data))
+            return Alert.alert("Error", "Lưu thay đổi không thành công")
         }
 
+        Alert.alert("Success", "Lưu thay đổi thành công")
         dispatch(actions.getUserInfo({
             token,
             userId
         }))
 
-        setSubmitInfo('Lưu thay đổi thành công')
+        // setSubmitInfo('Lưu thay đổi thành công')
 
     }
     const handleChangePassword = async () => {
@@ -166,7 +172,14 @@ const ProfileScreen = () => {
 
     return (
         <TouchableWithoutFeedback onPress={handleOutsidePress}>
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
+                <Spinner
+                    visible={isLoading}
+                    textContent={''}
+                    textStyle={{
+                        color: '#FFF'
+                    }}
+                />
                 <View style={{ alignItems: 'center' }}>
                     <View style={{}}>
                         <Image
@@ -341,7 +354,7 @@ const ProfileScreen = () => {
                     color: 'green',
                     fontSize: 12
                 }}> {submitInfo}</Text>}
-            </View>
+            </ScrollView>
         </TouchableWithoutFeedback>
 
     )

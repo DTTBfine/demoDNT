@@ -1,20 +1,50 @@
-import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity, RefreshControl } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { convertVNDate, days, getDaysOfWeek, getDisplayedAvatar } from '../../../utils/format';
+import * as actions from '../../redux/actions'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
 const TeacherScreen = () => {
+    const dispatch = useDispatch()
+    const { token } = useSelector(state => state.auth)
     const { userInfo } = useSelector(state => state.user)
     const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
-    const avatarUri = getDisplayedAvatar(userInfo.avatar)
+    const [avatarUri, setAvatarUri] = useState('')
+    const [refreshing, setRefreshing] = useState(false)
+
+    useEffect(() => {
+        uri = getDisplayedAvatar(userInfo.avatar)
+        setAvatarUri(uri)
+    }, [userInfo])
+
+    const handleRefresh = () => {
+        setRefreshing(true)
+        dispatch(actions.getUserInfo({
+            token: token,
+            userId: userInfo.id
+        }))
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500);
+    }
+
+    // console.log("user info: " + JSON.stringify(userInfo))
+
     return (
-        <ScrollView>
+        <ScrollView
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}   
+                />
+            }
+        >
             <View style={styles.infoBox}>
                 <View style={{ flex: 1 }}>
                     <Image

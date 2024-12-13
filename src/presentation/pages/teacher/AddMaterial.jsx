@@ -1,12 +1,14 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Alert } from 'react-native'
 import React, { useState, useCallback } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import * as apis from '../../../data/api'
 import { responseCodes } from '../../../utils/constants/responseCodes';
 import Spinner from 'react-native-loading-spinner-overlay';
+import * as actions from '../../redux/actions'
 
 const AddMaterial = ({ route }) => {
+    const dispatch = useDispatch()
     const { class_id } = route.params
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const [isLoading, setIsLoading] = useState(false)
@@ -78,12 +80,18 @@ const AddMaterial = ({ route }) => {
             return
         }
         setIsLoading(true)
+        // console.log("payload: " + JSON.stringify(payload))
         const response = await apis.apiUploadMaterial(payload)
         setIsLoading(false)
         if (response.data?.code !== responseCodes.statusOK) {
-            Alert.alert("Error", response.data?.message || "Tải tài liệu lên không thành công")
+            console.log("error adding material: " + response?.data?.meta.message)
+            Alert.alert("Error", "Tải tài liệu lên không thành công")
         } else {
             Alert.alert("Success", "Tải tài liệu thành công")
+            dispatch(actions.getMaterialList({
+                token: token,
+                class_id: class_id
+            }))
         }
 
         resetInput()

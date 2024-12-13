@@ -306,7 +306,7 @@ const Conversation = ({ route }) => {
                         setIsLoading(true)
                         const conversations = await getConversations(currentIndex + DEFAULT_COUNT, "true")
                         setIsLoading(false)
-                        if (!conversations) {
+                        if (conversations?.length === 0) {
                             return setHasMoreData(false)
                         }
                         setConversation((prev) => [...prev, ...conversations])
@@ -317,7 +317,7 @@ const Conversation = ({ route }) => {
                         <RefreshControl
                             refreshing={refreshing}
                             onRefresh={async () => { await handleRefresh() }}
-                            colors={["#9Bd35A", "#689F38"]} // Android loading spinner colors
+                            // colors={["#9Bd35A", "#689F38"]} // Android loading spinner colors
                         />   
                     }
                 />

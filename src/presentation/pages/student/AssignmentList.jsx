@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions, RefreshControl } from 'react-native'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native';
@@ -237,9 +237,12 @@ const AssignmentItem = ({ item, class_name }) => {
 }
 
 const ShowAssignmentsList = ({state}) => {
+  const dispatch = useDispatch()
+  const { token } = useSelector(state => state.auth)
   const {isLoading, setIsLoading} = useContext(GlobalContext)
   const { myClasses, upcomingAssignments, pastDueAssignments, completedAssignments } = useSelector(state => state.learning)
   const [ displayedAssignments, setDisplayedAssignments] = useState([])
+  const [refreshing, setRefreshing] = useState(false)
   const getClassNameById = (id) => {
     let classObj = myClasses.find(item => item.class_id == id)
     return classObj.class_name
@@ -259,11 +262,48 @@ const ShowAssignmentsList = ({state}) => {
       default:
         setDisplayedAssignments([])
     }
-  }, [state, isLoading])
+  }, [state, isLoading, upcomingAssignments, pastDueAssignments, completedAssignments])
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    switch (state) {
+      case "Sắp tới":
+        dispatch(actions.getUpcomingAssigments({
+          token: token,
+          type: assignmentStatus.upcoming,
+          class_id: null
+        }))
+        break
+      case "Quá hạn":
+        dispatch(actions.getPastDueAssigments({
+          token: token,
+          type: assignmentStatus.pastDue,
+          class_id: null
+        }))
+        break
+      case "Đã hoàn thành":
+        dispatch(actions.getCompletedAssigments({
+          token: token,
+          type: assignmentStatus.completed,
+          class_id: null
+        }))
+        break        
+    } 
+    setTimeout(() => {
+      setRefreshing(false)
+    }, 500);
+  }
 
   return (
     <View style={styles.list}>
-          <ScrollView>
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh} 
+              />
+            }
+          >
             {displayedAssignments?.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', fontWeight: '500', fontSize: 15, fontStyle: 'italic' }}>Không có bài tập nào</Text>}
             {
               displayedAssignments?.length > 0 && !isLoading && displayedAssignments?.map((item, index) => {

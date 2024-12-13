@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert, FlatList } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert, FlatList, RefreshControl } from 'react-native'
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -336,11 +336,34 @@ const ClassScreen = ({ route }) => {
 }
 
 const About = ({ class_id, class_type }) => {
-    const { role } = useSelector(state => state.auth)
+    const dispatch = useDispatch()
+    const { role, token } = useSelector(state => state.auth)
     const { currentClass, attendanceRecord } = useSelector(state => state.learning)
+    const [refreshing, setRefreshing] = useState(false)
+    const handleRefresh = () => {
+        setRefreshing(true)
+        dispatch(actions.getClassInfo({
+            token: token,
+            class_id: class_id
+        }))
+        dispatch(actions.getAttendanceRecord({
+            token: token,
+            class_id: class_id
+        }))
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500);
+    }
 
     return (
-        <ScrollView>
+        <ScrollView
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}   
+                />
+            }
+        >
             <View style={{ padding: 10, alignItems: 'center' }}>
                 <View style={{ paddingVertical: 10, paddingHorizontal: 15, width: width - 50, backgroundColor: 'white', borderWidth: 1, borderColor: '#BBBBBB', borderRadius: 15 }}>
                     <View style={{}}>
@@ -461,7 +484,8 @@ const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
     const navigate = useNavigation()
     const { role, token } = useSelector(state => state.auth)
     const { surveyOfCurrentClass, upcomingAssignments } = useSelector(state => state.learning)
-    
+    const [ refreshing, setRefreshing ] = useState(false)
+
     const renderAssignment = ({ item, index }) => {
         return (
             <View key={index} >
@@ -473,9 +497,32 @@ const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
     return (
         <View style={{ marginBottom: 35, flex: 1 }}>
             {surveyOfCurrentClass.length === 0 && upcomingAssignments.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có bài kiểm tra!</Text>}
-            <ScrollView>
+            <ScrollView
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={() => {
+                            setRefreshing(true)
+                            if (role === 'LECTURER') {
+                                dispatch(actions.getAllSurveys({
+                                    token: token,
+                                    class_id: class_id
+                                }))
+                            } else {
+                                dispatch(actions.getStudentAssignmentsByClassId({
+                                    token: token,
+                                    class_id: class_id
+                                }))
+                            }
+                            setTimeout(() => {
+                                setRefreshing(false)
+                            }, 500);
+                        }}
+                    />
+                }
+            >
                 {
-                    surveyOfCurrentClass.length > 0 && surveyOfCurrentClass.map((item, index) => {
+                    surveyOfCurrentClass.length > 0 && [...surveyOfCurrentClass].reverse().map((item, index) => {
                         return (
                             <View key={index} >
                                 <AssignmentItem item={item} />
@@ -484,7 +531,7 @@ const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
                     })
                 }
                 {
-                    upcomingAssignments.length > 0 && upcomingAssignments.map((item, index) => {
+                    upcomingAssignments.length > 0 && [...upcomingAssignments].reverse().map((item, index) => {
                         return (
                             <View key={index} >
                                 <AssignmentItem item={item} />
@@ -603,6 +650,7 @@ const AssignmentItem = ({ item }) => {
 const MaterialList = ({ setIsLoading, dispatch, class_id }) => {
     const { classMaterial } = useSelector(state => state.learning)
     const { token } = useSelector(state => state.auth)
+    const [refreshing, setRefreshing] = useState(false)
     const renderMaterial = ({ item, index }) => {
         return (
             <View key={index}>
@@ -622,22 +670,37 @@ const MaterialList = ({ setIsLoading, dispatch, class_id }) => {
                     renderItem={renderMaterial}
                     contentContainerStyle={{ paddingBottom: 40 }}
                     showsVerticalScrollIndicator={false}
-                    onScrollBeginDrag={(event) => {
-                        setIsLoading(true)
-                    }}
-                    onScrollEndDrag={(event) => {
-                        if (event.nativeEvent.contentOffset.y <= 0) {
-                            dispatch(actions.getMaterialList({
-                                token: token,
-                                class_id: class_id
-                            }))
-                            setTimeout(() => {
-                                setIsLoading(false)
-                            }, 500);
-                        } else {
-                            setIsLoading(false)
-                        }
-                    }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={() => {
+                                setRefreshing(false)
+                                dispatch(actions.getMaterialList({
+                                    token: token,
+                                    class_id: class_id
+                                }))
+                                setTimeout(() => {
+                                    setRefreshing(false)
+                                }, 500)
+                            }}   
+                        />
+                    }
+                    // onScrollBeginDrag={(event) => {
+                    //     setIsLoading(true)
+                    // }}
+                    // onScrollEndDrag={(event) => {
+                    //     if (event.nativeEvent.contentOffset.y <= 0) {
+                    //         dispatch(actions.getMaterialList({
+                    //             token: token,
+                    //             class_id: class_id
+                    //         }))
+                    //         setTimeout(() => {
+                    //             setIsLoading(false)
+                    //         }, 500);
+                    //     } else {
+                    //         setIsLoading(false)
+                    //     }
+                    // }}
                 />
             )}
             

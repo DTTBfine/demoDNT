@@ -1,5 +1,5 @@
-import { View, Text, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator, Keyboard, KeyboardAvoidingView } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator, Keyboard, KeyboardAvoidingView, RefreshControl } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { getDisplayedAvatar } from '../../utils/format'
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -37,6 +37,7 @@ const SearchAccount = () => {
     const { token } = useSelector(state => state.auth)
     const [searchedUsers, setSearchedUsers] = useState([])
     const [currentPageInfo, setCurrentPageInfo] = useState(null)
+    const [refreshing, setRefreshing] = useState(false)
 
     const [nameSearch, setNameSearch] = useState(null)
 
@@ -50,10 +51,10 @@ const SearchAccount = () => {
                     page_size: currentPageInfo.page_size
                 }
             })
-            setTimeout(() => {
-                setIsLoading(false)
-            }, 500)
-            // setIsLoading(false)
+            // setTimeout(() => {
+            //     setIsLoading(false)
+            // }, 500)
+            setIsLoading(false)
             // console.log("response loading more data: " + JSON.stringify(response?.data?.data?.page_content))
             if (response?.data?.meta?.code !== responseCodes.statusOK) {
                 setCurrentPageInfo(null)
@@ -79,10 +80,6 @@ const SearchAccount = () => {
                 page_size: "20"
             }
         }))
-        // setTimeout(() => {
-        //     setIsLoading(false)
-        // }, 500)
-        // setIsLoading(false)
 
         if (response?.data?.meta?.code !== responseCodes.statusOK) {
             setSearchedUsers([])
@@ -97,6 +94,13 @@ const SearchAccount = () => {
             // console.log("current page info: " + JSON.stringify(response?.data?.data?.page_info))
         }
     }
+
+    useEffect(() => {
+        const action = async () => {
+            await handleSearch(nameSearch)
+        }
+        action()
+    }, [nameSearch])
 
 
     const renderAccount = ({ item, index }) => {
@@ -152,11 +156,8 @@ const SearchAccount = () => {
                         placeholder='Hãy nhập tên hoặc email'
                         placeholderTextColor="darkgrey"
                         value={nameSearch}
-                        onChangeText={async (text) => { 
+                        onChangeText={(text) => { 
                             setNameSearch(text) 
-                            setIsLoading(true)
-                            await handleSearch(text)
-                            setIsLoading(false)
                         }}
                     />
                 </View>
@@ -180,21 +181,33 @@ const SearchAccount = () => {
                         showsVerticalScrollIndicator={false}
                         onEndReached={async () => { await loadMoreData() }}
                         onEndReachedThreshold={0.1}
-                        onScrollBeginDrag={(event) => {
-                            setIsLoading(true)
-                        }}
-                        onScrollEndDrag={async (event) => {
-                            var currentPosition = event.nativeEvent.contentOffset.y
-                            if (currentPosition <= 0) {
-                                setIsLoading(true)
-                                await handleSearch(nameSearch)
-                                setTimeout(() => {
-                                    setIsLoading(false)
-                                }, 500)
-                            } else {
-                                setIsLoading(false)
-                            }
-                        }}
+                        // onScrollBeginDrag={(event) => {
+                        //     setIsLoading(true)
+                        // }}
+                        // onScrollEndDrag={async (event) => {
+                        //     var currentPosition = event.nativeEvent.contentOffset.y
+                        //     if (currentPosition <= 0) {
+                        //         setIsLoading(true)
+                        //         await handleSearch(nameSearch)
+                        //         setTimeout(() => {
+                        //             setIsLoading(false)
+                        //         }, 500)
+                        //     } else {
+                        //         setIsLoading(false)
+                        //     }
+                        // }}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={async () => {
+                                    setRefreshing(true)
+                                    await handleSearch(nameSearch)
+                                    setTimeout(() => {
+                                        setRefreshing(false)
+                                    }, 500)
+                                }}
+                            />
+                        }
 
                     />
                 ) : (

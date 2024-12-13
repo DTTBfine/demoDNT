@@ -47,22 +47,7 @@ const AppNavigation = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [refreshTrigger,setRefreshTrigger] = useState(0)
 
-    const onRefresh = () => {
-        setRefreshing(true);
-    
-        setTimeout(() => {
-            setRefreshing(false);
-            setRefreshTrigger((prev) => prev + 1);
-        }, 1000);
-    };
     return (
-        <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="auth">{(props) => <AuthNavigation {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
@@ -73,7 +58,6 @@ const AppNavigation = () => {
                 <Stack.Screen name="testUI">{(props) => <TestUI  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             </Stack.Navigator>
         </NavigationContainer>
-        </ScrollView>
     )
 }
 
