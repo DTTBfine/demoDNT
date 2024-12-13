@@ -1,10 +1,10 @@
-import React from 'react'
+import React,{useState} from 'react'
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import IconI from 'react-native-vector-icons/Ionicons'
-import { Image, Text, View } from 'react-native';
+import { Image, Text, View, RefreshControl, ScrollView } from 'react-native';
 
 import CustomHeader from '../components/customHeader';
 import LoginScreen from '../pages/Login';
@@ -44,22 +44,40 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
 
 const AppNavigation = () => {
+    const [refreshing, setRefreshing] = useState(false);
+    const [refreshTrigger,setRefreshTrigger] = useState(0)
+
+    const onRefresh = () => {
+        setRefreshing(true);
+    
+        setTimeout(() => {
+            setRefreshing(false);
+            setRefreshTrigger((prev) => prev + 1);
+        }, 1000);
+    };
     return (
+        <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1 }}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+        >
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="auth" component={AuthNavigation} />
-                <Stack.Screen name="student" component={StudentRoute} />
-                <Stack.Screen name="teacher" component={TeacherRoute} />
-                {/* <Stack.Screen name="inapp" component={InapNavigation} /> */}
-                <Stack.Screen name="notification" component={Note} />
-                <Stack.Screen name="message" component={MessageRoute} />
-                <Stack.Screen name="testUI" component={TestUI} />
+                <Stack.Screen name="auth">{(props) => <AuthNavigation {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="student">{(props) => <StudentRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="teacher">{(props) => <TeacherRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="notification">{(props) => <Note  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="message">{(props) => <MessageRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="testUI">{(props) => <TestUI  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             </Stack.Navigator>
         </NavigationContainer>
+        </ScrollView>
     )
 }
 
-const MessageRoute = () => {
+const MessageRoute = ({ refreshTrigger }) => {
     const convertAvtLink = (avatarLink) => {
         let avatarUri = ''
         if (avatarLink?.length > 0 && avatarLink.startsWith("https://drive.google.com")) {
@@ -97,14 +115,14 @@ const MessageRoute = () => {
                     </View>
                 } : undefined,
             })}>
-            <Stack.Screen name="conversationList" component={Message} />
-            <Stack.Screen name="conversation" component={Conversation} />
-            <Stack.Screen name="searchAccount" component={SearchAccount} />
+            <Stack.Screen name="conversationList">{(props) => <Message key={refreshTrigger}  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="conversation">{(props) => <Conversation key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="searchAccount">{(props) => <SearchAccount key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator >
     )
 }
 
-const TestUI = () => {
+const TestUI = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator
             screenOptions={({ route }) => ({
@@ -124,25 +142,25 @@ const TestUI = () => {
                 headerTitleAlign: !(route.name === 'teacherClassScreen') && 'center'
             }
             )}>
-            <Stack.Screen name="submitSurvey" component={SubmitSurvey} />
+            <Stack.Screen name="submitSurvey">{(props) => <SubmitSurvey key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
 
-const AuthNavigation = () => {
+const AuthNavigation = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="login" component={LoginScreen} />
-            <Stack.Screen name="register" component={RegisterScreen} />
+            <Stack.Screen name="login">{(props) => <LoginScreen {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="register">{(props) => <RegisterScreen {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
 
-const Note = () => {
+const Note = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator screenOptions={{
             headerTitle: () => {
-                return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>Thông báo</Text>
+                return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>Thông báo</Text>
             },
             headerStyle: {
                 backgroundColor: '#BB0000',
@@ -155,23 +173,22 @@ const Note = () => {
             },
             headerTitleAlign: 'center'
         }}>
-            <Stack.Screen name="note" component={Notification} />
+            <Stack.Screen name="note">{(props) => <Notification key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
 
-const TeacherRoute = () => {
+const TeacherRoute = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="homepage" component={TeacherHomepage} />
-            <Stack.Screen name="classNavigationForTeacher" component={ClassNavigationForTeacher} />
-            <Stack.Screen name="teacherClassList" component={TeacherClassList} />
+            <Stack.Screen name="homepage">{(props) => <TeacherHomepage  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="classNavigationForTeacher">{(props) => <ClassNavigationForTeacher  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="teacherClassList">{(props) => <TeacherClassList  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
 
-
-const TeacherHomepage = () => {
+const TeacherHomepage = ({ refreshTrigger }) => {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -208,14 +225,14 @@ const TeacherHomepage = () => {
                 },
             })}
         >
-            <Tab.Screen name="Home" component={TeacherScreen} />
-            <Tab.Screen name="Profile" component={ProfileScreen} />
-            <Tab.Screen name="Setting" component={SettingScreen} />
+            <Tab.Screen name="Home">{(props) => <TeacherScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Profile">{(props) => <ProfileScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Setting">{(props) => <SettingScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
         </Tab.Navigator>
     )
 }
 
-const TeacherClassList = () => {
+const TeacherClassList = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator
             screenOptions={({ route }) => ({
@@ -249,20 +266,19 @@ const TeacherClassList = () => {
                 headerTitleAlign: !(route.name === 'teacherClassScreen') && 'center'
             }
             )}>
-            <Stack.Screen name="teacherClasses" component={TeacherClasses} />
-            <Stack.Screen name="teacherClassScreen" component={ClassScreen} />
-            <Stack.Screen name="addSurvey" component={AddSurvey} />
-            <Stack.Screen name="editSurvey" component={EditSurvey} />
-            <Stack.Screen name="surveyResponse" component={SurveyResponse} />
-            <Stack.Screen name="addMaterial" component={AddMaterial} />
-            <Stack.Screen name="editMaterial" component={EditMaterial} />
-            <Stack.Screen name="attendance" component={Attendance} />
-            <Stack.Screen name="absenceRequests" component={AbsenceRequests} />
+            <Stack.Screen name="teacherClasses">{(props) => <TeacherClasses key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="teacherClassScreen">{(props) => <ClassScreen  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="addSurvey">{(props) => <AddSurvey key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="editSurvey">{(props) => <EditSurvey key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="surveyResponse">{(props) => <SurveyResponse key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="addMaterial">{(props) => <AddMaterial key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="editMaterial">{(props) => <EditMaterial key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="attendance">{(props) => <Attendance key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="absenceRequests">{(props) => <AbsenceRequests key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
-
-const ClassNavigationForTeacher = () => {
+const ClassNavigationForTeacher = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator
             screenOptions={({ route }) => ({
@@ -285,25 +301,25 @@ const ClassNavigationForTeacher = () => {
                 headerTitleAlign: 'center',
             }
             )}>
-            <Stack.Screen name="classManage" component={ClassManage} />
-            <Stack.Screen name="AddClass" component={AddClass} />
-            <Stack.Screen name="EditClass" component={EditClass} />
+            <Stack.Screen name="classManage">{(props) => <ClassManage key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="AddClass">{(props) => <AddClass key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="EditClass">{(props) => <EditClass key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
 
-const StudentRoute = () => {
+const StudentRoute = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="homepage" component={StudentHomepage} />
-            <Stack.Screen name="registerClass" component={RegisterClass} />
-            <Stack.Screen name="classNavigationForStudent" component={ClassNavigationForStudent} />
-            <Stack.Screen name="assignment" component={AssignmentList} />
+            <Stack.Screen name="homepage">{(props) => <StudentHomepage  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="registerClass">{(props) => <RegisterClass {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="classNavigationForStudent">{(props) => <ClassNavigationForStudent key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="assignment">{(props) => <AssignmentList  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
 
-const StudentHomepage = () => {
+const StudentHomepage = ({ refreshTrigger }) => {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -340,14 +356,14 @@ const StudentHomepage = () => {
                 },
             })}
         >
-            <Tab.Screen name="Home" component={StudentScreen} />
-            <Tab.Screen name="Profile" component={ProfileScreen} />
-            <Tab.Screen name="Setting" component={SettingScreen} />
+            <Tab.Screen name="Home">{(props) => <StudentScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Profile">{(props) => <ProfileScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Setting">{(props) => <SettingScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
         </Tab.Navigator>
     )
 }
 
-const RegisterClass = () => {
+const RegisterClass = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator screenOptions={{
             headerTitle: () => {
@@ -364,12 +380,12 @@ const RegisterClass = () => {
             },
             headerTitleAlign: 'center'
         }}>
-            <Stack.Screen name="classRegister" component={ClassRegister} />
+            <Stack.Screen name="classRegister">{(props) => <ClassRegister key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
 
-const ClassNavigationForStudent = () => {
+const ClassNavigationForStudent = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator
             screenOptions={({ route }) => ({
@@ -416,7 +432,7 @@ const ClassNavigationForStudent = () => {
                     }
 
                     let titleName
-                    if (route.name === "absenceRequest") titleName = 'Nghỉ phép'
+                    if (route.name === "absenceRequest") titleName = 'Nghỉ phép'
                     else if (route.name === "myClasses") titleName = 'Lớp của tôi'
                     else if (route.name === "submitSurvey") titleName = 'Nộp bài'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
@@ -433,64 +449,12 @@ const ClassNavigationForStudent = () => {
                 headerTitleAlign: !(route.name === 'studentClassScreen') && 'center',
             }
             )}>
-            <Stack.Screen name="myClasses" component={StudentClasses} />
-            <Stack.Screen name="studentClassScreen" component={ClassScreen} />
-            <Stack.Screen name="submitSurvey" component={SubmitSurvey} />
-            <Stack.Screen name="absenceRequest" component={AbsenceRequest} />
+            <Stack.Screen name="myClasses">{(props) => <StudentClasses key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="studentClassScreen">{(props) => <ClassScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="submitSurvey">{(props) => <SubmitSurvey key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="absenceRequest">{(props) => <AbsenceRequest key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
-
-// const InapNavigation = () => {
-//     return (
-//         <Tab.Navigator
-//             screenOptions={({ route }) => ({
-//                 tabBarIcon: ({ focused, color, size }) => {
-//                     let iconName
-//                     if (route.name === 'home') {
-//                         iconName = 'home'
-//                     } else if (route.name === 'profile') {
-//                         iconName = 'user'
-//                     } else {
-//                         iconName = 'gear'
-//                     }
-//                     return <Icon name={iconName} color={color} size={20} />
-//                 },
-//                 tabBarActiveTintColor: '#AA0000',
-//                 tabBarInactiveTintColor: 'gray',
-//                 header: (props) => (<CustomHeader {...props} />),
-//                 tabBarStyle: {
-//                     borderRadius: 40,
-//                     marginBottom: 10,
-//                     marginHorizontal: 10,
-//                     borderWidth: 1,
-//                     height: 70,
-//                     borderColor: '#ccc'
-//                 },
-//                 tabBarLabelStyle: {
-//                     fontSize: 13,
-//                     textAlign: 'center',
-//                     fontWeight: '500',
-//                     marginBottom: 10
-//                 },
-//                 tabBarIconStyle: {
-//                     marginBottom: -4, // Giúp căn chỉnh icon với tên tab
-//                 },
-//             })}
-//         >
-//             <Tab.Screen name="homepage" component={HomePage} />
-//             <Tab.Screen name="profile" component={ProfileScreen} />
-//             <Tab.Screen name="setting" component={SettingScreen} />
-//         </Tab.Navigator>
-//     )
-// }
-
-// const HomePage = () => {
-//     return (
-//         <Stack.Navigator screenOptions={{ headerShown: false }}>
-//             <Stack.Screen name="home" component={HomeScreen} />
-//         </Stack.Navigator>
-//     )
-// }
 
 export default AppNavigation
