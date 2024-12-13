@@ -153,7 +153,7 @@ export const apiGetStudentAssignmentsByClassId = async (payload) => {
             url: '/it5023e/get_student_assignments',
             data: {
                 token: payload.token,
-                classId: payload.classId
+                class_id: payload.class_id
             }
         })
         return response

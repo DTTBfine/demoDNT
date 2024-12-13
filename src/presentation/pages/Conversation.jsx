@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, FlatList, Image, Modal, TouchableWithoutFeedback, Alert } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, FlatList, Image, Modal, TouchableWithoutFeedback, Alert, RefreshControl } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import IconI from 'react-native-vector-icons/Ionicons'
 import Icon6 from 'react-native-vector-icons/FontAwesome6'
@@ -10,6 +10,7 @@ import { getDisplayedAvatar, getHourMinute } from '../../utils/format';
 import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client'
 import * as apis from '../../data/api'
+import { responseCodes } from '../../utils/constants';
 
 const SOCKET_URL = 'http://157.66.24.126:8080/ws';
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
@@ -42,20 +43,39 @@ const Conversation = ({ route }) => {
     //useSelector
     const { userId, token } = useSelector(state => state.auth)
     const { userInfo } = useSelector(state => state.user)
-    const { currentConversation } = useSelector(state => state.message)
 
 
     const [dispatchData, setDispatchData] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
     const [loadingText, setLoadingText] = useState('Loading...')
-    const [loadMoreData, setLoadMoreData] = useState(false)
-    const [reloadData, setReloadData] = useState(false)
     const [currentIndex, setCurrentIndex] = useState(0)
     const [hasMoreData, setHasMoreData] = useState(true)
-    const [initConversation, setInitConversation] = useState(true)
+    const [refreshing, setRefreshing] = useState(false)
 
     //
     const stompClientRef = useRef(null);
+
+    const getConversations = async (index, mark_as_read) => {
+        const response = await apis.apiGetConversation({
+            token: token,
+            index: index,
+            count: DEFAULT_COUNT,
+            partner_id: partner_id,
+            mark_as_read: mark_as_read
+        })
+        // console.log("getting conversation: " + JSON.stringify(response.data))
+
+        if (response?.data?.meta?.code !== responseCodes.statusOK) {
+            console.log("error getting conversation: " + response?.data?.meta?.message)
+            return []
+        }
+
+        // if (response.data.data.conversation.length === 0) {
+        //     console.log("end of data")
+        // }
+
+        return response.data.data.conversation
+    }
 
     useEffect(() => {
         // Initialize the STOMP client
@@ -72,14 +92,8 @@ const Conversation = ({ route }) => {
                 if (msg.sender.id === partner_id) {
                     mark_as_read = "true"
                 }
-                setLoadMoreData(false)
-                dispatch(actions.getConversation({
-                    token: token,
-                    index: 0,
-                    count: DEFAULT_COUNT,
-                    partner_id: partner_id,
-                    mark_as_read: mark_as_read
-                }))
+                const c = getConversations(0, mark_as_read)
+                setConversation(c)
                 setCurrentIndex(0)
                 dispatch(actions.getListConversation({
                     token: token,
@@ -153,50 +167,25 @@ const Conversation = ({ route }) => {
     }
 
 
-
     //init conversation
     useEffect(() => {
         if (dispatchData) {
             setIsLoading(true)
-            dispatch(actions.getConversation({
-                token: token,
-                index: 0,
-                count: DEFAULT_COUNT,
-                partner_id: partner_id,
-                mark_as_read: "true"
-            }))
-            setIsLoading(false)
-            setCurrentIndex(0)
-            // setIsLoading(false)
-            setDispatchData(false)
+
+            const fetch = async () => {
+                const conversations = await getConversations(0, "true")
+                setConversation(conversations)
+                setCurrentIndex(0)
+                setIsLoading(false)
+                // setIsLoading(false)
+                setDispatchData(false)
+            };
+
+            fetch();
+           
         }
     }, [])
 
-
-    //maybe set a init conversation state?
-    useEffect(() => {
-        if (initConversation) {
-            if (currentConversation) {
-                setConversation(currentConversation)
-            }
-            setInitConversation(false)
-            return
-        }
-        if (currentConversation) {
-            if (loadMoreData) {
-                // console.log("loading more data...")
-                setConversation((prev) => [...prev, ...currentConversation])
-            } else if (reloadData) {
-                setConversation(currentConversation);
-            }
-        
-            // setTimeout(() => {
-            //     setIsLoading(false)
-            // }, 500)
-        } else {
-            Alert.alert("Info", "Đã load hết tin nhắn")
-        }
-    }, [currentConversation]);
 
     const removeTrailingNewline = (message) => {
         return message.replace(/\n$/, '');
@@ -276,6 +265,16 @@ const Conversation = ({ route }) => {
         );
     };
 
+    const handleRefresh = async () => {
+        setRefreshing(true)
+        const conversations = await getConversations(0, "true")
+        setConversation(conversations)
+        setCurrentIndex(0)
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500)
+    }
+
     return (
         <KeyboardAvoidingView style={styles.container}>
             <Spinner
@@ -298,44 +297,29 @@ const Conversation = ({ route }) => {
                     inverted={true}  // Đảo ngược thứ tự của danh sách
                     contentContainerStyle={{ paddingBottom: 10 }}  // Đảm bảo các tin nhắn được căn dưới
                     showsVerticalScrollIndicator={false}
-                    onEndReached={() => {
-                        setIsLoading(true)
-                        setLoadMoreData(true)
-                        setReloadData(false)
+                    onEndReached={async () => {
+                        if (!hasMoreData) {
+                            console.log("end of data")
+                            return
+                        }
                         console.log("loading more conversations, index: " + (currentIndex + DEFAULT_COUNT) )
-                        dispatch(actions.getConversation({
-                            token: token,
-                            index: currentIndex + DEFAULT_COUNT,
-                            count: DEFAULT_COUNT,
-                            partner_id: partner_id,
-                            mark_as_read: "true"
-                        }))
-                        setCurrentIndex(currentIndex + DEFAULT_COUNT)
+                        setIsLoading(true)
+                        const conversations = await getConversations(currentIndex + DEFAULT_COUNT, "true")
                         setIsLoading(false)
+                        if (!conversations) {
+                            return setHasMoreData(false)
+                        }
+                        setConversation((prev) => [...prev, ...conversations])
+                        setCurrentIndex(currentIndex + DEFAULT_COUNT)
                     }}
                     onEndReachedThreshold={0.1}
-                    onScrollBeginDrag={(event) => {
-                        setIsLoading(true)
-                    }}
-                    onScrollEndDrag={(event) => {
-                        if (event.nativeEvent.contentOffset.y <= 0) {
-                            setLoadMoreData(false)
-                            setReloadData(true)
-                            dispatch(actions.getConversation({
-                                token: token,
-                                index: 0,
-                                count: DEFAULT_COUNT,
-                                partner_id: partner_id,
-                                mark_as_read: "true"
-                            }))
-                            setCurrentIndex(0)
-                            setTimeout(() => {
-                                setIsLoading(false)
-                            }, 500);
-                        } else {
-                            setIsLoading(false)
-                        }
-                    }}  
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={async () => { await handleRefresh() }}
+                            colors={["#9Bd35A", "#689F38"]} // Android loading spinner colors
+                        />   
+                    }
                 />
             </View>
             <View style={{

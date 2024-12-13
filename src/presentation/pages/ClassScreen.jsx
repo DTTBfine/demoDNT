@@ -49,9 +49,9 @@ const ClassScreen = ({ route }) => {
                     token: token,
                     class_id: id
                 }))
-                dispatch(actions.getStudentAssignmentsByClassId({
+                dispatch(actions.getUpcomingAssigments({
                     token: token,
-                    classId: id
+                    class_id: id
                 }))
                 dispatch(actions.getAttendanceRecord({
                     token: token,
@@ -327,7 +327,7 @@ const ClassScreen = ({ route }) => {
                 </View>
                 <View style={{ height: height - 80, paddingVertical: 10 }}>
                     {currentTab === 'Chung' && <About class_id={id} class_type={type} />}
-                    {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} />}
+                    {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} setIsLoading={setIsLoading} dispatch={dispatch} />}
                     {currentTab === 'Tài liệu' && <MaterialList setIsLoading={setIsLoading} dispatch={dispatch} class_id={id}/>}
                 </View>
             </GlobalContext.Provider>
@@ -457,13 +457,22 @@ const StudentInfo = ({ first_name, last_name, email }) => {
     )
 }
 
-const UpcomingSurvey = ({ class_id }) => {
+const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
     const navigate = useNavigation()
-    const { role } = useSelector(state => state.auth)
-    const { surveyOfCurrentClass, studentAssignmentsByClassId } = useSelector(state => state.learning)
+    const { role, token } = useSelector(state => state.auth)
+    const { surveyOfCurrentClass, upcomingAssignments } = useSelector(state => state.learning)
+    
+    const renderAssignment = ({ item, index }) => {
+        return (
+            <View key={index} >
+                <AssignmentItem item={item} />
+            </View>
+        )
+    }
+
     return (
-        <View style={{ marginBottom: 35 }}>
-            {surveyOfCurrentClass.length === 0 && studentAssignmentsByClassId.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có bài kiểm tra!</Text>}
+        <View style={{ marginBottom: 35, flex: 1 }}>
+            {surveyOfCurrentClass.length === 0 && upcomingAssignments.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có bài kiểm tra!</Text>}
             <ScrollView>
                 {
                     surveyOfCurrentClass.length > 0 && surveyOfCurrentClass.map((item, index) => {
@@ -475,7 +484,7 @@ const UpcomingSurvey = ({ class_id }) => {
                     })
                 }
                 {
-                    studentAssignmentsByClassId.length > 0 && studentAssignmentsByClassId.map((item, index) => {
+                    upcomingAssignments.length > 0 && upcomingAssignments.map((item, index) => {
                         return (
                             <View key={index} >
                                 <AssignmentItem item={item} />
@@ -484,6 +493,36 @@ const UpcomingSurvey = ({ class_id }) => {
                     })
                 }
             </ScrollView>
+
+            {/* {surveyOfCurrentClass?.length > 0 && (
+                <FlatList
+                    data={[...surveyOfCurrentClass].reverse()}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderAssignment}
+                    contentContainerStyle={{ 
+                        paddingBottom: 40,
+                        flexGrow: 1, // Makes FlatList take up all available space
+                    }}
+                    showsVerticalScrollIndicator={false}
+                    onScrollBeginDrag={(event) => {
+                        setIsLoading(true)
+                    }}
+                    onScrollEndDrag={(event) => {
+                        if (event.nativeEvent.contentOfsfset.y <= 0) {
+                            dispatch(actions.getAllSurveys({
+                                token: token,
+                                class_id: class_id
+                            }))
+                            setTimeout(() => {
+                                setIsLoading(false)
+                            }, 500);
+                        } else {
+                            setIsLoading(false)
+                        }
+                    }}
+                />
+            )} */}
+
             {role === 'LECTURER' && <View style={{
                 position: 'absolute',
                 top: 600,
@@ -602,18 +641,7 @@ const MaterialList = ({ setIsLoading, dispatch, class_id }) => {
                 />
             )}
             
-            
-            {/* <ScrollView >
-                {
-                    classMaterial?.length > 0 && classMaterial.map((item, index) => {
-                        return (
-                            <View key={index}>
-                                <MaterialBox item={item} />
-                            </View>
-                        )
-                    })
-                }
-            </ScrollView> */}
+
         </View>
     )
 }
