@@ -145,13 +145,14 @@ const ClassManage = () => {
             <View style={{
                 marginTop: 20
             }}>
-                <Text style={{
-                    color: '#BB0000',
-                    textDecorationLine: 'underline',
-                    fontStyle: 'italic',
-                    fontWeight: 'bold',
-                    textAlign: 'center'
-                }}>Thông tin danh sách các lớp mở</Text>
+                <Text onPress={() => navigate.navigate("openClasses")}
+                    style={{
+                        color: '#BB0000',
+                        textDecorationLine: 'underline',
+                        fontStyle: 'italic',
+                        fontWeight: 'bold',
+                        textAlign: 'center'
+                    }}>Thông tin danh sách các lớp mở</Text>
             </View>
 
         </ScrollView>

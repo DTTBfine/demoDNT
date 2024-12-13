@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React, { useState } from 'react'
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -39,17 +39,18 @@ import EditMaterial from '../pages/teacher/EditMaterial';
 import EditSurvey from '../pages/teacher/EditSurvey';
 import SurveyResponse from '../pages/teacher/SurveyResponse';
 import SearchAccount from '../pages/SearchAccount';
+import ListOpenClasses from '../pages/ListOpenClasses';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
 
 const AppNavigation = () => {
     const [refreshing, setRefreshing] = useState(false);
-    const [refreshTrigger,setRefreshTrigger] = useState(0)
+    const [refreshTrigger, setRefreshTrigger] = useState(0)
 
     const onRefresh = () => {
         setRefreshing(true);
-    
+
         setTimeout(() => {
             setRefreshing(false);
             setRefreshTrigger((prev) => prev + 1);
@@ -63,16 +64,17 @@ const AppNavigation = () => {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
         >
-        <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="auth">{(props) => <AuthNavigation {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                <Stack.Screen name="student">{(props) => <StudentRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                <Stack.Screen name="teacher">{(props) => <TeacherRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                <Stack.Screen name="notification">{(props) => <Note  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                <Stack.Screen name="message">{(props) => <MessageRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                <Stack.Screen name="testUI">{(props) => <TestUI  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-            </Stack.Navigator>
-        </NavigationContainer>
+            <NavigationContainer>
+                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="auth">{(props) => <AuthNavigation {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                    <Stack.Screen name="student">{(props) => <StudentRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                    <Stack.Screen name="teacher">{(props) => <TeacherRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                    <Stack.Screen name="notification">{(props) => <Note  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                    <Stack.Screen name="message">{(props) => <MessageRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                    <Stack.Screen name="testUI">{(props) => <TestUI  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                    <Stack.Screen name="openClasses" component={SearchOpenClasses} />
+                </Stack.Navigator>
+            </NavigationContainer>
         </ScrollView>
     )
 }
@@ -122,12 +124,12 @@ const MessageRoute = ({ refreshTrigger }) => {
     )
 }
 
-const TestUI = ({ refreshTrigger }) => {
+const SearchOpenClasses = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator
             screenOptions={({ route }) => ({
                 headerTitle: () => {
-                    return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>Test thử giao diện </Text>
+                    return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>Tra cứu thông tin lớp mở</Text>
                 },
                 headerStyle: {
                     backgroundColor: '#BB0000',
@@ -139,10 +141,9 @@ const TestUI = ({ refreshTrigger }) => {
                     fontSize: 18,
                 },
                 headerTitleAlign: 'center',
-                headerTitleAlign: !(route.name === 'teacherClassScreen') && 'center'
             }
             )}>
-            <Stack.Screen name="submitSurvey">{(props) => <SubmitSurvey key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="listClasses" component={ListOpenClasses} />
         </Stack.Navigator>
     )
 }
