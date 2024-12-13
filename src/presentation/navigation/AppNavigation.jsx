@@ -115,7 +115,7 @@ const MessageRoute = ({ refreshTrigger }) => {
                     </View>
                 } : undefined,
             })}>
-            <Stack.Screen name="conversationList">{(props) => <Message key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="conversationList">{(props) => <Message key={refreshTrigger}  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="conversation">{(props) => <Conversation key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="searchAccount">{(props) => <SearchAccount key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator >
@@ -150,8 +150,8 @@ const TestUI = ({ refreshTrigger }) => {
 const AuthNavigation = ({ refreshTrigger }) => {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="login">{(props) => <LoginScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-            <Stack.Screen name="register">{(props) => <RegisterScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="login">{(props) => <LoginScreen {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="register">{(props) => <RegisterScreen {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )
 }
@@ -225,9 +225,9 @@ const TeacherHomepage = ({ refreshTrigger }) => {
                 },
             })}
         >
-            <Tab.Screen name="Home">{(props) => <TeacherScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
-            <Tab.Screen name="Profile">{(props) => <ProfileScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
-            <Tab.Screen name="Setting">{(props) => <SettingScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Home">{(props) => <TeacherScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Profile">{(props) => <ProfileScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Setting">{(props) => <SettingScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
         </Tab.Navigator>
     )
 }
@@ -267,7 +267,7 @@ const TeacherClassList = ({ refreshTrigger }) => {
             }
             )}>
             <Stack.Screen name="teacherClasses">{(props) => <TeacherClasses key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-            <Stack.Screen name="teacherClassScreen">{(props) => <ClassScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="teacherClassScreen">{(props) => <ClassScreen  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="addSurvey">{(props) => <AddSurvey key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="editSurvey">{(props) => <EditSurvey key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="surveyResponse">{(props) => <SurveyResponse key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
@@ -356,9 +356,9 @@ const StudentHomepage = ({ refreshTrigger }) => {
                 },
             })}
         >
-            <Tab.Screen name="Home">{(props) => <StudentScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
-            <Tab.Screen name="Profile">{(props) => <ProfileScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
-            <Tab.Screen name="Setting">{(props) => <SettingScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Home">{(props) => <StudentScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Profile">{(props) => <ProfileScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
+            <Tab.Screen name="Setting">{(props) => <SettingScreen  {...props} refreshTrigger={refreshTrigger} />}</Tab.Screen>
         </Tab.Navigator>
     )
 }

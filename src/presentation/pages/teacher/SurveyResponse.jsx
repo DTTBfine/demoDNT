@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, Button, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Button, Modal, TextInput } from 'react-native';
 import { apiGetSurveyResponse } from '../../../data/api';
 import { useSelector } from 'react-redux';
 import { Linking } from 'react-native';
@@ -31,8 +31,6 @@ const SurveyResponse = ({ route }) => {
         } catch (error) {
             console.error('API call failed:', error);
             Alert.alert('Lỗi', 'Không thể tải danh sách bài nộp. Vui lòng thử lại.');
-        } finally {
-            console.log('Finished fetching notifications');
         }
     };
 
@@ -40,8 +38,8 @@ const SurveyResponse = ({ route }) => {
         fetchSurveyResponse();
     }, []);
 
-    const renderItem = ({ item }) => (
-        <View style={styles.itemContainer}>
+    const renderItem = (item) => (
+        <View key={item.id} style={styles.itemContainer}>
             <View style={styles.headerContainer}>
                 <Text style={styles.studentName}>{item.student_account.first_name} {item.student_account.last_name}</Text>
                 {item.grade === null ? (
@@ -59,7 +57,7 @@ const SurveyResponse = ({ route }) => {
             <Text style={styles.infoText}>Thời gian nộp: {new Date(item.submission_time).toLocaleString()}</Text>
             <Text style={styles.infoText}>Phản hồi văn bản: {item.text_response}</Text>
             <TouchableOpacity onPress={() => handleOpenFile(item.file_url)}>
-                <Text style={styles.fileLink}>Xem tài liệu</Text>
+                <Text style={styles.fileLink}>Xem bài nộp</Text>
             </TouchableOpacity>
             <Button title="Chấm điểm" onPress={() => handleGradeSubmission(item)} />
         </View>
@@ -79,18 +77,16 @@ const SurveyResponse = ({ route }) => {
     };
 
     const submitGrade = async () => {
-        console.log(selectedSubmission.id);
         if (!grade) {
             Alert.alert('Lỗi', 'Vui lòng nhập điểm.');
             return;
         }
         console.log(`Chấm điểm cho bài nộp của ${selectedSubmission.student_account.first_name} ${selectedSubmission.student_account.last_name}: ${grade}`);
         try {
-            console.log('Token:', token);
             const response = await apiGetSurveyResponse({
                 token: token,
                 survey_id: currentSurvey.id,
-                grade:{
+                grade: {
                     score: grade,
                     submission_id: selectedSubmission.id
                 }
@@ -106,8 +102,6 @@ const SurveyResponse = ({ route }) => {
         } catch (error) {
             console.error('API call failed:', error);
             Alert.alert('Lỗi', 'Không thể tải danh sách bài nộp. Vui lòng thử lại.');
-        } finally {
-            console.log('Finished fetching notifications');
         }
         setModalVisible(false);
         setGrade('');
@@ -115,13 +109,13 @@ const SurveyResponse = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Danh sách bài nộp</Text>
-            <FlatList
-                data={responses}
-                keyExtractor={item => item.id.toString()}
-                renderItem={renderItem}
-                ListEmptyComponent={<Text>Không có bài nộp nào.</Text>}
-            />
+            <ScrollView>
+                {responses.length > 0 ? (
+                    responses.map(item => renderItem(item))
+                ) : (
+                    <Text>Không có bài nộp nào.</Text>
+                )}
+            </ScrollView>
 
             <Modal
                 animationType="slide"
@@ -198,6 +192,7 @@ const styles = StyleSheet.create({
     },
     infoText: {
         fontSize: 14,
+        paddingVertical:4,
     },
     fileLink: {
         fontSize: 14,
