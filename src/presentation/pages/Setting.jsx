@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as actions from '../redux/actions'
 import { useNavigation } from '@react-navigation/native'
@@ -12,6 +12,8 @@ const SettingScreen = () => {
     const avatarUri = getDisplayedAvatar(userInfo.avatar)
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const navigate = useNavigation()
+
+    const [showHandleChangePassword, setShowHandleChangePassword] = useState(false)
     return (
         <View style={styles.cotainer}>
             <TouchableOpacity style={{ flexDirection: 'row', gap: 10, borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'white', alignItems: 'center' }}>
@@ -42,13 +44,23 @@ const SettingScreen = () => {
                         </View>
                         <Icon name='chevron-down' />
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ flexDirection: 'row', borderTopWidth: 1, padding: 10, borderColor: 'gray', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <TouchableOpacity onPress={() => { setShowHandleChangePassword(!showHandleChangePassword) }}
+                        style={{ flexDirection: 'row', borderTopWidth: 1, padding: 10, borderColor: 'gray', alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'row', gap: 10 }}>
                             <Icon name='gear' size={24} />
                             <Text style={{ fontSize: 16, fontWeight: '500', textAlign: 'center' }}>Cài đặt & quyền riêng tư</Text>
                         </View>
                         <Icon name='chevron-down' />
                     </TouchableOpacity>
+                    {
+                        showHandleChangePassword && <TouchableOpacity onPress={() => { }}
+                            style={{
+                                paddingLeft: 40,
+                                paddingBottom: 10,
+                            }}>
+                            <Text style={{ fontSize: 16, padding: 10, fontWeight: '500', backgroundColor: 'white', borderRadius: 8, elevation: 5 }}>Thay đổi mật khẩu của bạn</Text>
+                        </TouchableOpacity>
+                    }
                     <TouchableOpacity style={{ flexDirection: 'row', borderTopWidth: 1, padding: 10, borderColor: 'gray', alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'row', gap: 10 }}>
                             <Icon name='th-large' size={24} />
@@ -72,7 +84,7 @@ const SettingScreen = () => {
                         <Text style={{ fontSize: 16, fontWeight: '500', textAlign: 'center' }}>Yahoo</Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={{ borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'white' }}
+                <TouchableOpacity style={{ borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'gainsboro' }}
                     onPress={() => {
                         dispatch(actions.logout())
                         navigate.navigate('auth')
@@ -88,7 +100,6 @@ const styles = StyleSheet.create({
     cotainer: {
         flex: 1,
         padding: 15,
-        justifyContent: 'space-between',
         gap: 15
     }
 })

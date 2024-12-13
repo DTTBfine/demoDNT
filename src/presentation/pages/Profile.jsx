@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, TextInput, Modal } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, TextInput, Modal, ScrollView, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/AntDesign'
@@ -6,6 +6,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as apis from '../../data/api/index'
 import { responseCodes } from '../../utils/constants/responseCodes';
 import * as actions from '../redux/actions'
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
 const ProfileScreen = () => {
@@ -16,10 +17,10 @@ const ProfileScreen = () => {
         const fileId = userInfo.avatar.split('/d/')[1].split('/')[0];
         originalAvatar = `https://drive.google.com/uc?export=view&id=${fileId}`
     }
-    const { isLoggedIn, msg, update, token, role, userId , password } = useSelector(state => state.auth)
+    const { isLoggedIn, msg, update, token, role, userId, password } = useSelector(state => state.auth)
     const originalName = `${userInfo.ho} ${userInfo.ten}`
     const [file, setFile] = useState(null)
-    const [newPassword,setNewPassword] = useState('')
+    const [newPassword, setNewPassword] = useState('')
     const [name, setName] = useState(originalName)
     const [isEditable, setIsEditable] = useState(false);
     const [invalidFields, setInvalidFields] = useState(new Map())
@@ -29,6 +30,7 @@ const ProfileScreen = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [submitInfo, setSubmitInfo] = useState('')
     const [passwordError, setPasswordError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
     const handleIconPress = () => {
         setIsEditable(true); // Enable editing
@@ -113,28 +115,32 @@ const ProfileScreen = () => {
         }
 
         setSubmitInfo('Đang chờ thay đổi từ server...')
+        setIsLoading(true)
         const response = await apis.apiChangeInfoAfterSignUp({
             token: token,
             name: name,
             file: file
         })
+        setIsLoading(false)
 
         if (response?.data.code !== responseCodes.statusOK) {
-            setInvalidFields(prev => {
-                const newFields = new Map(prev)
-                newFields.set(invalidFieldsSubmit, "Không thể lưu thay đổi: " + response.data.message)
+            // setInvalidFields(prev => {
+            //     const newFields = new Map(prev)
+            //     newFields.set(invalidFieldsSubmit, "Không thể lưu thay đổi: " + response.data.message)
 
-                return newFields
-            })
-            return
+            //     return newFields
+            // })
+            console.log("error change info: " + JSON.stringify(response?.data))
+            return Alert.alert("Error", "Lưu thay đổi không thành công")
         }
 
+        Alert.alert("Success", "Lưu thay đổi thành công")
         dispatch(actions.getUserInfo({
             token,
             userId
         }))
 
-        setSubmitInfo('Lưu thay đổi thành công')
+        // setSubmitInfo('Lưu thay đổi thành công')
 
     }
     const handleChangePassword = async () => {
@@ -148,10 +154,10 @@ const ProfileScreen = () => {
         }
         console.log(token, password, newPassword)
         setPasswordError('')
-        const response = await apis.apiChangePassword({ 
-            token:token, 
-            old_password: password, 
-            new_password: newPassword 
+        const response = await apis.apiChangePassword({
+            token: token,
+            old_password: password,
+            new_password: newPassword
         })
 
         console.log(response)
@@ -166,7 +172,14 @@ const ProfileScreen = () => {
 
     return (
         <TouchableWithoutFeedback onPress={handleOutsidePress}>
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
+                <Spinner
+                    visible={isLoading}
+                    textContent={''}
+                    textStyle={{
+                        color: '#FFF'
+                    }}
+                />
                 <View style={{ alignItems: 'center' }}>
                     <View style={{}}>
                         <Image
@@ -341,7 +354,7 @@ const ProfileScreen = () => {
                     color: 'green',
                     fontSize: 12
                 }}> {submitInfo}</Text>}
-            </View>
+            </ScrollView>
         </TouchableWithoutFeedback>
 
     )
@@ -362,17 +375,15 @@ const styles = StyleSheet.create({
     ItemName: {
         paddingHorizontal: 10,
         paddingVertical: 15,
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 14,
+        fontWeight: '400',
         flex: 2
     },
     ItemValue: {
         paddingHorizontal: 10,
         paddingVertical: 15,
-        fontSize: 14,
-        fontWeight: '500',
-        fontStyle: 'italic',
-        color: 'gray',
+        fontSize: 16,
+        fontWeight: '600',
         flex: 3
     },
     changePasswordButton: {
@@ -380,61 +391,61 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 20,
         paddingVertical: 10,
-        maxWidth:250,
+        maxWidth: 250,
         marginStart: 60,
-        marginBottom:15
+        marginBottom: 15
     },
     changePasswordText: {
         color: 'white',
         fontWeight: 'bold',
         fontSize: 16
     },
-    modalButtonContainer: { 
-        flexDirection: 'row', 
-        marginTop: 20, 
+    modalButtonContainer: {
+        flexDirection: 'row',
+        marginTop: 20,
     },
-    modalButtonReject: { 
-        backgroundColor: '#BB0000', 
-        padding: 10, 
-        borderRadius: 5, 
+    modalButtonReject: {
+        backgroundColor: '#BB0000',
+        padding: 10,
+        borderRadius: 5,
         marginHorizontal: 5,
-        minWidth:150,
-        alignItems:'center'
+        minWidth: 150,
+        alignItems: 'center'
     },
-    modalButtonAccept: { 
-        backgroundColor: '#4CAF50', 
-        padding: 10, 
-        borderRadius: 5, 
+    modalButtonAccept: {
+        backgroundColor: '#4CAF50',
+        padding: 10,
+        borderRadius: 5,
         marginHorizontal: 5,
-        minWidth:160,
-        alignItems:'center'
+        minWidth: 160,
+        alignItems: 'center'
     },
-    modalButtonText: { 
+    modalButtonText: {
         color: 'white',
-        fontSize:16 
+        fontSize: 16
     },
-    modalContainer: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        backgroundColor: 'rgba(0,0,0,0.5)' 
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
     },
-    modalContent: { 
-        backgroundColor: 'white', 
-        padding: 20, 
-        borderRadius: 10, 
-        alignItems: 'center' 
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center'
     },
-    modalTitle: { 
-        fontSize: 18, 
-        fontWeight: 'bold' 
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold'
     },
-    modalInput:{ 
-        borderWidth: 1, 
-        borderColor: 'gray', 
-        padding: 10, 
-        width: '100%', 
-        marginTop: 10, 
-        borderRadius: 5 
+    modalInput: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        width: '100%',
+        marginTop: 10,
+        borderRadius: 5
     },
 })
 

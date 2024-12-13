@@ -48,34 +48,18 @@ const AppNavigation = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-    const onRefresh = () => {
-        setRefreshing(true);
-
-        setTimeout(() => {
-            setRefreshing(false);
-            setRefreshTrigger((prev) => prev + 1);
-        }, 1000);
-    };
     return (
-        <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
-            <NavigationContainer>
-                <Stack.Navigator screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="auth">{(props) => <AuthNavigation {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                    <Stack.Screen name="student">{(props) => <StudentRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                    <Stack.Screen name="teacher">{(props) => <TeacherRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                    <Stack.Screen name="notification">{(props) => <Note  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                    <Stack.Screen name="message">{(props) => <MessageRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                    <Stack.Screen name="testUI">{(props) => <TestUI  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-                    <Stack.Screen name="openClasses" component={SearchOpenClasses} />
-                </Stack.Navigator>
-            </NavigationContainer>
-        </ScrollView>
+        <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="auth">{(props) => <AuthNavigation {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="student">{(props) => <StudentRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="teacher">{(props) => <TeacherRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="notification">{(props) => <Note  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="message">{(props) => <MessageRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="openClasses">{(props) => <SearchOpenClasses  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="testUI">{(props) => <TestUI  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            </Stack.Navigator>
+        </NavigationContainer>
     )
 }
 

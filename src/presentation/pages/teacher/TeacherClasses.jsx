@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useSelector } from 'react-redux'
 import { classNameCode, getColorForId } from '../../../utils/format'
 import IconI from 'react-native-vector-icons/Ionicons'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 const TeacherClasses = () => {
     const navigate = useNavigation()
@@ -70,21 +71,25 @@ const TeacherClasses = () => {
             <View style={{
                 paddingHorizontal: 10
             }}>
-                <TextInput
-                    style={{
-                        borderWidth: 1,
-                        paddingHorizontal: 20,
-                        paddingVertical: 8,
-                        borderColor: '#CCCCCC',
-                        borderRadius: 15,
-                        backgroundColor: 'white',
-                        fontSize: 16
-                    }}
-                    placeholder='Tìm kiếm theo tên lớp'
-                    placeholderTextColor="gray"
-                    value={className}
-                    onChangeText={(text) => setClassName(text)}
-                />
+                <View style={{
+                    backgroundColor: 'gainsboro',
+                    flexDirection: 'row',
+                    borderRadius: 20,
+                    alignItems: 'center',
+                    paddingHorizontal: 10,
+                    gap: 10
+                }}>
+                    <Icon name='search' color='darkgray' size={20} />
+                    <TextInput
+                        style={{
+                            fontSize: 16
+                        }}
+                        placeholder='Tìm kiếm theo tên lớp'
+                        placeholderTextColor="gray"
+                        value={className}
+                        onChangeText={(text) => setClassName(text)}
+                    />
+                </View>
                 {/* <TouchableOpacity
                     style={{
                         flex: 5,

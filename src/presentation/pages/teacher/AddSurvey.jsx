@@ -1,14 +1,16 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, Alert } from 'react-native'
 import React, { useState, useCallback, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as apis from '../../../data/api'
+import * as actions from '../../redux/actions'
 import { responseCodes } from '../../../utils/constants/responseCodes';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 const AddSurvey = ({ route }) => {
+    const dispatch = useDispatch()
     const { class_id } = route.params
     const { token } = useSelector(state => state.auth)
     const [isLoading, setIsLoading] = useState(false)
@@ -100,9 +102,14 @@ const AddSurvey = ({ route }) => {
         const response = await apis.apiCreateSurvey(payload)
         setIsLoading(false)
         if (response.data?.meta?.code !== responseCodes.statusOK) {
-            Alert.alert("Error", response.data?.meta?.message || "Tạo bài kiểm tra không thành công")
+            console.log("error adding survey: " + JSON.stringify(response?.data))
+            Alert.alert("Error", "Tạo bài kiểm tra không thành công")
         } else {
             Alert.alert("Success", response.data?.meta?.message || "Tạo bài kiểm tra thành công")
+            dispatch(actions.getAllSurveys({
+                token: token,
+                class_id: class_id
+            }))
         }
 
         resetInput()

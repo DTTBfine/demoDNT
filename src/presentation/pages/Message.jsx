@@ -66,6 +66,8 @@ const Message = () => {
     const [dispatchData, setDispatchData] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
 
+    const [partnerName, setPartnerName] = useState('')
+
     useEffect(() => {
         if (dispatchData) {
             setIsLoading(true)
@@ -81,6 +83,15 @@ const Message = () => {
             setDispatchData(false)
         }
     }, [])
+
+    const [curlist, setCurlist] = useState(listConversations)
+    useEffect(() => {
+        if (partnerName && listConversations.length > 0) {
+            //Không phân biệt chữ hoa chữ thường
+            setCurlist(listConversations.filter(item => item.partner.name.toLowerCase().includes(partnerName.toLowerCase())))
+        }
+        else setCurlist(listConversations)
+    }, [partnerName])
 
     return (
         <View style={styles.container}>
@@ -135,8 +146,8 @@ const Message = () => {
                     style={{ fontSize: 16 }}
                     placeholder='Tìm kiếm'
                     placeholderTextColor="gray"
-                    value={''}
-                    onChangeText={(text) => { }}
+                    value={partnerName}
+                    onChangeText={(text) => { setPartnerName(text) }}
                 />
             </View>
 
@@ -144,7 +155,7 @@ const Message = () => {
                 height: height - 200
             }}>
                 <ScrollView>
-                    {listConversations?.length > 0 ? listConversations.map((item, index) => {
+                    {curlist?.length > 0 ? curlist.map((item, index) => {
                         return (
                             <TouchableOpacity key={index} onPress={() => navigate.navigate('conversation', { name: item.partner.name, avatar: item.partner.avatar, partner_id: item.partner.id })}
                                 style={{
@@ -164,7 +175,7 @@ const Message = () => {
                                     />
                                 </View>
                                 <View>
-                                    <Text style={{ fontSize: 17, fontWeight:item.last_message.sender.id != userId && item.last_message.unread ? '600' : '400' }}>{item.partner.name}</Text>
+                                    <Text style={{ fontSize: 17, fontWeight: item.last_message.sender.id != userId && item.last_message.unread ? '600' : '400' }}>{item.partner.name}</Text>
                                     <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
                                         {item.last_message.sender.id == userId && <Text style={{ fontWeight: '400', color: 'dimgray' }}>Bạn:</Text>}
                                         <Text style={{
