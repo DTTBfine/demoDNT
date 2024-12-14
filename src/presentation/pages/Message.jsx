@@ -132,7 +132,7 @@ const Message = () => {
             }
         };
     }, []);
-    
+
 
     // //init list
     // useEffect(() => {
@@ -181,7 +181,7 @@ const Message = () => {
                 current_index: 0,
                 signal: !prev.signal
             }))
-            
+
             setIsLoading(false)
             setDispatchData(false)
         }
@@ -215,39 +215,44 @@ const Message = () => {
         }, 500);
     }
 
-    const renderItem = ({item, index}) => {
+    const renderItem = ({ item, index }) => {
         return (
-        <TouchableOpacity key={index} onPress={() => navigate.navigate('conversation', { name: item.partner.name, avatar: item.partner.avatar, partner_id: item.partner.id })}
-            style={{
-                marginVertical: 8,
-                flexDirection: 'row',
-                gap: 10,
-                alignItems: 'center'
-            }}>
-            <View>
-                <Image
-                    source={item.partner.avatar ? { uri: getDisplayedAvatar(item.partner.avatar) } : require('../../../assets/default-avatar.jpg')}
-                    style={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: 25,
-                    }}
-                />
-            </View>
-            <View>
-                <Text style={{ fontSize: 17, fontWeight: item.last_message.sender.id != userId && item.last_message.unread ? '600' : '400' }}>{item.partner.name}</Text>
-                <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
-                    {item.last_message.sender.id == userId && <Text style={{ fontWeight: '400', color: 'dimgray' }}>Bạn:</Text>}
-                    <Text style={{
-                        fontWeight: (item.last_message.sender.id != userId && item.last_message.unread) ? '600' : '400',
-                        color: (item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray'
-                    }}
-                    >{item.last_message.message}</Text>
-                    <Icon name='circle' color={(item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray'} size={3} />
-                    <Text style={{ color: (item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray' }}>{getHourMinute(item.last_message.created_at).hour}:{getHourMinute(item.last_message.created_at).minute}</Text>
+            <TouchableOpacity key={index} onPress={() => navigate.navigate('conversation', { name: item.partner.name, avatar: item.partner.avatar, partner_id: item.partner.id })}
+                style={{
+                    marginVertical: 8,
+                    flexDirection: 'row',
+                    gap: 10,
+                    alignItems: 'center'
+                }}>
+                <View>
+                    <Image
+                        source={item.partner.avatar ? { uri: getDisplayedAvatar(item.partner.avatar) } : require('../../../assets/default-avatar.jpg')}
+                        style={{
+                            width: 50,
+                            height: 50,
+                            borderRadius: 25,
+                        }}
+                    />
                 </View>
-            </View>
-        </TouchableOpacity>            
+                <View>
+                    <Text style={{ fontSize: 17, fontWeight: item.last_message.sender.id != userId && item.last_message.unread ? '600' : '400' }}>{item.partner.name}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {item.last_message.sender.id == userId && <Text style={{ fontWeight: '400', color: 'dimgray' }}>Bạn:</Text>}
+                        <View style={{ maxWidth: 220, paddingHorizontal: 5 }}>
+                            <Text
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                                style={{
+                                    fontWeight: (item.last_message.sender.id != userId && item.last_message.unread) ? '600' : '400',
+                                    color: (item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray',
+                                }}
+                            >{item.last_message.message}</Text>
+                        </View>
+                        <Icon name='circle' color={(item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray'} size={3} />
+                        <Text style={{ paddingHorizontal: 5, color: (item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray' }}>{getHourMinute(item.last_message.created_at).hour}:{getHourMinute(item.last_message.created_at).minute}</Text>
+                    </View>
+                </View>
+            </TouchableOpacity>
         )
     }
 
@@ -339,12 +344,12 @@ const Message = () => {
                         refreshControl={
                             <RefreshControl
                                 refreshing={refreshing}
-                                onRefresh={handleRefresh}   
+                                onRefresh={handleRefresh}
                             />
                         }
                         style={{ paddingTop: 50 }}>
-                            <Text style={{ textAlign: 'center', fontSize: 13, color: 'gray' }}>Bạn chưa có cuộc hội thoại nào!</Text>
-                            <Text style={{ textAlign: 'center', fontSize: 20, color: 'gray' }}>Hãy bắt đầu trò chuyện</Text>
+                        <Text style={{ textAlign: 'center', fontSize: 13, color: 'gray' }}>Bạn chưa có cuộc hội thoại nào!</Text>
+                        <Text style={{ textAlign: 'center', fontSize: 20, color: 'gray' }}>Hãy bắt đầu trò chuyện</Text>
                     </ScrollView>
                 )}
 
