@@ -9,8 +9,6 @@ export const apiRequestAbsence = async (payload) => {
     formDataBody.append('reason', payload.reason)
     formDataBody.append('file', payload.file)
 
-
-
     try {
         const response = await axiosConfig({
             method: 'post',
@@ -57,6 +55,27 @@ export const apiGetAbsenceRequests = async (payload) => {
     } catch (error) {
         if (!error.response) {
             return console.error("failed to get absence request: " + error)
+        }
+        return error.reponse
+    }
+}
+
+export const apiGetStudentAbsenceRequests = async (payload) => {
+    try {
+        return await axiosConfig({
+            method: 'post',
+            url: '/it5023e/get_student_absence_requests',
+            data: {
+                token: payload.token,
+                class_id: payload.class_id,
+                date: payload.date,
+                status: payload.status,
+                pageable_request: payload.pageable_request
+            }
+        })
+    } catch (error) {
+        if (!error.response) {
+            return console.error("failed to get student absence request: " + error)
         }
         return error.reponse
     }

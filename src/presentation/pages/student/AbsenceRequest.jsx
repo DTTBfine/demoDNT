@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native'
 import React, { useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
@@ -8,6 +8,7 @@ import { formatSQLDate } from '../../../utils/format';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { responseCodes } from '../../../utils/constants/responseCodes';
 import { useNavigation } from '@react-navigation/native';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const AbsenceRequest = ({ route }) => {
     //Đã xử lý payload đúng định dạng rồi, chỉ cần gửi api thôi, thêm cái Submit
@@ -15,6 +16,7 @@ const AbsenceRequest = ({ route }) => {
     const navigate = useNavigation()
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const [requestAbsenceInfo, setRequestAbsenceInfo] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
     const [invalidFields, setInvalidFields] = useState(new Map())
     //invalid fields
@@ -22,8 +24,9 @@ const AbsenceRequest = ({ route }) => {
     const invalidFieldReason = 'reason'
     const invalidFieldFile = 'file'
     const invalidFieldSubmit = 'submit'
+    const invalidFieldDate = 'date'
 
-    const validateInput = (title, reason, file) => {
+    const validateInput = async (title, reason, file, date) => {
         let check = true
 
         if (title?.length === 0) {
@@ -54,6 +57,38 @@ const AbsenceRequest = ({ route }) => {
                 return newFields
             })
             check = false
+        }
+
+        if (!date) {
+            setInvalidFields(prev => {
+                const newFields = new Map(prev)
+                newFields.set(invalidFieldDate, "Bạn cần phải chọn ngày xin nghỉ")
+
+                return newFields
+            })
+            check = false
+        } else {
+            setIsLoading(true)
+            const response = await apis.apiGetStudentAbsenceRequests({
+                token: token,
+                class_id: class_id,
+                date: date,
+                pageable_request: {
+                    page: 0,
+                    page_size: 2
+                }
+            })
+            setIsLoading(false)
+            // console.log("get student absence requests: " + JSON.stringify(response?.data))
+            if (response?.data?.data?.page_content?.length > 0) {
+                setInvalidFields(prev => {
+                    const newFields = new Map(prev)
+                    newFields.set(invalidFieldDate, "Đã xin nghỉ vào ngày này")
+
+                    return newFields
+                })
+                check = false
+            }
         }
         return check
     }
@@ -96,7 +131,7 @@ const AbsenceRequest = ({ route }) => {
                 return; // Không tiếp tục nếu bị hủy
             }
 
-            console.log('result ' + JSON.stringify(result))
+            // console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
                 const { mimeType, uri, name } = result.assets[0]
                 setPayload(prev => ({
@@ -114,14 +149,17 @@ const AbsenceRequest = ({ route }) => {
 
     const handleSubmit = async () => {
         setInvalidFields(new Map())
-        setRequestAbsenceInfo('')
-        if (!validateInput(payload.title, payload.reason, payload.file)) {
+        check = await validateInput(payload.title, payload.reason, payload.file, payload.date)
+        if (!check) {
             return
         }
         setRequestAbsenceInfo('Đang gửi đơn xin nghỉ học...')
+        setIsLoading(true)
         const response = await apis.apiRequestAbsence(payload)
+        setIsLoading(false)
         console.log("absence response: " + JSON.stringify(response.data))
         if (response?.data.meta.code !== responseCodes.statusOK) {
+            Alert.alert("Error", "Gửi đơn xin nghỉ không thành công")
             return setInvalidFields(prev => {
                 const newFields = new Map(prev)
                 newFields.set(invalidFieldSubmit, response?.data.data)
@@ -129,19 +167,9 @@ const AbsenceRequest = ({ route }) => {
                 return newFields
             })
         }
+        Alert.alert("Success", "Gửi đơn xin nghỉ thành công")
         resetInput()
-        setRequestAbsenceInfo("Gửi xin phép nghỉ học thành công")
-        setPayload({
-            token: token,
-            class_id: class_id,
-            date: formatSQLDate(date), //vd: 2024-11-13,
-            reason: '',
-            title: '',
-            file: null
-        })
-        setTimeout(() => {
-            navigate.navigate('myClasses')
-        }, 300)
+
 
     }
     const onChange = (event, selectedDate) => {
@@ -157,6 +185,13 @@ const AbsenceRequest = ({ route }) => {
 
     return (
         <View style={styles.container}>
+            <Spinner
+                visible={isLoading}
+                textContent={''}
+                textStyle={{
+                    color: '#000'
+                }}
+            />
             <View style={{
                 gap: 15,
                 padding: 10,
@@ -254,6 +289,14 @@ const AbsenceRequest = ({ route }) => {
                 }
 
             </View>
+            {invalidFields.size > 0 && invalidFields.has(invalidFieldDate) && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12,
+                    textAlign: 'center'
+                }}> {invalidFields.get(invalidFieldDate)}
+            </Text>}
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                     style={[styles.button, { backgroundColor: (payload.file && payload.reason && payload.title) ? '#AA0000' : '#CCCCCC', width: 150, borderRadius: 10 }]}

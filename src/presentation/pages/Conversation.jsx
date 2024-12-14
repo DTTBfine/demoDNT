@@ -39,6 +39,7 @@ const DEFAULT_COUNT = 15
 const Conversation = ({ route }) => {
     const dispatch = useDispatch()
     const { name, avatar, partner_id } = route.params
+    console.log("partner id: " + partner_id)
 
     //useSelector
     const { userId, token } = useSelector(state => state.auth)
@@ -68,7 +69,7 @@ const Conversation = ({ route }) => {
         })
 
         if (response?.data?.meta?.code !== responseCodes.statusOK) {
-            console.log("error getting conversation: " + response?.data?.meta?.message)
+            console.log("error getting conversation: " + JSON.stringify(response?.data))
             return []
         }
 
