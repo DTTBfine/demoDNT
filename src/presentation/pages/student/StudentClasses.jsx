@@ -1,20 +1,33 @@
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, RefreshControl } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ClassItem from '../../components/classItem'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as apis from '../../../data/api/index'
 import IconI from 'react-native-vector-icons/Ionicons'
+import * as actions from '../../redux/actions'
 
 const StudentClasses = () => {
+    const dispatch = useDispatch()
     const [currentId, setCurrentId] = useState('')
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
 
     const { myClasses } = useSelector(state => state.learning)
     const [classList, setClassList] = useState(myClasses)
     const [className, setClassName] = useState('')
+    const [refreshing, setRefreshing] = useState(false)
 
-    console.log(myClasses)
+    const handleRefresh = () => {
+        setRefreshing(true)
+        dispatch(actions.getClassList({
+            token: token,
+            role: role,
+            account_id: userId
+        }))
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500);
+    }
 
     const [teacherList, setTeacherList] = useState([...new Set(myClasses.map(item => item.lecturer_name))])
 
@@ -24,7 +37,7 @@ const StudentClasses = () => {
 
     useEffect(() => {
         if (className && myClasses.length > 0) {
-            setClassList(myClasses.filter(item => item.class_name.includes(className)))
+            setClassList(myClasses.filter(item => item.class_name.toLowerCase().includes(className.toLowerCase())))
         }
         else setClassList(myClasses)
     }, [className])
@@ -70,7 +83,15 @@ const StudentClasses = () => {
     }
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView
+            style={styles.container}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                />
+            }
+        >
             <View style={{
                 paddingHorizontal: 10
             }}>

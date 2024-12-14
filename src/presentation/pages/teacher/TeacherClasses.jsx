@@ -1,24 +1,39 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, RefreshControl } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { classNameCode, getColorForId } from '../../../utils/format'
 import IconI from 'react-native-vector-icons/Ionicons'
 import Icon from 'react-native-vector-icons/FontAwesome'
+import * as actions from '../../redux/actions'
+
 
 const TeacherClasses = () => {
     const navigate = useNavigation()
+    const dispatch = useDispatch()
     const { myClasses } = useSelector(state => state.learning)
+    const { token, role, userId } = useSelector(state => state.auth)
 
     const [classList, setClassList] = useState(myClasses)
     const [className, setClassName] = useState('')
     const [currentId, setCurrentId] = useState('')
+    const [refreshing, setRefreshing] = useState(false)
 
-    console.log(myClasses)
+    const handleRefresh = () => {
+        setRefreshing(true)
+        dispatch(actions.getClassList({
+            token: token,
+            role: role,
+            account_id: userId
+        }))
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500);
+    }
 
     useEffect(() => {
         if (className && myClasses.length > 0) {
-            setClassList(myClasses.filter(item => item.class_name.includes(className)))
+            setClassList(myClasses.filter(item => item.class_name.toLowerCase().includes(className.toLowerCase())))
         }
         else setClassList(myClasses)
     }, [className])
@@ -67,7 +82,13 @@ const TeacherClasses = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                />
+            }>
             <View style={{
                 paddingHorizontal: 10
             }}>
@@ -157,7 +178,7 @@ const TeacherClasses = () => {
                 </View>
             </ScrollView>
 
-        </View >
+        </ScrollView >
     )
 }
 
