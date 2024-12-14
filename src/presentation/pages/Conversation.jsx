@@ -11,8 +11,8 @@ import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client'
 import * as apis from '../../data/api'
 import { responseCodes } from '../../utils/constants';
+import { SOCKET_URL } from '../../data/websocket/constants';
 
-const SOCKET_URL = 'http://157.66.24.126:8080/ws';
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
 
@@ -92,7 +92,6 @@ const Conversation = ({ route }) => {
                 if (msg.sender.id === partner_id) {
                     mark_as_read = "true"
                 }
-
 
                 setLoadingTrigger((prev) => ({
                     ...prev,
