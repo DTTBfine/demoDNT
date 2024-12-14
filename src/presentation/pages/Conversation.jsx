@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, FlatList, Image, Modal, TouchableWithoutFeedback, Alert, RefreshControl } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { act, useEffect, useRef, useState } from 'react'
 import IconI from 'react-native-vector-icons/Ionicons'
 import Icon6 from 'react-native-vector-icons/FontAwesome6'
 import { useDispatch, useSelector } from 'react-redux';
@@ -48,9 +48,12 @@ const Conversation = ({ route }) => {
     const [dispatchData, setDispatchData] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
     const [loadingText, setLoadingText] = useState('Loading...')
-    const [currentIndex, setCurrentIndex] = useState(0)
-    const [hasMoreData, setHasMoreData] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
+    const [loadingTrigger, setLoadingTrigger] = useState({
+        "current_index": 0,
+        "mark_as_read": "true",
+        "signal": false
+    })
 
     //
     const stompClientRef = useRef(null);
@@ -63,16 +66,13 @@ const Conversation = ({ route }) => {
             partner_id: partner_id,
             mark_as_read: mark_as_read
         })
-        // console.log("getting conversation: " + JSON.stringify(response.data))
 
         if (response?.data?.meta?.code !== responseCodes.statusOK) {
             console.log("error getting conversation: " + response?.data?.meta?.message)
             return []
         }
 
-        // if (response.data.data.conversation.length === 0) {
-        //     console.log("end of data")
-        // }
+
 
         return response.data.data.conversation
     }
@@ -88,13 +88,19 @@ const Conversation = ({ route }) => {
             stompClient.subscribe(`/user/${userId}/inbox`, (message) => {
                 const msg = JSON.parse(message.body);
                 console.log('Received message from inbox:', msg);
-                mark_as_read = "false"
+                let mark_as_read = "false"
                 if (msg.sender.id === partner_id) {
                     mark_as_read = "true"
                 }
-                const c = getConversations(0, mark_as_read)
-                setConversation(c)
-                setCurrentIndex(0)
+
+
+                setLoadingTrigger((prev) => ({
+                    ...prev,
+                    current_index: 0,
+                    mark_as_read: mark_as_read,
+                    signal: !prev.signal
+                }))
+
                 dispatch(actions.getListConversation({
                     token: token,
                     index: "0",
@@ -149,9 +155,8 @@ const Conversation = ({ route }) => {
         }
     }
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!message?.message_id) return
-        setConversation([message, ...conversation])
         sendMessage(message.message)
         setMessage({
             message_id: null,
@@ -164,27 +169,53 @@ const Conversation = ({ route }) => {
             created_at: (new Date()).toISOString().split(".")[0],
             unread: 0
         })
+        setLoadingTrigger((prev) => ({
+            ...prev,
+            current_index: 0,
+            mark_as_read: "false",
+            signal: !prev.signal
+        }))
     }
-
-
     //init conversation
     useEffect(() => {
         if (dispatchData) {
             setIsLoading(true)
 
-            const fetch = async () => {
-                const conversations = await getConversations(0, "true")
-                setConversation(conversations)
-                setCurrentIndex(0)
-                setIsLoading(false)
-                // setIsLoading(false)
-                setDispatchData(false)
-            };
-
-            fetch();
-           
+            setLoadingTrigger((prev) => ({
+                ...prev,
+                current_index: 0,
+                mark_as_read: "true",
+                signal: !prev.signal
+            }))
+            setIsLoading(false)
+            setDispatchData(false)
         }
     }, [])
+
+    useEffect(() => {
+        console.log("using effect, current index: " + loadingTrigger.current_index)
+        const index = loadingTrigger.current_index
+        if (index === 0) {
+            console.log("reloading conversation, mark as read: " + loadingTrigger.mark_as_read)
+            const actionReload = async () => {
+                const c = await getConversations(0, loadingTrigger.mark_as_read)
+                setConversation(c)
+            }
+            actionReload()
+        } else {
+            console.log("loading more messages")
+            const actionLoad = async () => {
+                setIsLoading(true)
+                const c = await getConversations(index, loadingTrigger.mark_as_read)
+                setIsLoading(false)
+                setConversation((prev) => [...prev, ...c])
+            }
+            actionLoad()
+        }
+    }, [loadingTrigger])
+
+
+   
 
 
     const removeTrailingNewline = (message) => {
@@ -265,11 +296,15 @@ const Conversation = ({ route }) => {
         );
     };
 
-    const handleRefresh = async () => {
+    const handleRefresh = () => {
         setRefreshing(true)
-        const conversations = await getConversations(0, "true")
-        setConversation(conversations)
-        setCurrentIndex(0)
+        setLoadingTrigger((prev) => ({
+            ...prev,
+            current_index: 0,
+            mark_as_read: prev.mark_as_read,
+            signal: !prev.signal
+        }))
+
         setTimeout(() => {
             setRefreshing(false)
         }, 500)
@@ -279,7 +314,7 @@ const Conversation = ({ route }) => {
         <KeyboardAvoidingView style={styles.container}>
             <Spinner
                 visible={isLoading}
-                textContent={loadingText}
+                textContent=''
                 textStyle={{
                     color: '#000'
                 }}
@@ -297,26 +332,19 @@ const Conversation = ({ route }) => {
                     inverted={true}  // Đảo ngược thứ tự của danh sách
                     contentContainerStyle={{ paddingBottom: 10 }}  // Đảm bảo các tin nhắn được căn dưới
                     showsVerticalScrollIndicator={false}
-                    onEndReached={async () => {
-                        if (!hasMoreData) {
-                            console.log("end of data")
-                            return
-                        }
-                        console.log("loading more conversations, index: " + (currentIndex + DEFAULT_COUNT) )
-                        setIsLoading(true)
-                        const conversations = await getConversations(currentIndex + DEFAULT_COUNT, "true")
-                        setIsLoading(false)
-                        if (conversations?.length === 0) {
-                            return setHasMoreData(false)
-                        }
-                        setConversation((prev) => [...prev, ...conversations])
-                        setCurrentIndex(currentIndex + DEFAULT_COUNT)
+                    onEndReached={() => {
+                        setLoadingTrigger((prev) => ({
+                            ...prev,
+                            current_index: prev.current_index + DEFAULT_COUNT,
+                            mark_as_read: "true",
+                            signal: !prev.signal
+                        }))
                     }}
                     onEndReachedThreshold={0.1}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
-                            onRefresh={async () => { await handleRefresh() }}
+                            onRefresh={handleRefresh}
                             // colors={["#9Bd35A", "#689F38"]} // Android loading spinner colors
                         />   
                     }
@@ -360,7 +388,7 @@ const Conversation = ({ route }) => {
                         //Keyboard.dismiss();
                     }}
                 />
-                <TouchableOpacity style={{ flex: 1 }} onPress={handleSend}>
+                <TouchableOpacity style={{ flex: 1 }} onPress={async () => { await handleSend() }}>
                     <IconI name='send' color="mediumpurple" size={25} />
                 </TouchableOpacity>
             </View>
