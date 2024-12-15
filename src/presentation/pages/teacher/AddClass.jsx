@@ -18,6 +18,7 @@ const AddClass = () => {
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const dispatch = useDispatch()
 
@@ -30,11 +31,35 @@ const AddClass = () => {
         return `${day}/${month}/${year}`;
     };
 
-    const handleCreateClass = async () => {
-        if (!classId || !className || !classType || !maxStudentAmount) {
-            Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
-            return;
+    const validateFields = () => {
+        const newErrors = {};
+
+        if (!classId) {
+            newErrors.classId = '❗️Mã lớp không được rỗng.';
+        } else if (!/^[0-9]{6}$/.test(classId)) {
+            newErrors.classId = '❗️Mã lớp phải gồm 6 ký tự.';
         }
+        if (!className) newErrors.className = '❗️Tên lớp không được rỗng.';
+        if (!classType){
+            newErrors.classType = '❗️Loại lớp không được rỗng.';
+        }
+        else if(classType!=='LT'&&classType!=='BT'&&classType!=='LT_BT'){
+            newErrors.classType = '❗️Loại lớp không phù hợp (LT, BT, LT_BT).';
+        }
+        if (!maxStudentAmount) newErrors.maxStudentAmount = '❗️Số lượng sinh viên tối đa không được rỗng.';
+
+        if (!startDate) newErrors.startDate = '❗️';
+        if (!endDate) newErrors.endDate = '❗️';
+        if (startDate && endDate && startDate >= endDate) {
+            newErrors.dateRange = 'Ngày bắt đầu phải trước ngày kết thúc.';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleCreateClass = async () => {
+        if (!validateFields()) return;
 
         setLoading(true);
         const payload = {
@@ -74,6 +99,7 @@ const AddClass = () => {
                     value={classId}
                     onChangeText={setClassId}
                 />
+                {errors.classId && <Text style={styles.errorText}>{errors.classId}</Text>}
                 <TextInput
                     style={styles.input}
                     placeholder="Mã lớp kèm *"
@@ -86,6 +112,7 @@ const AddClass = () => {
                     value={className}
                     onChangeText={setClassName}
                 />
+                {errors.className && <Text style={styles.errorText}>{errors.className}</Text>}
                 <TextInput
                     style={styles.input}
                     placeholder="Mã học phần *"
@@ -98,33 +125,33 @@ const AddClass = () => {
                     value={classType}
                     onChangeText={setClassType}
                 />
-
+                {errors.classType && <Text style={styles.errorText}>{errors.classType}</Text>}
                 {/* Ngày bắt đầu và kết thúc */}
                 <View style={styles.dateRow}>
-                    <TouchableOpacity
-                        style={styles.dateInput}
-                        onPress={() => setShowStartPicker(true)}
-                    >
-                        <View style={styles.row}>
-                            <Text style={startDate ? styles.dateText : styles.placeholderText}>
-                                {startDate ? formatDate(startDate) : 'Bắt đầu'}
-                            </Text>
-                            <Icon name="chevron-down" color="#AA0000" size={18} />
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.dateInput}
-                        onPress={() => setShowEndPicker(true)}
-                    >
-                        <View style={styles.row}>
-                            <Text style={endDate ? styles.dateText : styles.placeholderText}>
-                                {endDate ? formatDate(endDate) : 'Kết thúc'}
-                            </Text>
-                            <Icon name="chevron-down" color="#AA0000" size={18} />
-                        </View>
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.dateInput}
+                            onPress={() => setShowStartPicker(true)}
+                        >
+                            <View style={styles.row}>
+                                <Text style={startDate ? styles.dateText : styles.placeholderText}>
+                                {startDate ? formatDate(startDate) : (errors?.startDate ? `${errors.startDate} Bắt đầu` : 'Bắt đầu')}
+                                </Text>
+                                <Icon name="chevron-down" color="#AA0000" size={18} />
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.dateInput}
+                            onPress={() => setShowEndPicker(true)}
+                        >
+                            <View style={styles.row}>
+                                <Text style={endDate ? styles.dateText : styles.placeholderText}>
+                                    {endDate ? formatDate(endDate) : (errors?.endDate ? `${errors.endDate} Kết thúc` : 'Kết thúc')}
+                                </Text>
+                                <Icon name="chevron-down" color="#AA0000" size={18} />
+                            </View>
+                        </TouchableOpacity>
                 </View>
-
+                {errors.dateRange && <Text style={styles.errorText}>{errors.dateRange}</Text>}
                 {showStartPicker && (
                     <DateTimePicker
                         value={startDate || new Date()}
@@ -155,7 +182,7 @@ const AddClass = () => {
                     onChangeText={setMaxStudentAmount}
                     keyboardType="numeric"
                 />
-
+                {errors.maxStudentAmount && <Text style={styles.errorText}>{errors.maxStudentAmount}</Text>}
                 <TouchableOpacity
                     style={[styles.button, loading && { backgroundColor: 'gray' }]}
                     onPress={handleCreateClass}
@@ -243,6 +270,12 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginEnd: 1
     },
+    errorText :{
+        fontSize: 14,
+        color: 'red',
+        marginTop: -10,
+        marginStart:10
+    }
 });
 
 export default AddClass;
