@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, RefreshControl } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as apis from '../../data/api/index'
 import IconI from 'react-native-vector-icons/Ionicons'
 import * as actions from '../redux/actions'
+import Spinner from 'react-native-loading-spinner-overlay'
+
 
 const testList = [
     {
@@ -129,8 +131,13 @@ const testList = [
     }
 ]
 
+const DEFAULT_PAGE_SIZE = 10
+
 const ListOpenClasses = () => {
+    const dispatch = useDispatch()
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const { filteredClassesInfo } = useSelector(state => state.learning)
+
 
     const HeaderItem = {
         class_id: 'Mã lớp',
@@ -144,58 +151,120 @@ const ListOpenClasses = () => {
         status: 'Trạng thái lớp',
     }
 
+    const [isLoading, setIsLoading] = useState(false)
+    const [dispatchData, setDispatchData] = useState(true)
     const [currentPage, setCurrentPage] = useState(1)
+    const [maxPage, setMaxPage] = useState(0)
     const [classList, setClassList] = useState(testList)
     const [className, setClassName] = useState('')
     const [refreshing, setRefreshing] = useState(false)
-
-    console.log('currentPage: ' + currentPage)
-
-    const handleRefresh = () => {
-        setRefreshing(true)
-        //gọi api load lại dữ liệuliệu
-        setTimeout(() => {
-            setRefreshing(false)
-            setShowFilter(false)
-        }, 500);
-    }
-
-    useEffect(() => {
-        if (className && testList.length > 0) {
-            setClassList(testList.filter(item => item.class_name.toLowerCase().includes(className.toLowerCase())))
-        }
-        else setClassList(testList)
-    }, [className])
-
-    const [showFilter, setShowFilter] = useState(false)
+    const [filterFields, setFilterFields] = useState({
+        status: null,
+        class_type: null
+    })
     const [payload, setPayload] = useState({
+        token: token,
         class_id: null,
         status: null, //ACTIVE, COMPLETED, UPCOMING
         class_name: null,
-        class_type: null //LT, BT, LT_BT
+        class_type: null, //LT, BT, LT_BT
+        pageable_request: {
+            page: 0,
+            page_size: DEFAULT_PAGE_SIZE
+        } 
     })
+
+    // console.log('currentPage: ' + currentPage)
+
+    useEffect(() => {
+        if (dispatchData) {
+            dispatch(actions.getClassesByFilter({
+                token: token,
+                class_id: payload.class_id,
+                status: payload.status,
+                class_name: payload.class_name,
+                class_type: payload.class_type,
+                pageable_request: {
+                    page: 0,
+                    page_size: DEFAULT_PAGE_SIZE
+                }
+            }))
+            setDispatchData(false)
+        }
+    },[])
+
+    useEffect(() => {
+        const totalPage = parseInt(filteredClassesInfo?.page_info?.total_page || "0", 10)
+        // console.log("total page: " + totalPage)
+        setMaxPage(totalPage)
+    }, [filteredClassesInfo])
+
+    useEffect(() => {
+        // console.log("class name: " + className)
+        // console.log("payload: " + JSON.stringify(payload))
+        // console.log("current page: " + currentPage)
+        setIsLoading(true)
+        dispatch(actions.getClassesByFilter({
+            token: token,
+            class_id: payload.class_id,
+            status: payload.status,
+            class_name: className,
+            class_type: payload.class_type,
+            pageable_request: {
+                page: currentPage - 1 >= 0 ? currentPage - 1 : 0,
+                page_size: DEFAULT_PAGE_SIZE
+            }
+        }))
+        setIsLoading(false)
+    }, [payload, className, currentPage])
+
+    const handleRefresh = () => {
+        setRefreshing(true)
+        //gọi api load lại dữ liệu
+        setTimeout(() => {
+            setShowFilter(false)
+            setClassName('')
+            setPayload({
+                token: token,
+                class_id: null,
+                status: null, //ACTIVE, COMPLETED, UPCOMING
+                class_name: null,
+                class_type: null, //LT, BT, LT_BT
+                pageable_request: {
+                    page: 0,
+                    page_size: DEFAULT_PAGE_SIZE
+                } 
+            })
+            setFilterFields({
+                status: null,
+                class_type: null
+            })
+            setCurrentPage(1)
+            setRefreshing(false)
+        }, 500);
+    }
+
+    const [showFilter, setShowFilter] = useState(false)
+   
 
     const handleFilter = () => {
         setShowFilter(false)
-        setClassList(testList.filter(item => {
-            // Duyệt qua từng trường trong payload và kiểm tra giá trị của nó
-            for (let key in payload) {
-                if (payload[key] !== null && item[key] !== payload[key]) {
-                    return false; // Nếu giá trị không trùng, bỏ qua object này
-                }
-            }
-            return true; // Nếu tất cả các trường trong payload trùng với object
+        setPayload(prev => ({
+            ...prev,
+            status: filterFields.status,
+            class_type: filterFields.class_type
         }))
+        setCurrentPage(1)
     }
 
     const RadioChoice = ({ type, text }) => {
         return (
             <TouchableOpacity onPress={() => {
-                payload[type] === text ? setPayload(prev => ({ ...prev, [type]: null })) :
-                    setPayload(prev => ({ ...prev, [type]: text }))
+                filterFields[type] === text ? setFilterFields(prev => ({ ...prev, [type]: null })) :
+                    setFilterFields(prev => ({ ...prev, [type]: text }))
             }} style={{ minWidth: '50%' }}>
                 {
-                    payload[type] === text ? <View style={{ flexDirection: 'row', paddingVertical: 10, gap: 8 }}>
+                    filterFields[type] === text ? <View style={{ flexDirection: 'row', paddingVertical: 10, gap: 8 }}>
                         <IconI name='radio-button-on' color='#BB0000' size={20} />
                         <Text style={{ fontWeight: '500', color: '#BB0000' }}>{text}</Text>
                     </View> : <View style={{ flexDirection: 'row', paddingVertical: 10, gap: 8 }}>
@@ -218,6 +287,13 @@ const ListOpenClasses = () => {
                 />
             }
         >
+            <Spinner
+                visible={isLoading}
+                textContent=''
+                textStyle={{
+                    color: '#FFF'
+                }}
+            />
             <View style={{
                 paddingHorizontal: 10
             }}>
@@ -309,7 +385,7 @@ const ListOpenClasses = () => {
                                 paddingHorizontal: 20,
                                 paddingVertical: 10
                             }}>Không có lớp phù hợp</Text>}
-                            {classList?.length > 0 && classList.map((item) => {
+                            {filteredClassesInfo?.page_content?.length > 0 && filteredClassesInfo?.page_content?.map((item) => {
                                 return (
                                     <View key={item.class_id} style={{
                                         backgroundColor: 'white',
@@ -323,7 +399,7 @@ const ListOpenClasses = () => {
                         </ScrollView>
                     </View>
                 </ScrollView>
-                <Pagination count={90} currentPage={currentPage} setCurrentPage={setCurrentPage} length={10} />
+                <Pagination count={maxPage || 1} currentPage={currentPage} setCurrentPage={setCurrentPage} length={10} />
             </View>
         </ScrollView>
     )
@@ -338,7 +414,7 @@ const Pagination = ({ count, length, currentPage, setCurrentPage }) => {
             marginBottom: 20
         }}>
             <View style={{ flexDirection: 'row', gap: 10, flex: 1, justifyContent: 'space-between' }}>
-                {currentPage > 2 ? <PageItem icon={<Icon name='chevron-left' />} setCurrentPage={setCurrentPage} text={1} /> :
+                {currentPage > 2 ? <PageItem icon={<Icon name='chevron-left' />} setCurrentPage={setCurrentPage} text={+currentPage - 1} /> :
                     <PageItem currentPage={currentPage} setCurrentPage={setCurrentPage} text={1} />
                 }
                 {
@@ -348,9 +424,16 @@ const Pagination = ({ count, length, currentPage, setCurrentPage }) => {
             <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'center' }}>
                 {currentPage > 1 && <PageItem currentPage={currentPage} setCurrentPage={setCurrentPage} text={currentPage} />}
             </View>
+
             <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                 {/* {!isHideEnd && <PageItem text={'...'} />} */}
-                <PageItem icon={<Icon name='chevron-right' />} setCurrentPage={setCurrentPage} text={+currentPage + 1} />
+                {currentPage < count && (
+                    <PageItem
+                        icon={<Icon name='chevron-right' />}
+                        setCurrentPage={setCurrentPage}
+                        text={+currentPage + 1}
+                    />
+                )}
             </View>
         </View>
     )
@@ -358,9 +441,10 @@ const Pagination = ({ count, length, currentPage, setCurrentPage }) => {
 
 const PageItem = ({ text, currentPage, icon, setCurrentPage }) => {
     const handleChangePage = () => {
-        if (!(text === '...')) {
-            setCurrentPage(+text)
+        if (text === '...') {
+            return
         }
+        setCurrentPage(+text)
     }
     return (
         <TouchableOpacity onPress={handleChangePage}

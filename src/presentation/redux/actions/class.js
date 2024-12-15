@@ -67,6 +67,36 @@ export const getBasicClassInfo = (payload) => async (dispatch) => {
     })
 }
 
+export const getOpenClasses = (payload) => async (dispatch) => {
+    const response = await apis.apiGetOpenClasses(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_OPEN_CLASSES,
+            data: response.data.data
+        })
+    }
+    dispatch({
+        type: actionTypes.GET_OPEN_CLASSES,
+        data: null
+    })
+}
+
+export const getClassesByFilter = (payload) => async (dispatch) => {
+    const response = await apis.apiGetClassesByFilter(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_CLASSES_BY_FILTER,
+            data: response.data.data
+        })
+    }
+
+    console.log("error getting classes by filter: " + JSON.stringify(response.data))
+    dispatch({
+        type: actionTypes.GET_CLASSES_BY_FILTER,
+        data: null
+    })
+}
+
 //absence
 export const getAbsenceRequests = (payload) => async (dispatch) => {
     const response = await apis.apiGetAbsenceRequests(payload)

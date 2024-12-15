@@ -145,3 +145,45 @@ export const apiGetBasicClassInfo = async (payload) => {
     }
     
 }
+
+export const apiGetOpenClasses = async (payload) => {
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/get_open_classes',
+            data: {
+                token: payload.token,
+                pageable_request: payload.pageable_request
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("get open classes failed: " + error)
+        }
+        return error.response
+    }
+}
+
+export const apiGetClassesByFilter = async (payload) => {
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/get_classes_by_filter',
+            data: {
+                token: payload.token,
+                class_id: payload.class_id,
+                status: payload.status,
+                class_name: payload.class_name,
+                class_type: payload.class_type,
+                pageable_request: payload.pageable_request
+            }
+        })
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("get classes by filter failed: " + error)
+        }
+        return error.response
+    }
+}

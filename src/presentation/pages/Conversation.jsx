@@ -39,7 +39,7 @@ const DEFAULT_COUNT = 15
 const Conversation = ({ route }) => {
     const dispatch = useDispatch()
     const { name, avatar, partner_id } = route.params
-    console.log("partner id: " + partner_id)
+    // console.log("partner id: " + partner_id)
 
     //useSelector
     const { userId, token } = useSelector(state => state.auth)
@@ -101,11 +101,6 @@ const Conversation = ({ route }) => {
                     signal: !prev.signal
                 }))
 
-                dispatch(actions.getListConversation({
-                    token: token,
-                    index: "0",
-                    count: "1000"
-                }))
             });
         })
 
@@ -187,6 +182,9 @@ const Conversation = ({ route }) => {
                 mark_as_read: "true",
                 signal: !prev.signal
             }))
+
+           
+
             setIsLoading(false)
             setDispatchData(false)
         }
@@ -212,6 +210,11 @@ const Conversation = ({ route }) => {
             }
             actionLoad()
         }
+        dispatch(actions.getListConversation({
+            token: token,
+            index: "0",
+            count: "1000"
+        }))
     }, [loadingTrigger])
 
 
@@ -303,6 +306,11 @@ const Conversation = ({ route }) => {
             current_index: 0,
             mark_as_read: prev.mark_as_read,
             signal: !prev.signal
+        }))
+        dispatch(actions.getListConversation({
+            token: token,
+            index: "0",
+            count: "1000"
         }))
 
         setTimeout(() => {

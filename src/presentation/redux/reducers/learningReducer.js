@@ -5,6 +5,8 @@ const initState = {
     myClasses: [],
     currentClass: {},
     currentClassBasic: {},
+    openClassesInfo: {},
+    filteredClassesInfo: {},
     classMaterial: [],
     allStudentAssignment: [],
     studentAssignmentsByClassId: [],
@@ -35,6 +37,16 @@ const learningReducer = (state = initState, action) => {
             return {
                 ...state,
                 currentClassBasic: action.data || {}
+            }
+        case actionTypes.GET_OPEN_CLASSES:
+            return {
+                ...state,
+                openClassesInfo: action.data || {}
+            }
+        case actionTypes.GET_CLASSES_BY_FILTER:
+            return {
+                ...state,
+                filteredClassesInfo: action.data || {}
             }
         //attendance
         case actionTypes.GET_ATTENDANCE_RECORD:
