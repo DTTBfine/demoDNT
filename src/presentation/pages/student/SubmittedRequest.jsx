@@ -1,7 +1,10 @@
-import { View, Text, FlatList, TouchableOpacity, Linking } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Linking, RefreshControl, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as constants from '../../../utils/constants'
 import IconI from 'react-native-vector-icons/Ionicons'
+import { useDispatch, useSelector } from 'react-redux'
+import * as actions from '../../redux/actions'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 const absenceStatus = constants.absenceStatus
 
@@ -84,15 +87,69 @@ const testData = [
 ]
 
 const SubmittedRequest = ({ route }) => {
+    const dispatch = useDispatch()
     const { class_id } = route.params
+    const { studentAbsenceRequests } = useSelector(state => state.learning)
+    const { token } = useSelector(state => state.auth)
+    const [dispatchData, setDispatchData] = useState(true)
     const [showFilter, setShowFilter] = useState(false)
     const [arrange, setArrange] = useState(null) //null là lấy hết
-    const [StudentRequest, setStudentRequest] = useState(testData)
+    const [refreshing, setRefreshing] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    // console.log("list: " + JSON.stringify(studentAbsenceRequests))
+
+    useEffect(() => {
+        if (dispatchData) {
+            setIsLoading(true)
+            dispatch(actions.getStudentAbsenceRequests({
+                token: token,
+                class_id: class_id,
+                status: null,
+                date: null,
+                pageable_request: {
+                    page: 0,
+                    page_size: 10000
+                }
+            }))
+            setDispatchData(false)
+            setIsLoading(false)
+        }
+    })
 
     useEffect(() => {
         //Gọi api lấy theo status
-
+        setIsLoading(true)
+        dispatch(actions.getStudentAbsenceRequests({
+            token: token,
+            class_id: class_id,
+            status: arrange,
+            date: null,
+            pageable_request: {
+                page: 0,
+                page_size: 10000
+            }
+        }))
+        setIsLoading(false)
     }, [arrange])
+
+    const handleRefresh = () => {
+        setRefreshing(true)
+        setTimeout(() => {
+            dispatch(actions.getStudentAbsenceRequests({
+                token: token,
+                class_id: class_id,
+                status: null,
+                date: null,
+                pageable_request: {
+                    page: 0,
+                    page_size: 10000
+                }
+            }))
+            setArrange(null)
+            setShowFilter(false)
+            setRefreshing(false)
+        }, 500);
+    }
 
     const renderRequest = ({ item, index }) => {
         return (
@@ -153,6 +210,13 @@ const SubmittedRequest = ({ route }) => {
             gap: 10,
             paddingBottom: 40
         }}>
+            <Spinner
+                visible={isLoading}
+                textContent=''
+                textStyle={{
+                    color: '#FFF'
+                }}
+            />
             <View style={{
                 alignItems: 'flex-end',
                 paddingRight: 10
@@ -179,34 +243,52 @@ const SubmittedRequest = ({ route }) => {
                         </TouchableOpacity>
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange('PENDING')
+                            setArrange(absenceStatus.pending)
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'goldenrod', fontWeight: '500' }}>Chờ xử lý</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange('REJECTED')
+                            setArrange(absenceStatus.rejected)
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'crimson', fontWeight: '500' }}>Đã từ chối</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange('ACCEPTED')
+                            setArrange(absenceStatus.accepted)
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'forestgreen', fontWeight: '500' }}>Đã chấp nhận</Text>
                         </TouchableOpacity>
                     </View>
                 }
             </View>
-            <FlatList
-                data={[...StudentRequest].reverse()}
-                keyExtractor={(item) => item.id}
-                renderItem={renderRequest}
-                contentContainerStyle={{ paddingBottom: 10 }}
-                showsVerticalScrollIndicator={false}
-            />
+            {studentAbsenceRequests?.length > 0 ? 
+                <FlatList
+                    data={[...studentAbsenceRequests].reverse()}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderRequest}
+                    contentContainerStyle={{ paddingBottom: 10 }}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}   
+                        />
+                    }
+                /> : 
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                        />
+                    }
+                >   
+                </ScrollView>
+            }
+            
         </View>
     )
 }
