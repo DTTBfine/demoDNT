@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, Modal,TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as actions from '../redux/actions'
@@ -15,13 +15,13 @@ const SettingScreen = () => {
     const [passwordError, setPasswordError] = useState('')
     const { userInfo } = useSelector(state => state.user)
     const avatarUri = getDisplayedAvatar(userInfo.avatar)
-    const { isLoggedIn, msg, update, token, role, userId,password } = useSelector(state => state.auth)
+    const { isLoggedIn, msg, update, token, role, userId, password } = useSelector(state => state.auth)
     const navigate = useNavigation()
 
     const handleChangePassword = async () => {
         setIsModalVisible(true)
     }
-    
+
     const handleConfirmChangePassword = async () => {
         if (!newPassword) {
             setPasswordError("Mật khẩu không được để trống")
@@ -48,7 +48,7 @@ const SettingScreen = () => {
 
     }
 
-    const rejectChangePassword = ()=>{
+    const rejectChangePassword = () => {
         setIsModalVisible(false)
         setPasswordError('')
     }
@@ -197,7 +197,8 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)'
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        padding: 20
     },
     modalContent: {
         backgroundColor: 'white',
@@ -217,9 +218,9 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 5
     },
-    errorText:{
-        color:'red',
-        fontSize:16
+    errorText: {
+        color: 'red',
+        fontSize: 16
     },
     toast: {
         position: 'absolute',
