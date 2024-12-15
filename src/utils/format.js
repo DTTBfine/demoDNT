@@ -34,6 +34,7 @@ export const getHourMinute = (dateStr) => {
     let hour = date.getHours();
     let minute = date.getMinutes();
 
+    const dayInWeek = date.getDay() + 1;
     const day = date.getDate();
     const month = date.getMonth() + 1;
     const year = date.getFullYear()
@@ -42,7 +43,7 @@ export const getHourMinute = (dateStr) => {
     hour = String(hour).padStart(2, '0');
     minute = String(minute).padStart(2, '0');
 
-    return { hour, minute, day, month, year };
+    return { hour, minute, dayInWeek, day, month, year };
 }
 
 export const convertVNDate = (string_date) => {

@@ -215,7 +215,19 @@ const Message = () => {
         }, 500);
     }
 
+    const today = new Date()
+
     const renderItem = ({ item, index }) => {
+        const currentTime = new Date(item.last_message.created_at);
+        const isTodayMessage = today.toDateString() === currentTime.toDateString()
+        // Tính số mili giây trong 4 ngày
+        const fourDaysInMs = 4 * 24 * 60 * 60 * 1000;
+
+        // Tính khoảng cách giữa currentTime và ngày hiện tại
+        const timeDifference = today - currentTime;
+
+        // Kiểm tra nếu khoảng cách nhỏ hơn hoặc bằng 4 ngày (4 ngày = 4 * 24 * 60 * 60 * 1000 ms)
+        const isWithinFourDays = timeDifference <= fourDaysInMs;
         return (
             <TouchableOpacity key={index} onPress={() => navigate.navigate('conversation', { name: item.partner.name, avatar: item.partner.avatar, partner_id: item.partner.id })}
                 style={{
@@ -249,7 +261,11 @@ const Message = () => {
                             >{item.last_message.message}</Text>
                         </View>
                         <Icon name='circle' color={(item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray'} size={3} />
-                        <Text style={{ paddingHorizontal: 5, color: (item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray' }}>{getHourMinute(item.last_message.created_at).hour}:{getHourMinute(item.last_message.created_at).minute}</Text>
+                        <Text style={{ paddingHorizontal: 5, color: (item.last_message.sender.id != userId && item.last_message.unread) ? 'black' : 'dimgray' }}>
+                            {isTodayMessage ? `${getHourMinute(item.last_message.created_at).hour + ':' + getHourMinute(item.last_message.created_at).minute}` :
+                                isWithinFourDays ? (getHourMinute(item.last_message.created_at).dayInWeek === 1 ? 'CN' : `T.${getHourMinute(item.last_message.created_at).dayInWeek}`) : `${getHourMinute(item.created_at).day + ' Th' + getHourMinute(item.created_at).month}`
+                            }
+                        </Text>
                     </View>
                 </View>
             </TouchableOpacity>

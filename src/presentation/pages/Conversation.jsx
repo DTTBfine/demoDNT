@@ -183,7 +183,7 @@ const Conversation = ({ route }) => {
                 signal: !prev.signal
             }))
 
-           
+
 
             setIsLoading(false)
             setDispatchData(false)
@@ -218,7 +218,7 @@ const Conversation = ({ route }) => {
     }, [loadingTrigger])
 
 
-   
+
 
 
     const removeTrailingNewline = (message) => {
@@ -250,6 +250,15 @@ const Conversation = ({ route }) => {
 
         const showTime = (timeDiff && timeDiff >= LONG_TIME_THRESHOLD) || (curMes && curMes === item) || isStartDay
 
+        // Tính số mili giây trong 4 ngày
+        const fourDaysInMs = 4 * 24 * 60 * 60 * 1000;
+
+        // Tính khoảng cách giữa currentTime và ngày hiện tại
+        const timeDifference = today - currentTime;
+
+        // Kiểm tra nếu khoảng cách nhỏ hơn hoặc bằng 4 ngày (4 ngày = 4 * 24 * 60 * 60 * 1000 ms)
+        const isWithinFourDays = timeDifference <= fourDaysInMs;
+
         // Điều chỉnh margin nếu tin nhắn cách nhau gần
         const marginMessageSmall = timeDiff && timeDiff <= TIME_THRESHOLD && item.sender.id === previousMessage.sender.id;
 
@@ -259,7 +268,8 @@ const Conversation = ({ route }) => {
             }}>
                 {showTime && <Text style={{ textAlign: 'center', fontSize: 12, paddingVertical: 5, color: 'gray' }}>
                     {isTodayMessage ? `${getHourMinute(item.created_at).hour + ':' + getHourMinute(item.created_at).minute}` :
-                        `${getHourMinute(item.created_at).day + ' TH' + getHourMinute(item.created_at).month + ' LÚC ' + getHourMinute(item.created_at).hour + ':' + getHourMinute(item.created_at).minute}`}
+                        isWithinFourDays ? `${(getHourMinute(item.created_at).dayInWeek === 1 ? 'CN' : `T.${getHourMinute(item.created_at).dayInWeek}`) + ' LÚC ' + getHourMinute(item.created_at).hour + ':' + getHourMinute(item.created_at).minute}` :
+                            `${getHourMinute(item.created_at).day + ' TH' + getHourMinute(item.created_at).month + ' LÚC ' + getHourMinute(item.created_at).hour + ':' + getHourMinute(item.created_at).minute}`}
                 </Text>}
                 <View style={{
                     flexDirection: 'row',
@@ -353,8 +363,8 @@ const Conversation = ({ route }) => {
                         <RefreshControl
                             refreshing={refreshing}
                             onRefresh={handleRefresh}
-                            // colors={["#9Bd35A", "#689F38"]} // Android loading spinner colors
-                        />   
+                        // colors={["#9Bd35A", "#689F38"]} // Android loading spinner colors
+                        />
                     }
                 />
             </View>
