@@ -2,11 +2,36 @@ import { View, Text, StyleSheet, Image } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/Octicons'
 import { useNavigation } from '@react-navigation/native'
+import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import * as apis from '../../data/api'
+
 
 const CustomHeader = () => {
     const navigate = useNavigation()
-    const { unreadNotificationCount } = useSelector(state => state.user)
+    const { token } = useSelector(state => state.auth)
+    const [unreadNotificationCount, setUnreadNotificationCount] = useState(0) 
+    const payload = { token: token }
+
+    useEffect(() => {
+        const fetchUnreadNotifications = async () => {
+            try {
+                const response = await apis.apiGetUnreadNotificationCount(payload)
+                setUnreadNotificationCount(response.data.data) 
+            } catch (error) {
+                console.error('Lỗi khi lấy số lượng thông báo chưa đọc:', error)
+            }
+        }
+    
+        fetchUnreadNotifications();
+    
+        const intervalId = setInterval(() => {
+            fetchUnreadNotifications();
+        }, 1000); 
+    
+        return () => clearInterval(intervalId);
+    }, [token])
+    
 
     return (
         <View style={styles.container}>
@@ -31,8 +56,11 @@ const CustomHeader = () => {
                 }}
                 onPress={() => {
                     navigate.navigate("notification")
+                    
                 }}
             />
+            {
+            unreadNotificationCount!=0 &&
             <View style={{
                 width: 20,
                 height: 20,
@@ -45,6 +73,7 @@ const CustomHeader = () => {
             }}>
                 <Text style={{ color: 'white', fontWeight: '400', fontSize: 12, textAlign: 'center' }}>{unreadNotificationCount}</Text>
             </View>
+            }
         </View>
     )
 }

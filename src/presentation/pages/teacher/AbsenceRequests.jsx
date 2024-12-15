@@ -14,7 +14,7 @@ const absenceStatus = constants.absenceStatus
 const AbsenceRequests = ({ route }) => {
     const { name, class_id, type } = route.params
     const dispatch = useDispatch()
-    const { token } = useSelector(state => state.auth)
+    const { token, role, userId } = useSelector(state => state.auth)
     const [currentRequest, setCurrentRequest] = useState(null)
     const [showRequestInfo, setShowRequestInfo] = useState(false)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -62,6 +62,23 @@ const AbsenceRequests = ({ route }) => {
         } else {
             Alert.alert("Error", "Chấp nhận đơn xin nghỉ không thành công")
         }
+        const payloadSN = {
+            token: token,
+            message: 'Chấp nhận yêu cầu nghỉ học',
+            toUser: currentRequest.student_account.account_id,
+            type: 'ACCEPT_ABSENCE_REQUEST',
+        };
+
+        console.log("SN accept payload",payloadSN)
+    
+        let responseSN;
+        try {
+            responseSN = await apis.apiSendNotification(payloadSN);
+            console.log('Send notification response:', responseSN);
+        } catch (error) {
+            console.error('Error in send notification API:', error);
+            return;
+        }
 
         setIsLoading(false)
         setCurrentRequest(null)
@@ -86,6 +103,23 @@ const AbsenceRequests = ({ route }) => {
             currentRequest.status = absenceStatus.rejected
         } else {
             Alert.alert("Error", "Từ chối đơn xin nghỉ không thành công")
+        }
+        const payloadSN = {
+            token: token,
+            message: 'Từ chối yêu cầu nghỉ học',
+            toUser: currentRequest.student_account.account_id,
+            type: 'REJECT_ABSENCE_REQUEST',
+        };
+
+        console.log("SN reject payload",payloadSN)
+    
+        let responseSN;
+        try {
+            responseSN = await apis.apiSendNotification(payloadSN);
+            console.log('Send notification response:', responseSN);
+        } catch (error) {
+            console.error('Error in send notification API:', error);
+            return;
         }
 
         setIsLoading(false)

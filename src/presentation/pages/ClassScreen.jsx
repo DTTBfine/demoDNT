@@ -384,7 +384,6 @@ const About = ({ class_id, class_type }) => {
             setRefreshing(false)
         }, 500);
     }
-
     return (
         <ScrollView
             refreshControl={
@@ -429,7 +428,7 @@ const About = ({ class_id, class_type }) => {
                                 <Text style={{ color: 'gray' }}>Số lần vắng :</Text>
                             </View>
                             <View style={{ flex: 1, paddingVertical: 5 }}>
-                                <Text style={{ color: 'gray' }}>{attendanceRecord?.absent_dates?.length} </Text>
+                                <Text style={{ color: 'deepskyblue', textDecorationLine: 'underline' }}>{attendanceRecord?.absent_dates?.length}</Text>
                             </View>
                         </View>}
                         <View style={{ flexDirection: 'row' }}>
@@ -631,6 +630,7 @@ const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
 }
 
 const AssignmentItem = ({ item }) => {
+    const { role } = useSelector(state => state.auth)
     const { currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo } = useContext(GlobalContext)
     return (
         <TouchableOpacity onPress={() => {
@@ -676,12 +676,12 @@ const AssignmentItem = ({ item }) => {
                     }}>Deadline: {convertVNDate(item?.deadline)} </Text>
                 </View>
             </View>
-            <View style={{}}>
+            {role == "STUDENT" && <View style={{}}>
                 <Text style={{
                     fontSize: 12,
                     fontWeight: 500
                 }}>Chưa có điểm</Text>
-            </View>
+            </View>}
         </TouchableOpacity>
     )
 }

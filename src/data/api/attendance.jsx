@@ -23,6 +23,18 @@ export const apiGetAttendanceList = async (payload) => {
     
 }
 
+export const apiGetAttendanceDates = async (payload) => {
+    const response = await axiosConfig({
+        method: 'post',
+        url: '/it5023e/get_attendance_dates',
+        data: {
+            token: payload.token,
+            class_id: payload.class_id
+        }
+    })
+    return response
+}
+
 export const apiGetAttendanceRecord = async (payload) => {
     try {
         const response = await axiosConfig({
@@ -40,7 +52,7 @@ export const apiGetAttendanceRecord = async (payload) => {
         }
         return error.response
     }
-    
+
 }
 
 export const apiTakeAttendance = async (payload) => {

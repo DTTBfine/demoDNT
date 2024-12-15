@@ -53,7 +53,7 @@ const StudentScreen = () => {
             }
         >
             <View style={styles.infoBox}>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={{ flexDirection: 'row', gap: 15 }}>
                     <View style={{}}>
                         <Image
                             source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../../assets/default-avatar.jpg')}

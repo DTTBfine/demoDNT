@@ -8,20 +8,19 @@ export const apiLogin = async (payload) => {
     console.log("base url: " + axiosConfig.defaults.baseURL)
     
     try {
-        const response = await axiosConfig({
-            method: 'post',
-            url: '/it4788/login',
-            data: {
-                email: payload.email,
-                password: payload.password,
-                device_id: deviceId
-            }
-        });
-        
-        // Thêm trường password vào response.data
+        const response = await axiosConfig(
+            {
+                method: 'post',
+                url: '/it4788/login',
+                data: {
+                    email: payload.email,
+                    password: payload.password,
+                    device_id: deviceId,
+                    fcm_token: payload.fcm_token,
+                }
+            });
         response.data.data.password = payload.password;
-        console.log(response.data);
-        
+
         return response;
     } catch (error) {
         if (error.response) {

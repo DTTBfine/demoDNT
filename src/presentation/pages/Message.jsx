@@ -15,7 +15,6 @@ import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client'
 
 const DEFAULT_COUNT = 15
-
 //Lấy hộ list conversation đi
 const conversations = [
     {
@@ -382,6 +381,7 @@ const Message = () => {
                                 <View>
                                     <Image
                                         source={item.partner.avatar ? { uri: getDisplayedAvatar(item.partner.avatar) } : require('../../../assets/default-avatar.jpg')}
+
                                         style={{
                                             width: 50,
                                             height: 50,
@@ -408,6 +408,7 @@ const Message = () => {
                         <View style={{ paddingTop: 50 }}>
                             <Text style={{ textAlign: 'center', fontSize: 13, color: 'gray' }}>Bạn chưa có cuộc hội thoại nào!</Text>
                             <Text style={{ textAlign: 'center', fontSize: 20, color: 'gray' }}>Hãy bắt đầu trò chuyện</Text>
+
                         </View>}
                 </ScrollView> */}
             </View>
