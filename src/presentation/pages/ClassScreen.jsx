@@ -112,7 +112,7 @@ const ClassScreen = ({ route }) => {
         if (response?.data?.code !== responseCodes.statusOK) {
             Alert.alert("Error", response?.data?.data || "Không thể xóa tài liệu")
         } else {
-            Alert.alert("Success", "Xóa bài tập thành công")
+            Alert.alert("Success", "Xóa tài liệu thành công")
             setCurrentMaterial(null)
             dispatch(actions.getMaterialList({
                 token: token,

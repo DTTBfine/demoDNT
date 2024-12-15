@@ -3,6 +3,8 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Button, Mo
 import { apiGetSurveyResponse } from '../../../data/api';
 import { useSelector } from 'react-redux';
 import { Linking } from 'react-native';
+import IconI from 'react-native-vector-icons/Ionicons'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 const SurveyResponse = ({ route }) => {
     const { currentSurvey } = route.params;
@@ -12,8 +14,15 @@ const SurveyResponse = ({ route }) => {
     const [selectedSubmission, setSelectedSubmission] = useState(null);
     const [grade, setGrade] = useState('');
 
+    const [showFilter, setShowFilter] = useState(false)
+    const [arrange, setArrange] = useState(null) //null là lấy hết
+    const [refreshing, setRefreshing] = useState(false)
+
+    const [currentPage, setCurrentPage] = useState(1)
+    const [maxPage, setMaxPage] = useState(0)
+
     const fetchSurveyResponse = async () => {
-        console.log('Start fetching SurveyResponse'); 
+        console.log('Start fetching SurveyResponse');
         try {
             console.log('Token:', token);
             const response = await apiGetSurveyResponse({
@@ -45,11 +54,11 @@ const SurveyResponse = ({ route }) => {
                 {item.grade === null ? (
                     <View style={styles.gradeContainer}>
                         <Text style={styles.noGradeText}>Chưa có điểm</Text>
-                    </View>         
-                ):(
+                    </View>
+                ) : (
                     <View style={styles.gradeContainer}>
                         <Text style={styles.GradeText}>{item.grade}</Text>
-                    </View> 
+                    </View>
                 )}
             </View>
             <Text style={styles.infoText}>Email: {item.student_account.email}</Text>
@@ -109,6 +118,49 @@ const SurveyResponse = ({ route }) => {
 
     return (
         <View style={styles.container}>
+            <View style={{
+                alignItems: 'flex-end',
+                paddingRight: 10
+            }}>
+                <TouchableOpacity onPress={() => setShowFilter(!showFilter)} style={{ alignItems: 'center', flexDirection: 'row', gap: 10 }}>
+                    <Text style={{ fontSize: 16, color: 'gray', fontWeight: '500' }}>Sắp xếp theo</Text>
+                    <IconI name="filter" color='gray' size={18} />
+                </TouchableOpacity>
+                {
+                    showFilter && <View style={{
+                        backgroundColor: 'white',
+                        position: 'absolute',
+                        top: 30,
+                        zIndex: 1,
+                        borderRadius: 10,
+                        padding: 10,
+                        elevation: 5
+                    }}>
+                        <TouchableOpacity style={{ padding: 5 }} onPress={() => {
+                            setShowFilter(false)
+                            setArrange(null)
+                        }}>
+                            <Text style={{ textAlign: 'right', fontSize: 15, color: '#AA0000', fontWeight: '500' }}>Mới nhất</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ padding: 5 }} onPress={() => {
+                            setShowFilter(false)
+                            setArrange('Chờ xử lý')
+                        }}>
+                            <Text style={{ textAlign: 'right', fontSize: 15, color: 'goldenrod', fontWeight: '500' }}>Chờ xử lý</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ padding: 5 }} onPress={() => {
+                            setShowFilter(false)
+                            setArrange('Đã chấm điểm')
+                        }}>
+                            <Text style={{ textAlign: 'right', fontSize: 15, color: 'forestgreen', fontWeight: '500' }}>Đã chấm điểm</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+            </View>
+            <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} length={10} />
+
             <ScrollView>
                 {responses.length > 0 ? (
                     responses.map(item => renderItem(item))
@@ -151,11 +203,73 @@ const SurveyResponse = ({ route }) => {
     );
 };
 
+const Pagination = ({ count, length, currentPage, setCurrentPage }) => {
+    return (
+        <View style={{
+            flexDirection: 'row',
+            gap: 10,
+            justifyContent: 'space-between',
+            marginBottom: 20,
+            paddingBottom: 10,
+            borderBottomWidth: 1,
+            borderColor: '#ddd'
+        }}>
+            <View style={{ flexDirection: 'row', gap: 10, flex: 1, justifyContent: 'space-between' }}>
+                {currentPage > 2 ? <PageItem icon={<Icon name='chevron-left' />} setCurrentPage={setCurrentPage} text={+currentPage - 1} /> :
+                    <PageItem currentPage={currentPage} setCurrentPage={setCurrentPage} text={1} />
+                }
+                {
+                    currentPage > 2 && <PageItem text={'...'} />
+                }
+            </View>
+            <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'center' }}>
+                {currentPage > 1 && <PageItem currentPage={currentPage} setCurrentPage={setCurrentPage} text={currentPage} />}
+            </View>
+
+            <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
+                {/* {!isHideEnd && <PageItem text={'...'} />} */}
+
+                <PageItem
+                    icon={<Icon name='chevron-right' />}
+                    setCurrentPage={setCurrentPage}
+                    text={+currentPage + 1}
+                />
+
+            </View>
+        </View>
+    )
+}
+
+const PageItem = ({ text, currentPage, icon, setCurrentPage }) => {
+    const handleChangePage = () => {
+        if (text === '...') {
+            return
+        }
+        setCurrentPage(+text)
+    }
+    return (
+        <TouchableOpacity onPress={handleChangePage}
+            style={{
+                backgroundColor: +text === +currentPage ? '#BB0000' : text !== '...' ? '#ccc' : '',
+                width: 30,
+                height: 30,
+                borderRadius: 5,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+            {
+                <Text style={{ textAlign: 'center', color: +text === +currentPage ? 'white' : 'gray', fontWeight: '500' }}>{icon || text}</Text>
+            }
+        </TouchableOpacity>
+    )
+}
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
         padding: 16,
+        gap: 20
     },
     title: {
         fontSize: 24,
@@ -192,13 +306,13 @@ const styles = StyleSheet.create({
     },
     infoText: {
         fontSize: 14,
-        paddingVertical:4,
+        paddingVertical: 4,
     },
     fileLink: {
         fontSize: 14,
         color: 'blue',
         textDecorationLine: 'underline',
-        marginBottom:15,
+        marginBottom: 15,
     },
     modalContainer: {
         flex: 1,
@@ -224,7 +338,7 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         marginBottom: 10,
         paddingHorizontal: 8,
-        marginTop:10
+        marginTop: 10
     },
     buttonContainer: {
         flexDirection: 'row',
