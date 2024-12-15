@@ -181,29 +181,27 @@ const ClassScreen = ({ route }) => {
                                     }}>{currentSurvey.title}</Text>
                                     <Text style={{ textAlign: 'right', fontStyle: 'italic', color: 'gray', fontSize: 13 }}>Hạn nộp: {convertVNDate(currentSurvey.deadline)}</Text>
                                     <View style={{ paddingVertical: 15, gap: 15 }}>
-                                        <View>
-                                            <Text style={{ fontWeight: '500' }}>Mô tả:</Text>
+                                        <Text>
+                                            <Text style={{ fontWeight: '500' }}>Mô tả: </Text>
                                             {currentSurvey.description && <Text style={{ padding: 5 }}>{currentSurvey.description}</Text>}
-                                        </View>
-                                        <View>
+                                        </Text>
+                                        <Text numberOfLines={1} ellipsizeMode="tail">
                                             <Text style={{ fontWeight: '500' }}>File mô tả: </Text>
-                                            {currentSurvey.file_url && <TouchableOpacity onPress={() => {
-                                                setShowSurveyInfo(false)
-                                                console.log("open file in drive")
-                                                Linking.openURL(currentSurvey.file_url).catch(err => console.error("Failed to open URL: ", err))
-                                            }}
-                                                style={{ padding: 5 }}
-                                            >
-                                                <Text style={{
-                                                    zIndex: 100,
-                                                    color: 'dodgerblue',
-                                                    textDecorationLine: 'underline'
+                                            {currentSurvey.file_url &&
+                                                <Text onPress={() => {
+                                                    setShowSurveyInfo(false)
+                                                    console.log("open file in drive")
+                                                    Linking.openURL(currentSurvey.file_url).catch(err => console.error("Failed to open URL: ", err))
                                                 }}
+                                                    style={{
+                                                        zIndex: 100,
+                                                        color: 'dodgerblue',
+                                                        textDecorationLine: 'underline'
+                                                    }}
                                                 >{currentSurvey.file_url}
                                                 </Text>
-                                            </TouchableOpacity>
                                             }
-                                        </View>
+                                        </Text>
                                     </View>
                                     {
                                         role === 'LECTURER' && <View style={styles.row}>
@@ -628,6 +626,7 @@ const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
 }
 
 const AssignmentItem = ({ item }) => {
+    const { role } = useSelector(state => state.auth)
     const { currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo } = useContext(GlobalContext)
     return (
         <TouchableOpacity onPress={() => {
@@ -673,12 +672,12 @@ const AssignmentItem = ({ item }) => {
                     }}>Deadline: {convertVNDate(item?.deadline)} </Text>
                 </View>
             </View>
-            <View style={{}}>
+            {role === 'STUDENT' && <View style={{}}>
                 <Text style={{
                     fontSize: 12,
                     fontWeight: 500
                 }}>Chưa có điểm</Text>
-            </View>
+            </View>}
         </TouchableOpacity>
     )
 }
