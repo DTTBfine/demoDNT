@@ -1,21 +1,66 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal,TextInput } from 'react-native'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as actions from '../redux/actions'
 import { useNavigation } from '@react-navigation/native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { getDisplayedAvatar } from '../../utils/format'
+import * as apis from '../../data/api/index'
 
 const SettingScreen = () => {
     const dispatch = useDispatch()
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [newPassword, setNewPassword] = useState('')
+    const [passwordError, setPasswordError] = useState('')
     const { userInfo } = useSelector(state => state.user)
     const avatarUri = getDisplayedAvatar(userInfo.avatar)
-    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const { isLoggedIn, msg, update, token, role, userId,password } = useSelector(state => state.auth)
     const navigate = useNavigation()
+
+    const handleChangePassword = async () => {
+        setIsModalVisible(true)
+    }
+    
+    const handleConfirmChangePassword = async () => {
+        if (!newPassword) {
+            setPasswordError("Mật khẩu không được để trống")
+            return
+        }
+        console.log(token, password, newPassword)
+        setPasswordError('')
+        const response = await apis.apiChangePassword({
+            token: token,
+            old_password: password,
+            new_password: newPassword
+        })
+
+        console.log(response.data)
+        if (response?.data.code !== '1000') {
+            setPasswordError("Không thể đổi mật khẩu: " + response.data.message)
+            return
+        }
+        setIsModalVisible(false)
+        setShowSuccessMessage(true)
+        setTimeout(() => {
+            setShowSuccessMessage(false)
+        }, 3000);
+
+    }
+
+    const rejectChangePassword = ()=>{
+        setIsModalVisible(false)
+        setPasswordError('')
+    }
 
     const [showHandleChangePassword, setShowHandleChangePassword] = useState(false)
     return (
         <View style={styles.cotainer}>
+            {showSuccessMessage && (
+                <View style={styles.toast}>
+                    <Text style={styles.toastText}>Thay đổi mật khẩu thành công!</Text>
+                </View>
+            )}
             <TouchableOpacity style={{ flexDirection: 'row', gap: 10, borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'white', alignItems: 'center' }}>
                 <Image
                     source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../assets/default-avatar.jpg')}
@@ -53,7 +98,7 @@ const SettingScreen = () => {
                         <Icon name='chevron-down' />
                     </TouchableOpacity>
                     {
-                        showHandleChangePassword && <TouchableOpacity onPress={() => { }}
+                        showHandleChangePassword && <TouchableOpacity onPress={handleChangePassword}
                             style={{
                                 paddingLeft: 40,
                                 paddingBottom: 10,
@@ -61,6 +106,29 @@ const SettingScreen = () => {
                             <Text style={{ fontSize: 16, padding: 10, fontWeight: '500', backgroundColor: 'white', borderRadius: 8, elevation: 5 }}>Thay đổi mật khẩu của bạn</Text>
                         </TouchableOpacity>
                     }
+                    <Modal visible={isModalVisible} transparent={true} animationType="slide">
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <Text style={styles.modalTitle}>Đổi mật khẩu</Text>
+                                <TextInput
+                                    placeholder="Nhập mật khẩu mới"
+                                    style={styles.modalInput}
+                                    value={newPassword}
+                                    onChangeText={setNewPassword}
+                                    secureTextEntry={true}
+                                />
+                                {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+                                <View style={styles.modalButtonContainer}>
+                                    <TouchableOpacity style={styles.modalButtonAccept} onPress={handleConfirmChangePassword}>
+                                        <Text style={styles.modalButtonText}>Xác nhận</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.modalButtonReject} onPress={rejectChangePassword}>
+                                        <Text style={styles.modalButtonText}>Hủy</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
                     <TouchableOpacity style={{ flexDirection: 'row', borderTopWidth: 1, padding: 10, borderColor: 'gray', alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'row', gap: 10 }}>
                             <Icon name='th-large' size={24} />
@@ -101,7 +169,75 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         gap: 15
-    }
+    },
+    modalButtonContainer: {
+        flexDirection: 'row',
+        marginTop: 20,
+    },
+    modalButtonReject: {
+        backgroundColor: '#BB0000',
+        padding: 10,
+        borderRadius: 5,
+        marginHorizontal: 5,
+        minWidth: 150,
+        alignItems: 'center'
+    },
+    modalButtonAccept: {
+        backgroundColor: '#4CAF50',
+        padding: 10,
+        borderRadius: 5,
+        marginHorizontal: 5,
+        minWidth: 160,
+        alignItems: 'center'
+    },
+    modalButtonText: {
+        color: 'white',
+        fontSize: 16
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center'
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    modalInput: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        width: '100%',
+        marginVertical: 10,
+        borderRadius: 5
+    },
+    errorText:{
+        color:'red',
+        fontSize:16
+    },
+    toast: {
+        position: 'absolute',
+        bottom: 15,
+        left: 200,
+        transform: [{ translateX: -150 }],
+        width: 300,
+        padding: 10,
+        backgroundColor: '#4CAF50',
+        borderRadius: 8,
+        alignItems: 'center',
+        elevation: 10,
+    },
+    toastText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 })
 
 export default SettingScreen

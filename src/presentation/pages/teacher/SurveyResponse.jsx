@@ -22,18 +22,24 @@ const SurveyResponse = ({ route }) => {
     const [maxPage, setMaxPage] = useState(0)
 
     const fetchSurveyResponse = async () => {
-        console.log('Start fetching SurveyResponse');
         try {
-            console.log('Token:', token);
             const response = await apiGetSurveyResponse({
                 token: token,
                 survey_id: currentSurvey.id,
             });
-            console.log('API response:', response.data);
 
             if (response.data) {
-                setResponses(response.data.data);
-                console.log('Fetched survey-response:', response.data.data);
+                let filteredResponses = response.data.data;
+
+                if (arrange === 'newest') {
+                    filteredResponses.sort((a, b) => new Date(b.submission_time) - new Date(a.submission_time));
+                } else if (arrange === 'pending') {
+                    filteredResponses = filteredResponses.filter(item => item.grade === null);
+                } else if (arrange === 'graded') {
+                    filteredResponses = filteredResponses.filter(item => item.grade !== null);
+                }
+
+                setResponses(filteredResponses);
             } else {
                 console.log('No survey response found');
             }
@@ -45,21 +51,19 @@ const SurveyResponse = ({ route }) => {
 
     useEffect(() => {
         fetchSurveyResponse();
-    }, []);
+    }, [arrange]);
 
     const renderItem = (item) => (
         <View key={item.id} style={styles.itemContainer}>
             <View style={styles.headerContainer}>
                 <Text style={styles.studentName}>{item.student_account.first_name} {item.student_account.last_name}</Text>
-                {item.grade === null ? (
-                    <View style={styles.gradeContainer}>
+                <View style={styles.gradeContainer}>
+                    {item.grade === null ? (
                         <Text style={styles.noGradeText}>Chưa có điểm</Text>
-                    </View>
-                ) : (
-                    <View style={styles.gradeContainer}>
-                        <Text style={styles.GradeText}>{item.grade}</Text>
-                    </View>
-                )}
+                    ) : (
+                        <Text style={styles.gradeText}>{item.grade}</Text>
+                    )}
+                </View>
             </View>
             <Text style={styles.infoText}>Email: {item.student_account.email}</Text>
             <Text style={styles.infoText}>Mã sinh viên: {item.student_account.student_id}</Text>
@@ -68,10 +72,17 @@ const SurveyResponse = ({ route }) => {
             <TouchableOpacity onPress={() => handleOpenFile(item.file_url)}>
                 <Text style={styles.fileLink}>Xem bài nộp</Text>
             </TouchableOpacity>
-            <Button title="Chấm điểm" onPress={() => handleGradeSubmission(item)} />
+            <TouchableOpacity
+                onPress={() => item.grade === null && handleGradeSubmission(item)}
+                style={[
+                    styles.gradeButton, 
+                    item.grade !== null ? styles.gradedButton : styles.ungradedButton
+                ]}
+            >
+                <Text style={styles.buttonText}>{item.grade !== null ? 'Đã chấm điểm' : 'Chấm điểm'}</Text>
+            </TouchableOpacity>
         </View>
     );
-
     const handleOpenFile = (url) => {
         try {
             Linking.openURL(url);
@@ -138,21 +149,21 @@ const SurveyResponse = ({ route }) => {
                     }}>
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange(null)
+                            setArrange('newest')
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: '#AA0000', fontWeight: '500' }}>Mới nhất</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange('Chờ xử lý')
+                            setArrange('pending')
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'goldenrod', fontWeight: '500' }}>Chờ xử lý</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange('Đã chấm điểm')
+                            setArrange('graded')
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'forestgreen', fontWeight: '500' }}>Đã chấm điểm</Text>
                         </TouchableOpacity>
@@ -265,6 +276,22 @@ const PageItem = ({ text, currentPage, icon, setCurrentPage }) => {
 }
 
 const styles = StyleSheet.create({
+    gradeButton: {
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 10,
+        alignItems: 'center',
+    },
+    ungradedButton: {
+        backgroundColor: '#4CAF50',
+    },
+    gradedButton: {
+        backgroundColor: '#9E9E9E',
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
@@ -300,7 +327,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'red',
     },
-    GradeText: {
+    gradeText: {
         fontSize: 16,
         color: 'green',
     },

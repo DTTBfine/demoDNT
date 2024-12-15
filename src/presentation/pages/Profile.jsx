@@ -143,33 +143,6 @@ const ProfileScreen = () => {
         // setSubmitInfo('Lưu thay đổi thành công')
 
     }
-    const handleChangePassword = async () => {
-        setIsModalVisible(true)
-    }
-
-    const handleConfirmChangePassword = async () => {
-        if (!newPassword) {
-            setPasswordError("Mật khẩu không được để trống")
-            return
-        }
-        console.log(token, password, newPassword)
-        setPasswordError('')
-        const response = await apis.apiChangePassword({
-            token: token,
-            old_password: password,
-            new_password: newPassword
-        })
-
-        console.log(response)
-        if (response?.data.code != 1000) {
-            setPasswordError("Không thể đổi mật khẩu: " + response.data.message)
-            return
-        }
-
-        setSubmitInfo('Đổi mật khẩu thành công')
-        setIsModalVisible(false)
-    }
-
     return (
         <TouchableWithoutFeedback onPress={handleOutsidePress}>
             <ScrollView style={styles.container}>
@@ -326,32 +299,6 @@ const ProfileScreen = () => {
                         </Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.changePasswordButton} onPress={handleChangePassword}>
-                    <Text style={styles.changePasswordText}>Đổi mật khẩu</Text>
-                </TouchableOpacity>
-                <Modal visible={isModalVisible} transparent={true} animationType="slide">
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>Đổi mật khẩu</Text>
-                            <TextInput
-                                placeholder="Nhập mật khẩu mới"
-                                style={styles.modalInput}
-                                value={newPassword}
-                                onChangeText={setNewPassword}
-                                secureTextEntry={true}
-                            />
-                            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-                            <View style={styles.modalButtonContainer}>
-                                <TouchableOpacity style={styles.modalButtonAccept} onPress={handleConfirmChangePassword}>
-                                    <Text style={styles.modalButtonText}>Xác nhận</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.modalButtonReject} onPress={() => setIsModalVisible(false)}>
-                                    <Text style={styles.modalButtonText}>Hủy</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
                 {submitInfo && <Text style={{
                     paddingHorizontal: 15,
                     fontStyle: 'italic',
