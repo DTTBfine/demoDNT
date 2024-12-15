@@ -13,6 +13,7 @@ import * as apis from '../../data/api'
 import { responseCodes } from '../../utils/constants/responseCodes'
 import Spinner from 'react-native-loading-spinner-overlay'
 import AddStudentModal from '../components/AddStudentModal'
+import { assignmentStatus } from '../../utils/constants'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -55,6 +56,7 @@ const ClassScreen = ({ route }) => {
                 }))
                 dispatch(actions.getUpcomingAssigments({
                     token: token,
+                    type: assignmentStatus.upcoming,
                     class_id: id
                 }))
                 dispatch(actions.getAttendanceRecord({
@@ -543,9 +545,10 @@ const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
                                     class_id: class_id
                                 }))
                             } else {
-                                dispatch(actions.getStudentAssignmentsByClassId({
+                                dispatch(actions.getUpcomingAssigments({
                                     token: token,
-                                    class_id: class_id
+                                    class_id: class_id,
+                                    type: assignmentStatus.upcoming
                                 }))
                             }
                             setTimeout(() => {

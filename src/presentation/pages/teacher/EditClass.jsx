@@ -24,6 +24,7 @@ const EditClass = ({ route }) => {
     const [showEndPicker, setShowEndPicker] = useState(false);
     const [loadingEdit, setLoadingEdit] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const formatDate = (date) => {
         const day = date.getDate().toString().padStart(2, '0');
@@ -33,15 +34,36 @@ const EditClass = ({ route }) => {
     };
 
     const validateFields = () => {
-        if (!classId || !className || !startDate || !endDate) {
-            Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin bắt buộc.');
-            return false;
+        const newErrors = {};
+
+        if (!classId) {
+            newErrors.classId = '❗️Mã lớp không được rỗng.';
+        } else if (!/^[0-9]{6}$/.test(classId)) {
+            newErrors.classId = '❗️Mã lớp phải gồm 6 ký tự.';
         }
-        return true;
+        if (!className) newErrors.className = '❗️Tên lớp không được rỗng.';
+        if (!classType){
+            newErrors.classType = '❗️Loại lớp không được rỗng.';
+        }
+        else if(classType!=='LT'&&classType!=='BT'&&classType!=='LT_BT'){
+            newErrors.classType = '❗️Loại lớp không phù hợp (LT, BT, LT_BT).';
+        }
+        if (!startDate) newErrors.startDate = '❗️';
+        if (!endDate) newErrors.endDate = '❗️';
+        if (startDate && endDate && startDate >= endDate) {
+            newErrors.dateRange = 'Ngày bắt đầu phải trước ngày kết thúc.';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
+
     const handleEditClass = async () => {
-        if (!validateFields()) return;
+        if (!validateFields()) {
+            setShowEditConfirmModal(false);
+            return;
+        }
 
         try {
             setShowEditConfirmModal(false);
@@ -103,6 +125,7 @@ const EditClass = ({ route }) => {
                     value={classId}
                     onChangeText={setClassId}
                 />
+                {errors.classId && <Text style={styles.errorText}>{errors.classId}</Text>}
                 <TextInput
                     style={styles.input}
                     placeholder="Mã lớp kèm *"
@@ -115,6 +138,7 @@ const EditClass = ({ route }) => {
                     value={className}
                     onChangeText={setClassName}
                 />
+                {errors.className && <Text style={styles.errorText}>{errors.className}</Text>}
                 <TextInput
                     style={styles.input}
                     placeholder="Mã học phần *"
@@ -127,6 +151,7 @@ const EditClass = ({ route }) => {
                     value={classType}
                     onChangeText={setClassType}
                 />
+                {errors.classType && <Text style={styles.errorText}>{errors.classType}</Text>}
                 <View style={styles.dateRow}>
                     <TouchableOpacity
                         style={styles.dateInput}
@@ -134,7 +159,7 @@ const EditClass = ({ route }) => {
                     >
                         <View style={styles.row}>
                             <Text style={styles.dateText}>
-                                {startDate ? formatDate(startDate) : 'Bắt đầu'}
+                            {startDate ? formatDate(startDate) : (errors?.startDate ? `${errors.startDate} Bắt đầu` : 'Bắt đầu')}
                             </Text>
                             <Icon name="chevron-down" color="#AA0000" size={18} />
                         </View>
@@ -145,12 +170,13 @@ const EditClass = ({ route }) => {
                     >
                         <View style={styles.row}>
                             <Text style={styles.dateText}>
-                                {endDate ? formatDate(endDate) : 'Kết thúc'}
+                            {endDate ? formatDate(endDate) : (errors?.endDate ? `${errors.endDate} Kết thúc` : 'Kết thúc')}
                             </Text>
                             <Icon name="chevron-down" color="#AA0000" size={18} />
                         </View>
                     </TouchableOpacity>
                 </View>
+                {errors.dateRange && <Text style={styles.errorText}>{errors.dateRange}</Text>}
                 {showStartPicker && (
                     <DateTimePicker
                         value={startDate || new Date()}
@@ -336,6 +362,12 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginHorizontal:10,
         width:110,
+    },
+    errorText :{
+        fontSize: 14,
+        color: 'red',
+        marginTop: -10,
+        marginStart:10
     }
 });
 

@@ -1,14 +1,17 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Linking, Keyboard, Alert, ScrollView } from 'react-native'
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import { convertVNDate } from '../../../utils/format';
 import Spinner from 'react-native-loading-spinner-overlay';
 import * as apis from '../../../data/api'
 import { responseCodes } from '../../../utils/constants/responseCodes';
+import * as actions from '../../redux/actions'
+import { assignmentStatus } from '../../../utils/constants';
 
 
 const SubmitSurvey = ({ route }) => {
+    const dispatch = useDispatch()
     const { id, title, description, file_url, deadline } = route.params
     const [isLoading, setIsLoading] = useState(false)
     const { token } = useSelector(state => state.auth)
@@ -87,9 +90,9 @@ const SubmitSurvey = ({ route }) => {
         }
         setIsLoading(true)
         const response = await apis.apiSubmitSurvey(payload)
-        console.log("submit survey response: " + JSON.stringify(response?.data))
         setIsLoading(false)
         if (response.data?.meta?.code !== responseCodes.statusOK) {
+            console.log("submit survey response: " + JSON.stringify(response?.data))
             Alert.alert("Error", response.data?.meta?.message || "Nộp bài tập không thành công")
         } else {
             Alert.alert("Success", response.data?.meta?.message || "Nộp bài tập thành công")
