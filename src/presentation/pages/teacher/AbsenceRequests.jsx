@@ -25,7 +25,7 @@ const AbsenceRequests = ({ route }) => {
     const [loadingText, setLoadingText] = useState('Loading...')
 
     const [showFilter, setShowFilter] = useState(false)
-    const [arrange, setArrange] = useState(null) //null là lấy hết
+    const [arrange, setArrange] = useState('latest') //null là lấy hết
     const [refreshing, setRefreshing] = useState(false)
 
     useEffect(() => {
@@ -43,6 +43,19 @@ const AbsenceRequests = ({ route }) => {
             setDispatchData(false)
         }
     })
+
+    const filterRequests = (requests) => {
+        switch (arrange) {
+            case 'pending':
+                return requests.filter(request => request.status === absenceStatus.pending)
+            case 'rejected':
+                return requests.filter(request => request.status === absenceStatus.rejected)
+            case 'accepted':
+                return requests.filter(request => request.status === absenceStatus.accepted)
+            default:
+                return requests.sort((a, b) => new Date(b.absence_date) - new Date(a.absence_date))
+        }
+    }
 
     const handleAccept = async () => {
         console.log('Chấp nhận yêu cầu')
@@ -317,28 +330,28 @@ const AbsenceRequests = ({ route }) => {
                         elevation: 5
                     }}>
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
-                            setShowFilter(false)
+                            setShowFilter('latest')
                             setArrange(null)
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'brown', fontWeight: '500' }}>Mới nhất</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange(absenceStatus.pending)
+                            setArrange('pending')
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'goldenrod', fontWeight: '500' }}>Chờ xử lý</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange(absenceStatus.rejected)
+                            setArrange("rejected")
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'crimson', fontWeight: '500' }}>Đã từ chối</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={{ padding: 5 }} onPress={() => {
                             setShowFilter(false)
-                            setArrange(absenceStatus.accepted)
+                            setArrange('accepted')
                         }}>
                             <Text style={{ textAlign: 'right', fontSize: 15, color: 'forestgreen', fontWeight: '500' }}>Đã chấp nhận</Text>
                         </TouchableOpacity>
@@ -346,7 +359,7 @@ const AbsenceRequests = ({ route }) => {
                 }
             </View>
             <FlatList
-                data={[...absenceRequests].reverse()}
+                data={filterRequests([...absenceRequests])}
                 keyExtractor={(item) => item.id}
                 renderItem={renderRequest}
                 contentContainerStyle={{ paddingBottom: 10 }}

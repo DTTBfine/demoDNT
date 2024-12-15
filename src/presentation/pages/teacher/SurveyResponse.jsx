@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Button, Modal, TextInput } from 'react-native';
-import { apiGetSurveyResponse } from '../../../data/api';
+import { apiGetSurveyResponse,apiSendNotification } from '../../../data/api';
 import { useSelector } from 'react-redux';
 import { Linking } from 'react-native';
 import IconI from 'react-native-vector-icons/Ionicons'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 const SurveyResponse = ({ route }) => {
-    const { currentSurvey } = route.params;
+    const { currentSurvey, currentClass } = route.params;
     const { token } = useSelector(state => state.auth);
     const [responses, setResponses] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
@@ -15,7 +15,7 @@ const SurveyResponse = ({ route }) => {
     const [grade, setGrade] = useState('');
 
     const [showFilter, setShowFilter] = useState(false)
-    const [arrange, setArrange] = useState(null) //null là lấy hết
+    const [arrange, setArrange] = useState("newest") //null là lấy hết
     const [refreshing, setRefreshing] = useState(false)
 
     const [currentPage, setCurrentPage] = useState(1)
@@ -73,7 +73,7 @@ const SurveyResponse = ({ route }) => {
                 <Text style={styles.fileLink}>Xem bài nộp</Text>
             </TouchableOpacity>
             <TouchableOpacity
-                onPress={() => item.grade === null && handleGradeSubmission(item)}
+                onPress={() =>  handleGradeSubmission(item)}
                 style={[
                     styles.gradeButton, 
                     item.grade !== null ? styles.gradedButton : styles.ungradedButton
@@ -123,10 +123,28 @@ const SurveyResponse = ({ route }) => {
             console.error('API call failed:', error);
             Alert.alert('Lỗi', 'Không thể tải danh sách bài nộp. Vui lòng thử lại.');
         }
+        const payloadSN = {
+            token: token,
+            message: `${currentSurvey.title} | Lớp: ${currentClass.class_name} - ${currentClass.class_id} | Điểm: ${grade}`,
+            toUser: selectedSubmission.student_account.account_id,
+            type: 'ASSIGNMENT_GRADE',
+        };
+
+        console.log("SN accept payload",payloadSN)
+    
+        let responseSN;
+        try {
+            responseSN = await apiSendNotification(payloadSN);
+            console.log('Send notification response:', responseSN);
+        } catch (error) {
+            console.error('Error in send notification API:', error);
+            return;
+        }
         setModalVisible(false);
         setGrade('');
     };
 
+    console.log(responses)
     return (
         <View style={styles.container}>
             <View style={{

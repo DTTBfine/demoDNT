@@ -1,8 +1,8 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native'
-import React, { useState, useCallback } from 'react'
-import { useSelector } from 'react-redux'
-import * as DocumentPicker from 'expo-document-picker';
+import React, { useState, useEffect } from 'react'
+import { useSelector,useDispatch } from 'react-redux'
 import * as actions from '../../redux/actions'
+import * as DocumentPicker from 'expo-document-picker';
 import * as apis from '../../../data/api/index'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { formatSQLDate } from '../../../utils/format';
@@ -12,15 +12,13 @@ import { useNavigation } from '@react-navigation/native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 const AbsenceRequest = ({ route }) => {
-    //Đã xử lý payloadAR đúng định dạng rồi, chỉ cần gửi api thôi, thêm cái Submit
+    //Đã xử lý payload đúng định dạng rồi, chỉ cần gửi api thôi, thêm cái Submit
     const { class_id } = route.params
-    const dispatch = useDispatch()
     const navigate = useNavigation()
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
-    const { currentClass } = useSelector(state => state.learning)
     const [requestAbsenceInfo, setRequestAbsenceInfo] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-
+    const { currentClass } = useSelector(state => state.learning)
     const [invalidFields, setInvalidFields] = useState(new Map())
     //invalid fields
     const invalidFieldTitle = 'title'
@@ -28,6 +26,8 @@ const AbsenceRequest = ({ route }) => {
     const invalidFieldFile = 'file'
     const invalidFieldSubmit = 'submit'
     const invalidFieldDate = 'date'
+
+    const dispatch = useDispatch()
 
     useEffect(() => {
         dispatch(actions.getClassInfo({
@@ -37,6 +37,7 @@ const AbsenceRequest = ({ route }) => {
             class_id: class_id
         }))
     },[])
+
     const validateInput = async (title, reason, file, date) => {
         let check = true
 
@@ -107,7 +108,7 @@ const AbsenceRequest = ({ route }) => {
 
 
     const [date, setDate] = useState(new Date())
-    const [payloadAR, setPayloadAR] = useState({
+    const [payload, setPayload] = useState({
         token: token,
         class_id: class_id,
         date: formatSQLDate(date), //vd: 2024-11-13,
@@ -115,12 +116,11 @@ const AbsenceRequest = ({ route }) => {
         title: '',
         file: null
     })
-
     const [focusField, setFocusField] = useState('')
     const [showDatePicker, setShowDatePicker] = useState(false)
 
     const resetInput = () => {
-        setPayloadAR(prev => ({
+        setPayload(prev => ({
             ...prev,
             reason: '',
             title: '',
@@ -146,7 +146,7 @@ const AbsenceRequest = ({ route }) => {
             // console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
                 const { mimeType, uri, name } = result.assets[0]
-                setPayloadAR(prev => ({
+                setPayload(prev => ({
                     ...prev, 'file': {
                         uri: uri,
                         name: name,
@@ -180,16 +180,15 @@ const AbsenceRequest = ({ route }) => {
             })
         }
         Alert.alert("Success", "Gửi đơn xin nghỉ thành công")
-        resetInput()
         const payloadSN = {
             token: token,
-            message: payloadAR.title,
+            message: payload.title,
             toUser: currentClass.lecturer_account_id,
             type: 'ABSENCE',
         };
-
+        
         console.log("SN payload",payloadSN)
-    
+        
         let responseSN;
         try {
             responseSN = await apis.apiSendNotification(payloadSN);
@@ -199,20 +198,17 @@ const AbsenceRequest = ({ route }) => {
             setRequestAbsenceInfo("Gửi đơn thành công nhưng không thể gửi thông báo.");
             return;
         }
-    
-        // Reset input và chuyển hướng nếu mọi thứ thành công
         resetInput();
         setRequestAbsenceInfo("Gửi xin phép nghỉ học thành công");
         setTimeout(() => {
             navigate.navigate('myClasses');
         }, 300);
-    };
-    
+    }
     const onChange = (event, selectedDate) => {
         if (event.type === "set") { // Kiểm tra nếu người dùng chọn ngày (type: set)
             const currentDate = selectedDate || date;
             setDate(currentDate); // Cập nhật ngày mới
-            setPayloadAR(prev => ({ ...prev, 'date': formatSQLDate(currentDate) }))
+            setPayload(prev => ({ ...prev, 'date': formatSQLDate(currentDate) }))
             setShowDatePicker(false); // Đóng DateTimePicker sau khi chọn ngày
         } else {
             setShowDatePicker(false); // Đóng DateTimePicker nếu người dùng nhấn hủy (type: dismissed)
@@ -237,8 +233,8 @@ const AbsenceRequest = ({ route }) => {
                     style={[styles.input, { borderColor: focusField === 'title' ? '#00CCFF' : '#AA0000' }]}
                     placeholder='Tiêu đề'
                     placeholderTextColor="#888"
-                    value={payloadAR.title}
-                    onChangeText={(text) => setPayloadAR(prev => ({ ...prev, 'title': text }))}
+                    value={payload.title}
+                    onChangeText={(text) => setPayload(prev => ({ ...prev, 'title': text }))}
                     onFocus={() => {
                         setFocusField('title')
                         setInvalidFields([])
@@ -258,8 +254,8 @@ const AbsenceRequest = ({ route }) => {
                     placeholderTextColor="#888"
                     multiline={true} // Cho phép nhiều dòng
                     numberOfLines={4} // Số dòng mặc định
-                    value={payloadAR.reason}
-                    onChangeText={(text) => setPayloadAR(prev => ({ ...prev, 'reason': text }))}
+                    value={payload.reason}
+                    onChangeText={(text) => setPayload(prev => ({ ...prev, 'reason': text }))}
                     onFocus={() => {
                         setFocusField('reason')
                         setInvalidFields([])
@@ -298,11 +294,11 @@ const AbsenceRequest = ({ route }) => {
                     textAlign: 'center'
                 }}> {invalidFields.get(invalidFieldFile)}
                 </Text>}
-                {payloadAR.file && <Text style={{
+                {payload.file && <Text style={{
                     textAlign: 'center',
                     padding: 10,
                     fontStyle: 'italic'
-                }}>{payloadAR.file.name} </Text>}
+                }}>{payload.file.name} </Text>}
             </View>
             <View style={[styles.input, { flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }]}>
                 <Text style={{ fontSize: 16, paddingHorizontal: 10 }}>{formatSQLDate(date)}</Text>
@@ -335,13 +331,13 @@ const AbsenceRequest = ({ route }) => {
             </Text>}
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { backgroundColor: (payloadAR.file && payloadAR.reason && payloadAR.title) ? '#AA0000' : '#CCCCCC', width: 150, borderRadius: 10 }]}
+                    style={[styles.button, { backgroundColor: (payload.file && payload.reason && payload.title) ? '#AA0000' : '#CCCCCC', width: 150, borderRadius: 10 }]}
                     onPress={async () => {
                         await handleSubmit()
                     }}>
                     <Text
                         style={{
-                            color: (payloadAR.file && payloadAR.reason && payloadAR.title) ? 'white' : 'gray',
+                            color: (payload.file && payload.reason && payload.title) ? 'white' : 'gray',
                             fontSize: 17,
                             fontStyle: 'italic',
                             fontWeight: 'bold',

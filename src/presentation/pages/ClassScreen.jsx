@@ -245,7 +245,7 @@ const ClassScreen = ({ route }) => {
                                         role === 'LECTURER' && <TouchableOpacity
                                             onPress={() => {
                                                 setShowSurveyInfo(false)
-                                                navigate.navigate("surveyResponse", { currentSurvey })
+                                                navigate.navigate("surveyResponse", { currentSurvey,currentClass })
                                             }}
                                             style={{
                                                 flexDirection: 'row',
