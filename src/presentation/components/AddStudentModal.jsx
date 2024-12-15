@@ -92,8 +92,6 @@ const AddStudentModal = ({ showAddStudent, setShowAddStudent, class_id }) => {
             account_id: account_id
         })
 
-        console.log('response : ' + JSON.stringify(response))
-        //tại sao response.data.meta.code lại lỗi
         if (response?.data?.meta?.code !== responseCodes.statusOK) {
             Alert.alert("Error", "Thêm sinh viên thất bại")
             setIsLoading(false)
