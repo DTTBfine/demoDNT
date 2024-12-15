@@ -32,7 +32,7 @@ export const apiGetClassInfo = async (payload) => {
         }
         return error.response
     }
-   
+
 }
 
 export const apiCreateClass = async (payload) => {
@@ -57,7 +57,7 @@ export const apiCreateClass = async (payload) => {
         }
         return error.response
     }
-    
+
 }
 
 export const apiEditClass = async (payload) => {
@@ -91,20 +91,28 @@ export const apiDeleteClass = async (payload) => {
 }
 
 export const apiAddStudent = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '/it5023e/add_student',
-        data: {
-            token: payload.token,
-            class_id: payload.class_id,
-            account_id: payload.account_id
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/add_student',
+            data: {
+                token: payload.token,
+                class_id: payload.class_id,
+                account_id: payload.account_id
+            }
+        })
+        return response
+
+    } catch (error) {
+        if (!error.response) {
+            return console.error("add student failed")
         }
-    })
-    return response
+        return error.response
+    }
 }
 
 export const apiRegisterClass = async (payload) => {
-    try{
+    try {
         const response = await axiosConfig({
             method: 'post',
             url: '/it5023e/register_class',
@@ -121,7 +129,7 @@ export const apiRegisterClass = async (payload) => {
         console.log("error register class: " + JSON.stringify(error.response.data))
         return error.response
     }
-    
+
 }
 
 export const apiGetBasicClassInfo = async (payload) => {
@@ -143,7 +151,7 @@ export const apiGetBasicClassInfo = async (payload) => {
         }
         return error.response
     }
-    
+
 }
 
 export const apiGetOpenClasses = async (payload) => {

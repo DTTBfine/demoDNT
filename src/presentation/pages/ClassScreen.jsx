@@ -12,6 +12,7 @@ import ConfirmModal from '../components/ConfirmModal'
 import * as apis from '../../data/api'
 import { responseCodes } from '../../utils/constants/responseCodes'
 import Spinner from 'react-native-loading-spinner-overlay'
+import AddStudentModal from '../components/AddStudentModal'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -142,7 +143,14 @@ const ClassScreen = ({ route }) => {
                         >
                             <Pressable style={styles.modalBackground} onPress={() => { }}>
                                 <View style={[styles.modalContainer, { padding: 10 }]}>
-                                    <AddStudentModal />
+                                    <TouchableOpacity onPress={() => {
+                                        setShowAddStudent(false)
+                                    }}
+                                        style={{ flexDirection: 'row', gap: 5, marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderColor: '#CCCCCC' }}>
+                                        <Icon5 name='angle-left' color='gray' size={18} />
+                                        <Text style={{ color: 'gray', fontWeight: '500' }}>Trở lại</Text>
+                                    </TouchableOpacity>
+                                    <AddStudentModal showAddStudent={showAddStudent} setShowAddStudent={setShowAddStudent} class_id={id} />
                                 </View>
                             </Pressable>
                         </Modal>
@@ -484,35 +492,6 @@ const About = ({ class_id, class_type }) => {
                 </View>
             </View>
         </ScrollView>
-    )
-}
-
-const AddStudentModal = () => {
-    const [nameSearch, setNameSearch] = useState('')
-    return (
-        <View style={{
-            height: 500
-        }}>
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 10,
-                backgroundColor: '#eee',
-                paddingHorizontal: 10,
-                borderRadius: 10
-            }}>
-                <Text style={{ fontSize: 16 }}>Tìm: </Text>
-                <TextInput
-                    style={{ fontSize: 16, }}
-                    placeholder='Hãy nhập tên hoặc email'
-                    placeholderTextColor="darkgrey"
-                    value={nameSearch}
-                    onChangeText={(text) => {
-                        setNameSearch(text)
-                    }}
-                />
-            </View>
-        </View>
     )
 }
 
