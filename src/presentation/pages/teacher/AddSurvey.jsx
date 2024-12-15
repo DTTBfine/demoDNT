@@ -9,6 +9,13 @@ import * as actions from '../../redux/actions'
 import { responseCodes } from '../../../utils/constants/responseCodes';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+const defaultInvalidFields = {
+    title: '',
+    description: '',
+    file: '',
+    date: ''
+}
+
 const AddSurvey = ({ route }) => {
     const dispatch = useDispatch()
     const { class_id } = route.params
@@ -20,7 +27,7 @@ const AddSurvey = ({ route }) => {
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
 
-    const [invalidFields, setInvalidFields] = useState([])
+    const [invalidFields, setInvalidFields] = useState(defaultInvalidFields)
     const [payload, setPayload] = useState({
         file: null,
         token: token,
@@ -67,7 +74,55 @@ const AddSurvey = ({ route }) => {
     }
 
     const validateInput = () => {
-        return payload.title && endDate
+        return payload.title && endDate && payload.description && payload.file
+    }
+
+    const validateInputWithSet = () => {
+        setInvalidFields(defaultInvalidFields)
+        let check = true
+
+        if (!payload.title) {
+            setInvalidFields(prev => ({
+                ...prev,
+                title: "Tiêu đề không được bỏ trống"
+            }))
+            check = false
+        }
+
+        if (!payload.file) {
+            setInvalidFields(prev => ({
+                ...prev,
+                file: "Tài liệu không được bỏ trống"
+            }))
+            check = false
+        }
+
+        if (!payload.description) {
+            setInvalidFields(prev => ({
+                ...prev,
+                description: "Mô tả không được bỏ trống"
+            }))
+            check = false
+        }
+
+        if (!endDate) {
+            setInvalidFields(prev => ({
+                ...prev,
+                date: "Ngày kết thúc không được bỏ trống"
+            }))
+            check = false
+        } else {
+            const start = new Date(startDate)
+            const end = new Date(endDate)
+            if (end < start) {
+                setInvalidFields(prev => ({
+                    ...prev,
+                    date: "Ngày kết thúc không được phép trước ngày bắt đầu"
+                }))
+                check = false
+            }
+        }
+        return check
     }
 
     const handleDocumentSelection = async () => {
@@ -98,6 +153,8 @@ const AddSurvey = ({ route }) => {
     }
 
     const handleSubmit = async () => {
+        if (!validateInputWithSet()) return;
+
         setIsLoading(true)
         const response = await apis.apiCreateSurvey(payload)
         setIsLoading(false)
@@ -137,15 +194,14 @@ const AddSurvey = ({ route }) => {
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'title': text }))}
                     onFocus={() => {
                         setFocusField('title')
-                        setInvalidFields([])
                     }}
                 />
-                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'title') && <Text style={{
+                {invalidFields?.title && <Text style={{
                     paddingHorizontal: 15,
                     fontStyle: 'italic',
                     color: 'red',
                     fontSize: 12
-                }}> {invalidFields.find(i => i.name === 'title')?.message}
+                }}> {invalidFields.title}
                 </Text>}
                 <TextInput
                     style={[styles.textArea, { borderColor: focusField === 'description' ? '#00CCFF' : '#AA0000' }]}
@@ -157,9 +213,15 @@ const AddSurvey = ({ route }) => {
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'description': text }))}
                     onFocus={() => {
                         setFocusField('description')
-                        setInvalidFields([])
                     }}
                 />
+                {invalidFields?.description && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.description}
+                </Text>}
             </View>
             <View style={{ gap: 10 }}>
                 <Text style={{
@@ -183,6 +245,13 @@ const AddSurvey = ({ route }) => {
                     fontStyle: 'italic'
                 }}>{payload.file ? payload.file.name : ''} </Text>}
             </View>
+            {invalidFields?.file && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.file}
+            </Text>}
             <View style={styles.dateRow}>
                 <TouchableOpacity
                     style={styles.dateInput}
@@ -207,6 +276,13 @@ const AddSurvey = ({ route }) => {
                     </View>
                 </TouchableOpacity>
             </View>
+            {invalidFields?.date && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.date}
+            </Text>}
 
             {showStartPicker && (
                 <DateTimePicker

@@ -7,13 +7,19 @@ import { responseCodes } from '../../../utils/constants/responseCodes';
 import Spinner from 'react-native-loading-spinner-overlay';
 import * as actions from '../../redux/actions'
 
+const defaultInvalidFields = {
+    title: '',
+    description: '',
+    file: '',
+}
+
 const AddMaterial = ({ route }) => {
     const dispatch = useDispatch()
     const { class_id } = route.params
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const [isLoading, setIsLoading] = useState(false)
 
-    const [invalidFields, setInvalidFields] = useState([])
+    const [invalidFields, setInvalidFields] = useState(defaultInvalidFields)
     const [payload, setPayload] = useState({
         file: null,
         token: token,
@@ -30,6 +36,37 @@ const AddMaterial = ({ route }) => {
             return false
         }
         return payload.file && payload.title && payload.description && payload.materialType
+    }
+
+    const validateInputWithSet = () => {
+        setInvalidFields(defaultInvalidFields)
+        let check = true
+
+        if (!payload.title) {
+            setInvalidFields(prev => ({
+                ...prev,
+                title: "Tiêu đề không được bỏ trống"
+            }))
+            check = false
+        }
+
+        if (!payload.file) {
+            setInvalidFields(prev => ({
+                ...prev,
+                file: "Tài liệu không được bỏ trống"
+            }))
+            check = false
+        }
+
+        if (!payload.description) {
+            setInvalidFields(prev => ({
+                ...prev,
+                description: "Mô tả không được bỏ trống"
+            }))
+            check = false
+        }
+
+        return check
     }
 
     const resetInput = () => {
@@ -76,7 +113,7 @@ const AddMaterial = ({ route }) => {
     }
 
     const handleSubmit = async () => {
-        if (!validateInput()) {
+        if (!validateInputWithSet()) {
             return
         }
         setIsLoading(true)
@@ -117,15 +154,14 @@ const AddMaterial = ({ route }) => {
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'title': text }))}
                     onFocus={() => {
                         setFocusField('title')
-                        setInvalidFields([])
                     }}
                 />
-                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'title') && <Text style={{
+                {invalidFields?.title && <Text style={{
                     paddingHorizontal: 15,
                     fontStyle: 'italic',
                     color: 'red',
                     fontSize: 12
-                }}> {invalidFields.find(i => i.name === 'title')?.message}
+                }}> {invalidFields.title}
                 </Text>}
                 <TextInput
                     style={[styles.textArea, { borderColor: focusField === 'description' ? '#00CCFF' : '#AA0000' }]}
@@ -137,9 +173,15 @@ const AddMaterial = ({ route }) => {
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'description': text }))}
                     onFocus={() => {
                         setFocusField('description')
-                        setInvalidFields([])
                     }}
                 />
+                {invalidFields?.description && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.description}
+                </Text>}
             </View>
             <View style={{ gap: 10 }}>
                 <View style={{ alignItems: 'center' }}>
@@ -155,6 +197,13 @@ const AddMaterial = ({ route }) => {
                     fontStyle: 'italic'
                 }}>{payload.file.name} </Text>}
             </View>
+            {invalidFields?.file && <Text style={{
+                    paddingHorizontal: 15,
+                    fontStyle: 'italic',
+                    color: 'red',
+                    fontSize: 12
+                }}> {invalidFields.file}
+            </Text>}
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                     style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInput() ? '#AA0000' : '#CCCCCC' }]}

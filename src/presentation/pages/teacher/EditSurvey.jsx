@@ -9,6 +9,12 @@ import { responseCodes } from '../../../utils/constants/responseCodes';
 import Spinner from 'react-native-loading-spinner-overlay';
 import * as actions from '../../redux/actions'
 
+const defaultInvalidFields = {
+    description: '',
+    file: '',
+    date: ''
+}
+
 const EditSurvey = ({ route }) => {
     const dispatch = useDispatch()
     const { currentSurvey } = route.params
@@ -16,11 +22,11 @@ const EditSurvey = ({ route }) => {
     const [isLoading, setIsLoading] = useState(false)
 
     const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
+    const [endDate, setEndDate] = useState(new Date(currentSurvey?.deadline));
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
 
-    const [invalidFields, setInvalidFields] = useState([])
+    const [invalidFields, setInvalidFields] = useState(defaultInvalidFields)
     const [payload, setPayload] = useState({
         file: null,
         token: token,
@@ -64,9 +70,46 @@ const EditSurvey = ({ route }) => {
         Keyboard.dismiss()
     }
 
+    const validateInputWithoutSet = () => {
+        return endDate && payload.file && payload.description
+    }
+
     const validateInput = () => {
-        if (endDate) return true;
-        return false
+        let check = true
+        if (!payload.file) {
+            setInvalidFields(prev => ({
+                ...prev,
+                file: "Tài liệu không được bỏ trống"
+            }))
+            check = false
+        }
+
+        if (!payload.description) {
+            setInvalidFields(prev => ({
+                ...prev,
+                description: "Mô tả không được bỏ trống"
+            }))
+            check = false
+        }
+
+        if (!endDate) {
+            setInvalidFields(prev => ({
+                ...prev,
+                date: "Ngày kết thúc không được bỏ trống"
+            }))
+            check = false
+        } else {
+            const start = new Date(startDate)
+            const end = new Date(endDate)
+            if (end < start) {
+                setInvalidFields(prev => ({
+                    ...prev,
+                    date: "Ngày kết thúc không được phép trước ngày bắt đầu"
+                }))
+                check = false
+            }
+        }
+        return check
     }
 
     const handleDocumentSelection = async () => {
@@ -99,18 +142,23 @@ const EditSurvey = ({ route }) => {
     }
 
     const handleSubmit = async () => {
+        if (!validateInput()) return;
+
         setIsLoading(true)
         const response = await apis.apiEditSurvey(payload)
         setIsLoading(false)
         if (response.data?.meta?.code !== responseCodes.statusOK) {
-            Alert.alert("Error", response.data?.meta?.message || "Tạo bài kiểm tra không thành công")
+            console.log("error editing survey: " + JSON.stringify(response.data))
+            Alert.alert("Error", "Chỉnh sửa bài kiểm tra không thành công")
         } else {
-            Alert.alert("Success", response.data?.meta?.message || "Tạo bài kiểm tra thành công")
+            Alert.alert("Success", "Chỉnh sửa bài kiểm tra thành công")
             dispatch(actions.getAllSurveys({
                 token: token,
                 class_id: currentSurvey.class_id
             }))
         }
+
+        Keyboard.dismiss()
 
         // resetInput()
     }
@@ -139,7 +187,7 @@ const EditSurvey = ({ route }) => {
                     <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 16, fontWeight: '600' }}>{currentSurvey.title}</Text>
                     </View>
-                </View>
+                </View>              
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', margin: 5 }}>
                     <Text style={{ width: 85, fontWeight: '500', fontSize: 15 }}>Mô tả: </Text>
                     <View style={{ flex: 1 }}>
@@ -158,11 +206,19 @@ const EditSurvey = ({ route }) => {
                             onChangeText={(text) => setPayload(prev => ({ ...prev, 'description': text }))}
                             onFocus={() => {
                                 setFocusField('description')
-                                setInvalidFields([])
+                                // setInvalidFields([])
                             }}
                         />
                     </View>
                 </View>
+                {invalidFields?.description && <Text style={{
+                        paddingHorizontal: 15,
+                        fontStyle: 'italic',
+                        color: 'red',
+                        fontSize: 12,
+                        textAlign: 'center'
+                    }}> {invalidFields.description}
+                </Text>}                
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', margin: 5 }}>
                     <Text style={{ width: 85, fontWeight: '500', fontSize: 15 }}>File upload: </Text>
                     <View style={{ flex: 1, gap: 20 }}>
@@ -180,6 +236,14 @@ const EditSurvey = ({ route }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+                {invalidFields?.file && <Text style={{
+                        paddingHorizontal: 15,
+                        fontStyle: 'italic',
+                        color: 'red',
+                        fontSize: 12,
+                        textAlign: 'center'
+                    }}> {invalidFields.file}
+                </Text>}
                 <View style={styles.dateRow}>
                     <TouchableOpacity
                         style={styles.dateInput}
@@ -198,12 +262,20 @@ const EditSurvey = ({ route }) => {
                     >
                         <View style={styles.row}>
                             <Text style={endDate ? styles.dateText : styles.placeholderText}>
-                                {endDate ? formatDate(endDate) : 'Kết thúc'}
+                                {formatDate(endDate)}
                             </Text>
                             <Icon name="chevron-down" color="#AA0000" size={18} />
                         </View>
                     </TouchableOpacity>
                 </View>
+                {invalidFields?.date && <Text style={{
+                        paddingHorizontal: 15,
+                        fontStyle: 'italic',
+                        color: 'red',
+                        fontSize: 12,
+                        textAlign: 'center'
+                    }}> {invalidFields.date}
+                </Text>}
 
                 {showStartPicker && (
                     <DateTimePicker
@@ -240,7 +312,7 @@ const EditSurvey = ({ route }) => {
 
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInput() ? '#AA0000' : '#CCCCCC' }]}
+                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInputWithoutSet() ? '#AA0000' : '#CCCCCC' }]}
                     onPress={async () => { await handleSubmit() }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>

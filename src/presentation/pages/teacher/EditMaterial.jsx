@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import * as apis from '../../../data/api'
@@ -7,14 +7,21 @@ import { responseCodes } from '../../../utils/constants/responseCodes';
 import Spinner from 'react-native-loading-spinner-overlay';
 import * as actions from '../../redux/actions'
 
+const defaultInvalidFields = {
+    title: '',
+    description: '',
+    file: ''
+}
+
 const EditMaterial = ({ route }) => {
     const dispatch = useDispatch()
     const { currentMaterial } = route.params
+    // console.log("current material: " + JSON.stringify(currentMaterial))
     const { class_id } = route.params
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
     const [isLoading, setIsLoading] = useState(false)
 
-    const [invalidFields, setInvalidFields] = useState([])
+    const [invalidFields, setInvalidFields] = useState(defaultInvalidFields)
     const [payload, setPayload] = useState({
         file: null,
         materialId: currentMaterial.id,
@@ -25,11 +32,43 @@ const EditMaterial = ({ route }) => {
     })
     const [focusField, setFocusField] = useState('')
     const validateInput = () => {
-        if (!payload) {
-            return false
+        // setInvalidFields(defaultInvalidFields)
+        let check = true
+        if (!payload.file) {
+            setInvalidFields(prev => ({
+                ...prev,
+                file: "Tài liệu không được bỏ trống"
+            }))
+            check = false
         }
-        return payload.file && payload.title && payload.description && payload.materialType
+
+        if (!payload.title) {
+            setInvalidFields(prev => ({
+                ...prev,
+                title: "Tiêu đề không được bỏ trống"
+            }))
+            check = false
+        }
+
+        if (!payload.description) {
+            setInvalidFields(prev => ({
+                ...prev,
+                description: "Mô tả không được bỏ trống"
+            }))
+            check = false
+        }
+
+        
+        return check
     }
+
+    // useEffect(() => {
+    //     console.log("invalid fields: " + JSON.stringify(invalidFields))
+    // }, [invalidFields])
+
+    // useEffect(() => {
+    //     console.log("payload: " + JSON.stringify(payload))
+    // }, [payload])
 
     const resetInput = () => {
         setPayload({
@@ -77,15 +116,16 @@ const EditMaterial = ({ route }) => {
 
     const handleSubmit = async () => {
         if (!validateInput()) {
-            return Alert.alert("Warning", "Cần nhập đúng thông tin các trường")
+            return
         }
         setIsLoading(true)
         const response = await apis.apiEditMaterial(payload)
         setIsLoading(false)
         if (response.data?.code !== responseCodes.statusOK) {
-            Alert.alert("Error", response.data?.message || "Tải tài liệu lên không thành công")
+            console.log("error editing material: " + JSON.stringify(response.data))
+            Alert.alert("Error", "Chỉnh sửa tài liệu lên không thành công")
         } else {
-            Alert.alert("Success", "Tải tài liệu thành công")
+            Alert.alert("Success", "Chỉnh sửa tài liệu thành công")
             dispatch(actions.getMaterialList({
                 token: token,
                 class_id: currentMaterial.class_id
@@ -128,7 +168,7 @@ const EditMaterial = ({ route }) => {
                             onChangeText={(text) => setPayload(prev => ({ ...prev, 'title': text }))}
                             onFocus={() => {
                                 setFocusField('title')
-                                setInvalidFields([])
+                                setInvalidFields(defaultInvalidFields)
                             }}
                         />
                         {invalidFields.length > 0 && invalidFields.some(i => i.name === 'title') && <Text style={{
@@ -140,6 +180,14 @@ const EditMaterial = ({ route }) => {
                         </Text>}
                     </View>
                 </View>
+                {invalidFields?.title && <Text style={{
+                        paddingHorizontal: 15,
+                        fontStyle: 'italic',
+                        color: 'red',
+                        fontSize: 12,
+                        textAlign: 'center'
+                    }}> {invalidFields.title}
+                </Text>}
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', margin: 5 }}>
                     <Text style={{ width: 85, fontWeight: '500', fontSize: 15 }}>Mô tả: </Text>
                     <View style={{ flex: 1 }}>
@@ -158,11 +206,19 @@ const EditMaterial = ({ route }) => {
                             onChangeText={(text) => setPayload(prev => ({ ...prev, 'description': text }))}
                             onFocus={() => {
                                 setFocusField('description')
-                                setInvalidFields([])
+                                setInvalidFields(defaultInvalidFields)
                             }}
                         />
                     </View>
                 </View>
+                {invalidFields?.description && <Text style={{
+                        paddingHorizontal: 15,
+                        fontStyle: 'italic',
+                        color: 'red',
+                        fontSize: 12,
+                        textAlign: 'center'
+                    }}> {invalidFields.description}
+                </Text>}
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', margin: 5 }}>
                     <Text style={{ width: 85, fontWeight: '500', fontSize: 15 }}>File upload: </Text>
                     <View style={{ flex: 1, gap: 20 }}>
@@ -180,10 +236,18 @@ const EditMaterial = ({ route }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+                {invalidFields?.file && <Text style={{
+                        paddingHorizontal: 15,
+                        fontStyle: 'italic',
+                        color: 'red',
+                        fontSize: 12,
+                        textAlign: 'center'
+                    }}> {invalidFields.file}
+                </Text>}
             </View>
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInput() ? '#AA0000' : '#CCCCCC' }]}
+                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: (payload.file && payload.title && payload.description && payload.materialType) ? '#AA0000' : '#CCCCCC' }]}
                     onPress={async () => {
                         await handleSubmit()
                     }}>
