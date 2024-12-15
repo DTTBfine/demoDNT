@@ -86,18 +86,19 @@ const AddStudentModal = ({ showAddStudent, setShowAddStudent, class_id }) => {
         console.log('add student with account id ' + account_id + ' với lớp ' + class_id)
         setIsLoading(true)
         //gọi api
-        const response = apis.apiAddStudent({
+        const response = await apis.apiAddStudent({
             token: token,
             class_id: class_id,
             account_id: account_id
         })
 
+        console.log('response : ' + JSON.stringify(response))
         //tại sao response.data.meta.code lại lỗi
         if (response?.data?.meta?.code !== responseCodes.statusOK) {
-            Alert.alert("Error", response?.data?.data || "Thêm sinh viên thất bại")
+            Alert.alert("Error", "Thêm sinh viên thất bại")
             setIsLoading(false)
         } else {
-            Alert.alert("Success", response?.data?.meta?.message || "Đã thêm sinh viên thành công")
+            Alert.alert("Success", "Đã thêm sinh viên thành công")
 
             dispatch(actions.getClassInfo({
                 token: token,

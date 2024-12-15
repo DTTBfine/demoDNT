@@ -102,7 +102,6 @@ export const apiAddStudent = async (payload) => {
             }
         })
         return response
-
     } catch (error) {
         if (!error.response) {
             return console.error("add student failed")
