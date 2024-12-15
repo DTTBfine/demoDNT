@@ -112,6 +112,22 @@ export const getAbsenceRequests = (payload) => async (dispatch) => {
     })
 }
 
+export const getStudentAbsenceRequests = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAbsenceRequests(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_STUDENT_ABSENCE_REQUESTS,
+            data: response.data.data.page_content
+        })
+    }
+    console.log("error getting student absence requests: " + JSON.stringify(response.data))
+
+    dispatch({
+        type: actionTypes.GET_STUDENT_ABSENCE_REQUESTS,
+        data: null
+    })
+}
+
 
 //attendance
 export const getAttendanceRecord = (payload) => async (dispatch) => {
