@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert, FlatList, RefreshControl } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert, FlatList, RefreshControl, TextInput } from 'react-native'
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -29,6 +29,9 @@ const ClassScreen = ({ route }) => {
 
     const [isLoading, setIsLoading] = useState(false)
     const [loadingText, setLoadingText] = useState('Loading...')
+
+    const [showAddStudent, setShowAddStudent] = useState(false)
+    console.log("show add student " + showAddStudent)
 
     const [currentSurvey, setCurrentSurvey] = useState(null)
     const [showSurveyInfo, setShowSurveyInfo] = useState(false)
@@ -128,7 +131,23 @@ const ClassScreen = ({ route }) => {
                     color: '#FFF'
                 }}
             />
-            <GlobalContext.Provider value={{ currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo, currentMaterial, setCurrentMaterial, showMaterialHandle, setShowMaterialHandle }} >
+            <GlobalContext.Provider value={{ showAddStudent, setShowAddStudent, currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo, currentMaterial, setCurrentMaterial, showMaterialHandle, setShowMaterialHandle }} >
+                {
+                    showAddStudent && (
+                        <Modal
+                            animationType="fade"
+                            transparent={true}
+                            visible={showAddStudent}
+                            onRequestClose={() => setShowSurveyInfo(false)}
+                        >
+                            <Pressable style={styles.modalBackground} onPress={() => { }}>
+                                <View style={[styles.modalContainer, { padding: 10 }]}>
+                                    <AddStudentModal />
+                                </View>
+                            </Pressable>
+                        </Modal>
+                    )
+                }
                 {
                     currentSurvey && (
                         <Modal
@@ -216,7 +235,7 @@ const ClassScreen = ({ route }) => {
                                         role === 'LECTURER' && <TouchableOpacity
                                             onPress={() => {
                                                 setShowSurveyInfo(false)
-                                                navigate.navigate("surveyResponse",{ currentSurvey })
+                                                navigate.navigate("surveyResponse", { currentSurvey })
                                             }}
                                             style={{
                                                 flexDirection: 'row',
@@ -328,7 +347,7 @@ const ClassScreen = ({ route }) => {
                 <View style={{ height: height - 80, paddingVertical: 10 }}>
                     {currentTab === 'Chung' && <About class_id={id} class_type={type} />}
                     {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} setIsLoading={setIsLoading} dispatch={dispatch} />}
-                    {currentTab === 'Tài liệu' && <MaterialList setIsLoading={setIsLoading} dispatch={dispatch} class_id={id}/>}
+                    {currentTab === 'Tài liệu' && <MaterialList setIsLoading={setIsLoading} dispatch={dispatch} class_id={id} />}
                 </View>
             </GlobalContext.Provider>
         </View>
@@ -336,6 +355,7 @@ const ClassScreen = ({ route }) => {
 }
 
 const About = ({ class_id, class_type }) => {
+    const { showAddStudent, setShowAddStudent } = useContext(GlobalContext)
     const dispatch = useDispatch()
     const { role, token } = useSelector(state => state.auth)
     const { currentClass, attendanceRecord } = useSelector(state => state.learning)
@@ -360,7 +380,7 @@ const About = ({ class_id, class_type }) => {
             refreshControl={
                 <RefreshControl
                     refreshing={refreshing}
-                    onRefresh={handleRefresh}   
+                    onRefresh={handleRefresh}
                 />
             }
         >
@@ -435,8 +455,17 @@ const About = ({ class_id, class_type }) => {
             </View>
 
             <View style={{ paddingVertical: 15 }}>
-                <View>
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
                     <Text style={{ fontSize: 16, fontWeight: '600', paddingVertical: 5, paddingHorizontal: 15 }}>Danh sách lớp ({currentClass?.student_count})</Text>
+                    {role === 'LECTURER' && <TouchableOpacity onPress={() => { setShowAddStudent(true) }}
+                        style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <IconFe name='plus' color='gray' size={16} />
+                        <Text style={{ padding: 10, color: 'gray' }}>Thêm sinh viên</Text>
+                    </TouchableOpacity>}
                 </View>
                 <View style={{}}>
                     {currentClass?.student_count === '0' && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có sinh viên đăng ký</Text>}
@@ -447,7 +476,6 @@ const About = ({ class_id, class_type }) => {
                                     return (
                                         <View key={index}>
                                             <StudentInfo first_name={item.first_name} last_name={item.last_name} email={item.email} />
-
                                         </View>
                                     )
                                 })
@@ -456,6 +484,35 @@ const About = ({ class_id, class_type }) => {
                 </View>
             </View>
         </ScrollView>
+    )
+}
+
+const AddStudentModal = () => {
+    const [nameSearch, setNameSearch] = useState('')
+    return (
+        <View style={{
+            height: 500
+        }}>
+            <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+                backgroundColor: '#eee',
+                paddingHorizontal: 10,
+                borderRadius: 10
+            }}>
+                <Text style={{ fontSize: 16 }}>Tìm: </Text>
+                <TextInput
+                    style={{ fontSize: 16, }}
+                    placeholder='Hãy nhập tên hoặc email'
+                    placeholderTextColor="darkgrey"
+                    value={nameSearch}
+                    onChangeText={(text) => {
+                        setNameSearch(text)
+                    }}
+                />
+            </View>
+        </View>
     )
 }
 
@@ -484,7 +541,7 @@ const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
     const navigate = useNavigation()
     const { role, token } = useSelector(state => state.auth)
     const { surveyOfCurrentClass, upcomingAssignments } = useSelector(state => state.learning)
-    const [ refreshing, setRefreshing ] = useState(false)
+    const [refreshing, setRefreshing] = useState(false)
 
     const renderAssignment = ({ item, index }) => {
         return (
@@ -682,28 +739,28 @@ const MaterialList = ({ setIsLoading, dispatch, class_id }) => {
                                 setTimeout(() => {
                                     setRefreshing(false)
                                 }, 500)
-                            }}   
+                            }}
                         />
                     }
-                    // onScrollBeginDrag={(event) => {
-                    //     setIsLoading(true)
-                    // }}
-                    // onScrollEndDrag={(event) => {
-                    //     if (event.nativeEvent.contentOffset.y <= 0) {
-                    //         dispatch(actions.getMaterialList({
-                    //             token: token,
-                    //             class_id: class_id
-                    //         }))
-                    //         setTimeout(() => {
-                    //             setIsLoading(false)
-                    //         }, 500);
-                    //     } else {
-                    //         setIsLoading(false)
-                    //     }
-                    // }}
+                // onScrollBeginDrag={(event) => {
+                //     setIsLoading(true)
+                // }}
+                // onScrollEndDrag={(event) => {
+                //     if (event.nativeEvent.contentOffset.y <= 0) {
+                //         dispatch(actions.getMaterialList({
+                //             token: token,
+                //             class_id: class_id
+                //         }))
+                //         setTimeout(() => {
+                //             setIsLoading(false)
+                //         }, 500);
+                //     } else {
+                //         setIsLoading(false)
+                //     }
+                // }}
                 />
             )}
-            
+
 
         </View>
     )

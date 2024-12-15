@@ -7,12 +7,18 @@ import IconI from 'react-native-vector-icons/Ionicons'
 import { Image, Text, View, RefreshControl, ScrollView } from 'react-native';
 
 import CustomHeader from '../components/customHeader';
+import CustomTeacherClass from '../components/customTeacherClass';
+
 import LoginScreen from '../pages/Login';
 import RegisterScreen from '../pages/Register';
 import ProfileScreen from '../pages/Profile';
 import SettingScreen from '../pages/Setting';
 import Notification from '../pages/Notification';
 import ClassScreen from '../pages/ClassScreen';
+import Message from '../pages/Message';
+import Conversation from '../pages/Conversation';
+import SearchAccount from '../pages/SearchAccount';
+import ListOpenClasses from '../pages/ListOpenClasses';
 
 import TeacherScreen from '../pages/teacher/TeacherScreen';
 import ClassManage from '../pages/teacher/ClassManage';
@@ -22,6 +28,10 @@ import EditClass from '../pages/teacher/EditClass';
 import TeacherClasses from '../pages/teacher/TeacherClasses';
 import AddMaterial from '../pages/teacher/AddMaterial';
 import Attendance from '../pages/teacher/Attendance';
+import AbsenceRequests from '../pages/teacher/AbsenceRequests';
+import EditMaterial from '../pages/teacher/EditMaterial';
+import EditSurvey from '../pages/teacher/EditSurvey';
+import SurveyResponse from '../pages/teacher/SurveyResponse';
 
 import StudentScreen from '../pages/student/StudentScreen';
 import ClassRegister from '../pages/student/ClassRegister';
@@ -29,17 +39,9 @@ import AssignmentList from '../pages/student/AssignmentList';
 import AbsenceRequest from '../pages/student/AbsenceRequest';
 import StudentClasses from '../pages/student/StudentClasses';
 import SubmitSurvey from '../pages/student/SubmitSurvey';
+import SubmittedRequest from '../pages/student/SubmittedRequest';
 
 import { classNameCode, getColorForId } from '../../utils/format';
-import CustomTeacherClass from '../components/customTeacherClass';
-import Message from '../pages/Message';
-import Conversation from '../pages/Conversation';
-import AbsenceRequests from '../pages/teacher/AbsenceRequests';
-import EditMaterial from '../pages/teacher/EditMaterial';
-import EditSurvey from '../pages/teacher/EditSurvey';
-import SurveyResponse from '../pages/teacher/SurveyResponse';
-import SearchAccount from '../pages/SearchAccount';
-import ListOpenClasses from '../pages/ListOpenClasses';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -420,6 +422,7 @@ const ClassNavigationForStudent = ({ refreshTrigger }) => {
                     if (route.name === "absenceRequest") titleName = 'Nghỉ phép'
                     else if (route.name === "myClasses") titleName = 'Lớp của tôi'
                     else if (route.name === "submitSurvey") titleName = 'Nộp bài'
+                    else if (route.name === "submittedRequest") titleName = 'Đơn đã gửi'
                     return <Text style={{ fontSize: 18, fontWeight: '500', color: 'white' }}>{titleName} </Text>
                 },
                 headerStyle: {
@@ -437,6 +440,7 @@ const ClassNavigationForStudent = ({ refreshTrigger }) => {
             <Stack.Screen name="myClasses">{(props) => <StudentClasses key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="studentClassScreen">{(props) => <ClassScreen key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="submitSurvey">{(props) => <SubmitSurvey key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            <Stack.Screen name="submittedRequest">{(props) => <SubmittedRequest key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="absenceRequest">{(props) => <AbsenceRequest key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
     )

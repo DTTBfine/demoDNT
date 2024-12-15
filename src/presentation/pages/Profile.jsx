@@ -275,6 +275,10 @@ const ProfileScreen = () => {
                         <Text style={styles.ItemName}>Vai trò: </Text>
                         <Text style={styles.ItemValue}>{userInfo.role === 'LECTURER' ? 'Giảng viên' : 'Sinh viên'} </Text>
                     </View>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={styles.ItemName}>Khoa/Viện: </Text>
+                        <Text style={styles.ItemValue}>Trường Công nghệ Thông tin và Truyền thông</Text>
+                    </View>
                 </View>
                 <View style={{
                     flexDirection: 'row',
@@ -375,15 +379,15 @@ const styles = StyleSheet.create({
     ItemName: {
         paddingHorizontal: 10,
         paddingVertical: 15,
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '400',
-        flex: 2
+        flex: 1
     },
     ItemValue: {
         paddingHorizontal: 10,
         paddingVertical: 15,
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '500',
         flex: 3
     },
     changePasswordButton: {
