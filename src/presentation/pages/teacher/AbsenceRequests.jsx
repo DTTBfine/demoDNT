@@ -7,71 +7,12 @@ import * as actions from '../../redux/actions'
 import * as constants from '../../../utils/constants'
 import Spinner from 'react-native-loading-spinner-overlay'
 import * as apis from '../../../data/api'
-
-const testData = [
-    {
-        "id": "293",
-        "student_account": {
-            "account_id": "197",
-            "last_name": "Hương",
-            "first_name": "Hoàng Thu",
-            "email": "Huonght@hust.edu.vn",
-            "student_id": "95"
-        },
-        "absence_date": "2024-12-21",
-        "reason": "Xin nghỉ vì lí do ốm",
-        "status": "PENDING",
-        "file_url": "https://drive.google.com/file/d/1uyK7_mpeq1waLNv3gfAiOoYF6RWZ52jx/view?usp=drivesdk"
-    },
-    {
-        "id": "292",
-        "student_account": {
-            "account_id": "195",
-            "last_name": "Hoàng",
-            "first_name": "Nguyễn Đức",
-            "email": "Hoangnd@hust.edu.vn",
-            "student_id": "94"
-        },
-        "absence_date": "2024-12-21",
-        "reason": "Sở hữu bảng mã màu CSS chuẩn, bạn sẽ tự tin hơn khi thiết kế, lập trình web, bởi màu sắc là một phần không thể thiếu trong thế giới Internet",
-        "status": "ACCEPTED",
-        "file_url": "https://drive.google.com/file/d/1RRanTlcKWLBUdZCqE_Mue7UDlIY2oTj5/view?usp=drivesdk"
-    },
-    {
-        "id": "291",
-        "student_account": {
-            "account_id": "195",
-            "last_name": "Hoàng",
-            "first_name": "Nguyễn Đức",
-            "email": "Hoangnd@hust.edu.vn",
-            "student_id": "94"
-        },
-        "absence_date": "2024-12-21",
-        "reason": "Sở hữu bảng mã màu CSS chuẩn, bạn sẽ tự tin hơn khi thiết kế, lập trình web, bởi màu sắc là một phần không thể thiếu trong thế giới Internet",
-        "status": "REJECTED",
-        "file_url": "https://drive.google.com/file/d/1RRanTlcKWLBUdZCqE_Mue7UDlIY2oTj5/view?usp=drivesdk"
-    },
-
-    {
-        "id": "290",
-        "student_account": {
-            "account_id": "195",
-            "last_name": "Hoàng",
-            "first_name": "Nguyễn Đức",
-            "email": "Hoangnd@hust.edu.vn",
-            "student_id": "94"
-        },
-        "absence_date": "2024-12-21",
-        "reason": "Sở hữu bảng mã màu CSS chuẩn, bạn sẽ tự tin hơn khi thiết kế, lập trình web, bởi màu sắc là một phần không thể thiếu trong thế giới Internet",
-        "status": "PENDING",
-        "file_url": "https://drive.google.com/file/d/1RRanTlcKWLBUdZCqE_Mue7UDlIY2oTj5/view?usp=drivesdk"
-    }
-]
+import IconI from 'react-native-vector-icons/Ionicons'
 
 const absenceStatus = constants.absenceStatus
 
 const AbsenceRequests = ({ route }) => {
-    const { name, class_id, type } = route.params 
+    const { name, class_id, type } = route.params
     const dispatch = useDispatch()
     const { token, role, userId } = useSelector(state => state.auth)
     const [currentRequest, setCurrentRequest] = useState(null)
@@ -82,6 +23,10 @@ const AbsenceRequests = ({ route }) => {
     const [dispatchData, setDispatchData] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
     const [loadingText, setLoadingText] = useState('Loading...')
+
+    const [showFilter, setShowFilter] = useState(false)
+    const [arrange, setArrange] = useState(null) //null là lấy hết
+    const [refreshing, setRefreshing] = useState(false)
 
     useEffect(() => {
         if (dispatchData) {
@@ -195,7 +140,12 @@ const AbsenceRequests = ({ route }) => {
             }}>
                 <View style={{ borderBottomWidth: 1, borderColor: '#ddd', paddingVertical: 10, flexDirection: 'row' }}>
                     <View style={{ flex: 2 }}>
-                        <Text style={{ fontStyle: 'italic', fontWeight: item.status === 'PENDING' && '600', color: item.status === 'PENDING' ? '#AA0000' : 'gray' }}>Ngày {item.absence_date}</Text>
+                        <Text style={{
+                            fontWeight: item.status === 'PENDING' && '600',
+                            color: item.status === 'PENDING' ? 'goldenrod' : 'gray'
+                        }}>
+                            Ngày {item.absence_date}
+                        </Text>
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={{
@@ -209,12 +159,11 @@ const AbsenceRequests = ({ route }) => {
                     </View>
                 </View>
                 <View style={{ paddingVertical: 10 }}>
-                    <Text style={{ fontSize: 16, fontWeight: item.status === absenceStatus.pending ? '600' : '400', color: item.status ===  absenceStatus.pending ? 'black' : 'gray' }}>{item.student_account.first_name} {item.student_account.last_name} - {item.student_account.student_id}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: item.status === absenceStatus.pending ? '600' : '400', color: item.status === absenceStatus.pending ? 'black' : 'gray' }}>{item.student_account.first_name} {item.student_account.last_name} - {item.student_account.student_id}</Text>
                     <Text
                         numberOfLines={1}
                         ellipsizeMode="tail"
                         style={{
-                            fontStyle: 'italic',
                             color: 'gray',
                             paddingVertical: 10,
                             width: 280,
@@ -237,12 +186,13 @@ const AbsenceRequests = ({ route }) => {
             padding: 10,
             paddingBottom: 20,
             justifyContent: 'flex-end',
+            gap: 10
         }}>
             <Spinner
                 visible={isLoading}
                 textContent={loadingText}
                 textStyle={{
-                    color: '#000'
+                    color: '#AA000'
                 }}
             />
             {
@@ -284,25 +234,25 @@ const AbsenceRequests = ({ route }) => {
                                         <Text style={{ fontSize: 16, fontWeight: '500' }}>Lý do: </Text>
                                         {currentRequest.reason && <Text style={{ fontSize: 16, padding: 5 }}>{currentRequest.reason}</Text>}
                                     </Text>
-                                    <View>
+                                    <Text
+                                        numberOfLines={1}
+                                        ellipsizeMode="tail"
+                                        style={{ flexDirection: 'row' }}>
                                         <Text style={{ fontSize: 16, fontWeight: '500' }}>Minh chứng: </Text>
-                                        <TouchableOpacity onPress={() => {
-                                            setShowRequestInfo(false)
-                                            console.log("open file in drive")
-                                            Linking.openURL(currentRequest.file_url).catch(err => console.error("Failed to open URL: ", err))
+                                        <Text style={{
+                                            zIndex: 100,
+                                            color: 'dodgerblue',
+                                            textDecorationLine: 'underline',
+                                            fontSize: 16,
                                         }}
-                                            style={{ padding: 5 }}
-                                        >
-                                            <Text style={{
-                                                zIndex: 100,
-                                                color: 'dodgerblue',
-                                                textDecorationLine: 'underline',
-                                                fontSize: 16,
+                                            onPress={() => {
+                                                setShowRequestInfo(false)
+                                                console.log("open file in drive")
+                                                Linking.openURL(currentRequest.file_url).catch(err => console.error("Failed to open URL: ", err))
                                             }}
-                                            >{currentRequest.file_url}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                        >{currentRequest.file_url}
+                                        </Text>
+                                    </Text>
                                 </View>
                                 {currentRequest.status === 'PENDING' ?
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
@@ -342,17 +292,64 @@ const AbsenceRequests = ({ route }) => {
                 )
             }
             {
-                currentRequest && currentHandle === 'Accept' && showConfirmModal && <ConfirmModal handleName={"Chấp nhận"} handleFunction={async () => {await handleAccept()}} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
+                currentRequest && currentHandle === 'Accept' && showConfirmModal && <ConfirmModal handleName={"Chấp nhận"} handleFunction={async () => { await handleAccept() }} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
             }
             {
-                currentRequest && currentHandle === 'Reject' && showConfirmModal && <ConfirmModal handleName={"Từ chối"} handleFunction={async () => {await handleReject()}} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
+                currentRequest && currentHandle === 'Reject' && showConfirmModal && <ConfirmModal handleName={"Từ chối"} handleFunction={async () => { await handleReject() }} showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} />
 
             }
+            <View style={{
+                alignItems: 'flex-end',
+                paddingRight: 10
+            }}>
+                <TouchableOpacity onPress={() => setShowFilter(!showFilter)} style={{ alignItems: 'center', flexDirection: 'row', gap: 10 }}>
+                    <Text style={{ fontSize: 16, color: 'gray', fontWeight: '500' }}>Sắp xếp theo</Text>
+                    <IconI name="filter" color='gray' size={18} />
+                </TouchableOpacity>
+                {
+                    showFilter && <View style={{
+                        backgroundColor: 'white',
+                        position: 'absolute',
+                        top: 30,
+                        zIndex: 1,
+                        borderRadius: 10,
+                        padding: 10,
+                        elevation: 5
+                    }}>
+                        <TouchableOpacity style={{ padding: 5 }} onPress={() => {
+                            setShowFilter(false)
+                            setArrange(null)
+                        }}>
+                            <Text style={{ textAlign: 'right', fontSize: 15, color: 'brown', fontWeight: '500' }}>Mới nhất</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ padding: 5 }} onPress={() => {
+                            setShowFilter(false)
+                            setArrange(absenceStatus.pending)
+                        }}>
+                            <Text style={{ textAlign: 'right', fontSize: 15, color: 'goldenrod', fontWeight: '500' }}>Chờ xử lý</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ padding: 5 }} onPress={() => {
+                            setShowFilter(false)
+                            setArrange(absenceStatus.rejected)
+                        }}>
+                            <Text style={{ textAlign: 'right', fontSize: 15, color: 'crimson', fontWeight: '500' }}>Đã từ chối</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ padding: 5 }} onPress={() => {
+                            setShowFilter(false)
+                            setArrange(absenceStatus.accepted)
+                        }}>
+                            <Text style={{ textAlign: 'right', fontSize: 15, color: 'forestgreen', fontWeight: '500' }}>Đã chấp nhận</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+            </View>
             <FlatList
-                data={absenceRequests}
+                data={[...absenceRequests].reverse()}
                 keyExtractor={(item) => item.id}
                 renderItem={renderRequest}
-                contentContainerStyle={{ paddingBottom: 10 }}  // Đảm bảo các tin nhắn được căn dưới
+                contentContainerStyle={{ paddingBottom: 10 }}
                 showsVerticalScrollIndicator={false}
             />
         </View>

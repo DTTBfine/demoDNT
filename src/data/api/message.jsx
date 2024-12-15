@@ -24,5 +24,25 @@ export const apiGetListConversation = async (payload) => {
 }
 
 export const apiGetConversation = async (payload) => {
-    
+    try {
+        return await axiosConfig(
+            {
+                method: 'post',
+                url: '/it5023e/get_conversation',
+                data: {
+                    token: payload.token,
+                    index: payload.index,
+                    count: payload.count,
+                    partner_id: payload.partner_id,
+                    conversation_id: payload.conversation_id,
+                    mark_as_read: payload.mark_as_read
+                }
+            }
+        )
+    } catch (error) {
+        if (!error.response) {
+            return console.error("error get conversation: " + error)
+        }
+        return error.response
+    }
 }

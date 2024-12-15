@@ -55,6 +55,9 @@ const ClassItem = ({ id, name, teacher, currentId, setCurrentId }) => {
                         navigate.navigate('studentClassScreen', { name: name, id: id, teacher: teacher, tabName: 'Tài liệu' })
                     }}> Tài liệu</Text>
                     <Text style={styles.textBar} onPress={() => {
+                        navigate.navigate('submittedRequest', { class_id: id })
+                    }}> Đơn đã gửi</Text>
+                    <Text style={styles.textBar} onPress={() => {
                         navigate.navigate('absenceRequest', { class_id: id })
                     }}> Xin phép nghỉ học</Text>
                 </View>

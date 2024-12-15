@@ -1,38 +1,60 @@
-import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity, RefreshControl } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { convertVNDate, days, getDaysOfWeek, getDisplayedAvatar } from '../../../utils/format';
+import * as actions from '../../redux/actions'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
 
 const TeacherScreen = () => {
+    const dispatch = useDispatch()
+    const { token } = useSelector(state => state.auth)
     const { userInfo } = useSelector(state => state.user)
     const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
-    const avatarUri = getDisplayedAvatar(userInfo.avatar)
+    const [avatarUri, setAvatarUri] = useState('')
+    const [refreshing, setRefreshing] = useState(false)
+
+    useEffect(() => {
+        uri = getDisplayedAvatar(userInfo.avatar)
+        setAvatarUri(uri)
+    }, [userInfo])
+
+    const handleRefresh = () => {
+        setRefreshing(true)
+        dispatch(actions.getUserInfo({
+            token: token,
+            userId: userInfo.id
+        }))
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500);
+    }
+
+    // console.log("user info: " + JSON.stringify(userInfo))
+
     return (
-        <ScrollView>
+        <ScrollView
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                />
+            }
+        >
             <View style={styles.infoBox}>
-                <View style={{ flexDirection: 'row', gap: 15 }}>
-                    <View style={{}}>
-                        <Image
-                            source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../../assets/default-avatar.jpg')}
-                            style={{
-                                width: 40,
-                                height: 40,
-                                borderRadius: 20,
-                                borderWidth: 1,
-                                borderColor: 'gray'
-                            }}
-                        />
-                    </View>
-                    <View style={{}}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text>
-                        <Text style={{ fontSize: 13 }}>Giảng viên </Text>
-                    </View>
+                <View style={{ flex: 1 }}>
+                    <Image
+                        source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../../assets/default-avatar.jpg')}
+                        style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 20,
+                        }}
+                    />
                 </View>
                 <View style={{}}>
                     <Icon name='calendar' size={18} color="#BB0000" onPress={() => setShowSchedule(!showSchedule)} />
@@ -76,7 +98,7 @@ const TeacherScreen = () => {
                     iconName='bar-chart'
                     name='Khảo sát'
                     infor='Khảo sát và form'
-                    routeName='testUI'
+                    routeName='openClasses'
                 />
             </View>
         </ScrollView>

@@ -67,6 +67,36 @@ export const getBasicClassInfo = (payload) => async (dispatch) => {
     })
 }
 
+export const getOpenClasses = (payload) => async (dispatch) => {
+    const response = await apis.apiGetOpenClasses(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_OPEN_CLASSES,
+            data: response.data.data
+        })
+    }
+    dispatch({
+        type: actionTypes.GET_OPEN_CLASSES,
+        data: null
+    })
+}
+
+export const getClassesByFilter = (payload) => async (dispatch) => {
+    const response = await apis.apiGetClassesByFilter(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_CLASSES_BY_FILTER,
+            data: response.data.data
+        })
+    }
+
+    console.log("error getting classes by filter: " + JSON.stringify(response.data))
+    dispatch({
+        type: actionTypes.GET_CLASSES_BY_FILTER,
+        data: null
+    })
+}
+
 //absence
 export const getAbsenceRequests = (payload) => async (dispatch) => {
     const response = await apis.apiGetAbsenceRequests(payload)
@@ -78,6 +108,22 @@ export const getAbsenceRequests = (payload) => async (dispatch) => {
     }
     dispatch({
         type: actionTypes.GET_ABSENCE_REQUEST,
+        data: null
+    })
+}
+
+export const getStudentAbsenceRequests = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAbsenceRequests(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_STUDENT_ABSENCE_REQUESTS,
+            data: response.data.data.page_content
+        })
+    }
+    console.log("error getting student absence requests: " + JSON.stringify(response.data))
+
+    dispatch({
+        type: actionTypes.GET_STUDENT_ABSENCE_REQUESTS,
         data: null
     })
 }
@@ -99,6 +145,22 @@ export const getAttendanceRecord = (payload) => async (dispatch) => {
     })
 
 }
+
+export const getAttendanceDates = (payload) => async (dispatch) => {
+    const response = await apis.apiGetAttendanceDates(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_ATTENDANCE_DATES,
+            data: response?.data?.data
+        })
+    }
+
+    return dispatch({
+        type: actionTypes.GET_ATTENDANCE_DATES,
+        data: null
+    })
+}
+
 
 
 //assignment

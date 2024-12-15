@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert } from 'react-native'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert, FlatList, RefreshControl, TextInput } from 'react-native'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import Icon5 from 'react-native-vector-icons/FontAwesome5'
@@ -11,6 +11,9 @@ import { convertVNDate, getColorForId, getIconForFileType } from '../../utils/fo
 import ConfirmModal from '../components/ConfirmModal'
 import * as apis from '../../data/api'
 import { responseCodes } from '../../utils/constants/responseCodes'
+import Spinner from 'react-native-loading-spinner-overlay'
+import AddStudentModal from '../components/AddStudentModal'
+import { assignmentStatus } from '../../utils/constants'
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
@@ -25,6 +28,12 @@ const ClassScreen = ({ route }) => {
     const dispatch = useDispatch()
     const navigate = useNavigation()
     const [loadData, setLoadData] = useState(true)
+
+    const [isLoading, setIsLoading] = useState(false)
+    const [loadingText, setLoadingText] = useState('Loading...')
+
+    const [showAddStudent, setShowAddStudent] = useState(false)
+    console.log("show add student " + showAddStudent)
 
     const [currentSurvey, setCurrentSurvey] = useState(null)
     const [showSurveyInfo, setShowSurveyInfo] = useState(false)
@@ -45,16 +54,16 @@ const ClassScreen = ({ route }) => {
                     token: token,
                     class_id: id
                 }))
-                dispatch(actions.getStudentAssignmentsByClassId({
+                dispatch(actions.getUpcomingAssigments({
                     token: token,
-                    classId: id
+                    type: assignmentStatus.upcoming,
+                    class_id: id
                 }))
                 dispatch(actions.getAttendanceRecord({
                     token: token,
                     class_id: id
                 }))
             }
-
 
             dispatch(actions.getClassInfo({
                 token: token,
@@ -105,7 +114,7 @@ const ClassScreen = ({ route }) => {
         if (response?.data?.code !== responseCodes.statusOK) {
             Alert.alert("Error", response?.data?.data || "Không thể xóa tài liệu")
         } else {
-            Alert.alert("Success", "Xóa bài tập thành công")
+            Alert.alert("Success", "Xóa tài liệu thành công")
             setCurrentMaterial(null)
             dispatch(actions.getMaterialList({
                 token: token,
@@ -118,7 +127,37 @@ const ClassScreen = ({ route }) => {
 
     return (
         <View style={styles.cotainer}>
-            <GlobalContext.Provider value={{ currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo, currentMaterial, setCurrentMaterial, showMaterialHandle, setShowMaterialHandle }} >
+            <Spinner
+                visible={isLoading}
+                textContent={loadingText}
+                textStyle={{
+                    color: '#FFF'
+                }}
+            />
+            <GlobalContext.Provider value={{ showAddStudent, setShowAddStudent, currentSurvey, setCurrentSurvey, showSurveyInfo, setShowSurveyInfo, currentMaterial, setCurrentMaterial, showMaterialHandle, setShowMaterialHandle }} >
+                {
+                    showAddStudent && (
+                        <Modal
+                            animationType="fade"
+                            transparent={true}
+                            visible={showAddStudent}
+                            onRequestClose={() => setShowSurveyInfo(false)}
+                        >
+                            <Pressable style={styles.modalBackground} onPress={() => { }}>
+                                <View style={[styles.modalContainer, { padding: 10 }]}>
+                                    <TouchableOpacity onPress={() => {
+                                        setShowAddStudent(false)
+                                    }}
+                                        style={{ flexDirection: 'row', gap: 5, marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderColor: '#CCCCCC' }}>
+                                        <Icon5 name='angle-left' color='gray' size={18} />
+                                        <Text style={{ color: 'gray', fontWeight: '500' }}>Trở lại</Text>
+                                    </TouchableOpacity>
+                                    <AddStudentModal showAddStudent={showAddStudent} setShowAddStudent={setShowAddStudent} class_id={id} />
+                                </View>
+                            </Pressable>
+                        </Modal>
+                    )
+                }
                 {
                     currentSurvey && (
                         <Modal
@@ -175,7 +214,10 @@ const ClassScreen = ({ route }) => {
                                             >
                                                 <Text style={styles.buttonText}>Xóa</Text>
                                             </TouchableOpacity>
-                                            <TouchableOpacity
+                                            <TouchableOpacity onPress={() => {
+                                                setShowSurveyInfo(false)
+                                                navigate.navigate("editSurvey", { currentSurvey })
+                                            }}
                                                 style={styles.button}
                                             >
                                                 <Text style={styles.buttonText}>Chỉnh sửa</Text>
@@ -201,7 +243,10 @@ const ClassScreen = ({ route }) => {
                                     }
                                     {
                                         role === 'LECTURER' && <TouchableOpacity
-                                            onPress={() => { }}
+                                            onPress={() => {
+                                                setShowSurveyInfo(false)
+                                                navigate.navigate("surveyResponse", { currentSurvey })
+                                            }}
                                             style={{
                                                 flexDirection: 'row',
                                                 justifyContent: 'flex-end',
@@ -256,7 +301,11 @@ const ClassScreen = ({ route }) => {
                                         <IconFe name='external-link' size={20} color='gray' />
                                         <Text style={{ fontSize: 16, fontWeight: '400' }}>Mở</Text>
                                     </TouchableOpacity>
-                                    {role === 'LECTURER' && <TouchableOpacity style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
+                                    {role === 'LECTURER' && <TouchableOpacity onPress={() => {
+                                        setShowMaterialHandle(false)
+                                        navigate.navigate('editMaterial', { currentMaterial })
+                                    }}
+                                        style={{ flexDirection: 'row', gap: 15, padding: 10, alignItems: 'center' }}>
                                         <IconFe name='edit-3' size={20} color='gray' />
                                         <Text style={{ fontSize: 16, fontWeight: '400' }}>Chỉnh sửa</Text>
                                     </TouchableOpacity>}
@@ -307,8 +356,8 @@ const ClassScreen = ({ route }) => {
                 </View>
                 <View style={{ height: height - 80, paddingVertical: 10 }}>
                     {currentTab === 'Chung' && <About class_id={id} class_type={type} />}
-                    {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} />}
-                    {currentTab === 'Tài liệu' && <MaterialList />}
+                    {currentTab === 'Bài tập' && <UpcomingSurvey class_id={id} setIsLoading={setIsLoading} dispatch={dispatch} />}
+                    {currentTab === 'Tài liệu' && <MaterialList setIsLoading={setIsLoading} dispatch={dispatch} class_id={id} />}
                 </View>
             </GlobalContext.Provider>
         </View>
@@ -316,11 +365,34 @@ const ClassScreen = ({ route }) => {
 }
 
 const About = ({ class_id, class_type }) => {
-    const { role } = useSelector(state => state.auth)
+    const { showAddStudent, setShowAddStudent } = useContext(GlobalContext)
+    const dispatch = useDispatch()
+    const { role, token } = useSelector(state => state.auth)
     const { currentClass, attendanceRecord } = useSelector(state => state.learning)
-    console.log("lectuerid:",currentClass.lecturer_account_id);
+    const [refreshing, setRefreshing] = useState(false)
+    const handleRefresh = () => {
+        setRefreshing(true)
+        dispatch(actions.getClassInfo({
+            token: token,
+            class_id: class_id
+        }))
+        dispatch(actions.getAttendanceRecord({
+            token: token,
+            class_id: class_id
+        }))
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500);
+    }
     return (
-        <ScrollView>
+        <ScrollView
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                />
+            }
+        >
             <View style={{ padding: 10, alignItems: 'center' }}>
                 <View style={{ paddingVertical: 10, paddingHorizontal: 15, width: width - 50, backgroundColor: 'white', borderWidth: 1, borderColor: '#BBBBBB', borderRadius: 15 }}>
                     <View style={{}}>
@@ -392,8 +464,17 @@ const About = ({ class_id, class_type }) => {
             </View>
 
             <View style={{ paddingVertical: 15 }}>
-                <View>
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
                     <Text style={{ fontSize: 16, fontWeight: '600', paddingVertical: 5, paddingHorizontal: 15 }}>Danh sách lớp ({currentClass?.student_count})</Text>
+                    {role === 'LECTURER' && <TouchableOpacity onPress={() => { setShowAddStudent(true) }}
+                        style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <IconFe name='plus' color='gray' size={16} />
+                        <Text style={{ padding: 10, color: 'gray' }}>Thêm sinh viên</Text>
+                    </TouchableOpacity>}
                 </View>
                 <View style={{}}>
                     {currentClass?.student_count === '0' && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có sinh viên đăng ký</Text>}
@@ -404,7 +485,6 @@ const About = ({ class_id, class_type }) => {
                                     return (
                                         <View key={index}>
                                             <StudentInfo first_name={item.first_name} last_name={item.last_name} email={item.email} />
-
                                         </View>
                                     )
                                 })
@@ -437,16 +517,50 @@ const StudentInfo = ({ first_name, last_name, email }) => {
     )
 }
 
-const UpcomingSurvey = ({ class_id }) => {
+const UpcomingSurvey = ({ class_id, setIsLoading, dispatch }) => {
     const navigate = useNavigation()
-    const { role } = useSelector(state => state.auth)
-    const { surveyOfCurrentClass, studentAssignmentsByClassId } = useSelector(state => state.learning)
+    const { role, token } = useSelector(state => state.auth)
+    const { surveyOfCurrentClass, upcomingAssignments } = useSelector(state => state.learning)
+    const [refreshing, setRefreshing] = useState(false)
+
+    const renderAssignment = ({ item, index }) => {
+        return (
+            <View key={index} >
+                <AssignmentItem item={item} />
+            </View>
+        )
+    }
+
     return (
-        <View style={{ marginBottom: 35 }}>
-            {surveyOfCurrentClass.length === 0 && studentAssignmentsByClassId.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có bài kiểm tra!</Text>}
-            <ScrollView>
+        <View style={{ marginBottom: 35, flex: 1 }}>
+            {surveyOfCurrentClass.length === 0 && upcomingAssignments.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có bài kiểm tra!</Text>}
+            <ScrollView
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={() => {
+                            setRefreshing(true)
+                            if (role === 'LECTURER') {
+                                dispatch(actions.getAllSurveys({
+                                    token: token,
+                                    class_id: class_id
+                                }))
+                            } else {
+                                dispatch(actions.getUpcomingAssigments({
+                                    token: token,
+                                    class_id: class_id,
+                                    type: assignmentStatus.upcoming
+                                }))
+                            }
+                            setTimeout(() => {
+                                setRefreshing(false)
+                            }, 500);
+                        }}
+                    />
+                }
+            >
                 {
-                    surveyOfCurrentClass.length > 0 && surveyOfCurrentClass.map((item, index) => {
+                    surveyOfCurrentClass.length > 0 && [...surveyOfCurrentClass].reverse().map((item, index) => {
                         return (
                             <View key={index} >
                                 <AssignmentItem item={item} />
@@ -455,7 +569,7 @@ const UpcomingSurvey = ({ class_id }) => {
                     })
                 }
                 {
-                    studentAssignmentsByClassId.length > 0 && studentAssignmentsByClassId.map((item, index) => {
+                    upcomingAssignments.length > 0 && [...upcomingAssignments].reverse().map((item, index) => {
                         return (
                             <View key={index} >
                                 <AssignmentItem item={item} />
@@ -464,6 +578,36 @@ const UpcomingSurvey = ({ class_id }) => {
                     })
                 }
             </ScrollView>
+
+            {/* {surveyOfCurrentClass?.length > 0 && (
+                <FlatList
+                    data={[...surveyOfCurrentClass].reverse()}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderAssignment}
+                    contentContainerStyle={{ 
+                        paddingBottom: 40,
+                        flexGrow: 1, // Makes FlatList take up all available space
+                    }}
+                    showsVerticalScrollIndicator={false}
+                    onScrollBeginDrag={(event) => {
+                        setIsLoading(true)
+                    }}
+                    onScrollEndDrag={(event) => {
+                        if (event.nativeEvent.contentOfsfset.y <= 0) {
+                            dispatch(actions.getAllSurveys({
+                                token: token,
+                                class_id: class_id
+                            }))
+                            setTimeout(() => {
+                                setIsLoading(false)
+                            }, 500);
+                        } else {
+                            setIsLoading(false)
+                        }
+                    }}
+                />
+            )} */}
+
             {role === 'LECTURER' && <View style={{
                 position: 'absolute',
                 top: 600,
@@ -542,25 +686,64 @@ const AssignmentItem = ({ item }) => {
     )
 }
 
-const MaterialList = () => {
+const MaterialList = ({ setIsLoading, dispatch, class_id }) => {
     const { classMaterial } = useSelector(state => state.learning)
-
+    const { token } = useSelector(state => state.auth)
+    const [refreshing, setRefreshing] = useState(false)
+    const renderMaterial = ({ item, index }) => {
+        return (
+            <View key={index}>
+                <MaterialBox item={item} />
+            </View>
+        )
+    }
     return (
         <View style={{
             marginBottom: 20
         }}>
             {classMaterial.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Tài liệu lớp trống !</Text>}
-            <ScrollView >
-                {
-                    classMaterial?.length > 0 && classMaterial.map((item, index) => {
-                        return (
-                            <View key={index}>
-                                <MaterialBox item={item} />
-                            </View>
-                        )
-                    })
-                }
-            </ScrollView>
+            {classMaterial?.length > 0 && (
+                <FlatList
+                    data={[...classMaterial].reverse()}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderMaterial}
+                    contentContainerStyle={{ paddingBottom: 40 }}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={() => {
+                                setRefreshing(false)
+                                dispatch(actions.getMaterialList({
+                                    token: token,
+                                    class_id: class_id
+                                }))
+                                setTimeout(() => {
+                                    setRefreshing(false)
+                                }, 500)
+                            }}
+                        />
+                    }
+                // onScrollBeginDrag={(event) => {
+                //     setIsLoading(true)
+                // }}
+                // onScrollEndDrag={(event) => {
+                //     if (event.nativeEvent.contentOffset.y <= 0) {
+                //         dispatch(actions.getMaterialList({
+                //             token: token,
+                //             class_id: class_id
+                //         }))
+                //         setTimeout(() => {
+                //             setIsLoading(false)
+                //         }, 500);
+                //     } else {
+                //         setIsLoading(false)
+                //     }
+                // }}
+                />
+            )}
+
+
         </View>
     )
 }

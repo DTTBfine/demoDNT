@@ -1,18 +1,23 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Linking, Keyboard, Alert } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Linking, Keyboard, Alert, ScrollView } from 'react-native'
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import { convertVNDate } from '../../../utils/format';
 import Spinner from 'react-native-loading-spinner-overlay';
 import * as apis from '../../../data/api'
 import { responseCodes } from '../../../utils/constants/responseCodes';
+import * as actions from '../../redux/actions'
+import { assignmentStatus } from '../../../utils/constants';
 
 
 const SubmitSurvey = ({ route }) => {
+    const dispatch = useDispatch()
     const { id, title, description, file_url, deadline } = route.params
     const [isLoading, setIsLoading] = useState(false)
     const { token } = useSelector(state => state.auth)
-    const [invalidFields, setInvalidFields] = useState([])
+    const [invalidFields, setInvalidFields] = useState({
+        'submit': ''
+    })
     const [payload, setPayload] = useState({
         file: null,
         token: token,
@@ -20,14 +25,27 @@ const SubmitSurvey = ({ route }) => {
         textResponse: ''
     })
 
-    const validateInput = () => {
-        if (!payload) {
+    const validateInput = (file, textResponse) => {
+        const currentDate = new Date()
+        const deadlineDate = new Date(deadline)
+
+        if (currentDate > deadlineDate) {
+            setInvalidFields((prev) => ({
+                ...prev,
+                submit: "Đã quá hạn nộp bài tập"
+            }))
             return false
         }
-        if (!payload.file) {
-            return false
+
+        if (file || textResponse.length > 0) {
+            return true
         }
-        return true
+        console.log("input failed")
+        setInvalidFields((prev) => ({
+            ...prev,
+            submit: "Cần phải điền mô tả hoặc tải lên tài liệu"
+        }))
+        return false
     }
 
     const resetInput = () => {
@@ -67,11 +85,14 @@ const SubmitSurvey = ({ route }) => {
     }
 
     const handleSubmit = async () => {
+        if (!validateInput(payload.file, payload.textResponse)) {
+            return
+        }
         setIsLoading(true)
         const response = await apis.apiSubmitSurvey(payload)
-        // console.log("submit survey response: " + JSON.stringify(response?.data))
         setIsLoading(false)
         if (response.data?.meta?.code !== responseCodes.statusOK) {
+            console.log("submit survey response: " + JSON.stringify(response?.data))
             Alert.alert("Error", response.data?.meta?.message || "Nộp bài tập không thành công")
         } else {
             Alert.alert("Success", response.data?.meta?.message || "Nộp bài tập thành công")
@@ -82,7 +103,7 @@ const SubmitSurvey = ({ route }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Spinner
                 visible={isLoading}
                 textContent={'Chờ xử lý...'}
@@ -133,9 +154,11 @@ const SubmitSurvey = ({ route }) => {
                     numberOfLines={4} // Số dòng mặc định
                     value={payload.textResponse}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'textResponse': text }))}
-                    onFocus={() => {
-                        setInvalidFields([])
-                    }}
+                    // onFocus={() => {
+                    //     setInvalidFields({
+                    //         'submit': ''
+                    //     })
+                    // }}
                 />
             </View>
             <View style={{ gap: 10 }}>
@@ -162,16 +185,22 @@ const SubmitSurvey = ({ route }) => {
             </View>
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: validateInput() ? '#AA0000' : '#CCCCCC' }]}
+                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: (payload.file || payload.textResponse) ? '#AA0000' : '#CCCCCC' }]}
                     onPress={async () => { 
-                        if (validateInput()) {
-                            await handleSubmit() 
-                        }
+                        await handleSubmit() 
                     }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+            {invalidFields?.submit.length > 0 && <Text style={{
+                paddingHorizontal: 15,
+                fontStyle: 'italic',
+                color: 'red',
+                fontSize: 12,
+                textAlign: 'center'
+            }}> {invalidFields.submit}
+            </Text>}
+        </ScrollView>
     )
 }
 

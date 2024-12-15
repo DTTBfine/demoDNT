@@ -41,18 +41,31 @@ export const apiCreateSurvey = async (payload) => {
 }
 
 export const apiEditSurvey = async (payload) => {
-    const response = await axiosConfig({
-        method: 'post',
-        url: '',
-        data: {
-            file: '', //lấy file từ params của url hả khum biết
-            token: payload.token,
-            assignmentId: payload.assignmentId,
-            deadline: payload.deadline,
-            description: payload.description
+    var formDataBody = new FormData()
+    for (const key in payload) {
+        if (payload[key]) {
+            formDataBody.append(key, payload[key])
+        } 
+    }
+
+    console.log("edit survey body: " + JSON.stringify(formDataBody))
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: '/it5023e/edit_survey',
+            data: formDataBody,
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+    
+        console.log("edit survey response: " + JSON.stringify(response.data))
+        return response
+    } catch (error) {
+        if (!error.response) {
+            return console.error("failed to create survey: " + error)
         }
-    })
-    return response
+        console.log("failed to edit surevey: " + JSON.stringify(error.response.data))
+        return error.response
+    }
 }
 
 export const apiDeleteSurvey = async (payload) => {
@@ -140,7 +153,7 @@ export const apiGetStudentAssignmentsByClassId = async (payload) => {
             url: '/it5023e/get_student_assignments',
             data: {
                 token: payload.token,
-                classId: payload.classId
+                class_id: payload.class_id
             }
         })
         return response

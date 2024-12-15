@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity, RefreshControl } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
@@ -14,11 +14,12 @@ const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta tru
 
 const StudentScreen = () => {
     const dispatch = useDispatch()
-    const [dispatchData, setDispatchData] = useState(true)
     const navigate = useNavigation()
     const { userInfo } = useSelector(state => state.user)
-    const avatarUri = getDisplayedAvatar(userInfo.avatar)
+    // const avatarUri = getDisplayedAvatar(userInfo.avatar)
+    const [avatarUri, setAvatarUri] = useState('')
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const [refreshing, setRefreshing] = useState(false)
 
     if (!userInfo) {
         return <Text>Loading...</Text>;
@@ -26,33 +27,31 @@ const StudentScreen = () => {
     const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
 
-    // useEffect(() => {
-    //     if (dispatchData) {
+    useEffect(() => {
+        uri = getDisplayedAvatar(userInfo.avatar)
+        setAvatarUri(uri)
+    }, [userInfo])
 
-    //       dispatch(actions.getCompletedAssigments({
-    //         token: token,
-    //         type: assignmentStatus.completed,
-    //         class_id: null
-    //       }))
-
-    //       dispatch(actions.getUpcomingAssigments({
-    //         token: token,
-    //         type: assignmentStatus.upcoming,
-    //         class_id: null
-    //       }))
-
-    //       dispatch(actions.getPastDueAssigments({
-    //         token: token,
-    //         type: assignmentStatus.pastDue,
-    //         class_id: null
-    //       }))
-
-    //     setDispatchData(false)
-    //     }
-    // }, [])
+    const handleRefresh = () => {
+        setRefreshing(true)
+        dispatch(actions.getUserInfo({
+            token: token,
+            userId: userInfo.id
+        }))
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500);
+    }
 
     return (
-        <ScrollView>
+        <ScrollView
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                />
+            }
+        >
             <View style={styles.infoBox}>
                 <View style={{ flexDirection: 'row', gap: 15 }}>
                     <View style={{}}>
@@ -120,7 +119,7 @@ const StudentScreen = () => {
                     iconName='bar-chart'
                     name='Khảo sát'
                     infor='Khảo sát và form'
-                    routeName='testUI'
+                    routeName='openClasses'
                 />
             </View>
         </ScrollView>

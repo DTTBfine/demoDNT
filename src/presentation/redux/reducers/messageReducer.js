@@ -3,6 +3,7 @@ import actionTypes from "../actions/actionTypes";
 
 const initState = {
     listConversations: [],
+    currentConversation: []
 }
 
 const messageReducer = (state = initState, action) => {
@@ -11,6 +12,11 @@ const messageReducer = (state = initState, action) => {
             return {
                 ...state,
                 listConversations: action.data || []
+            }
+        case actionTypes.GET_CONVERSATION:
+            return {
+                ...state,
+                currentConversation: action.data || []
             }
         default:
             return state

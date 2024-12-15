@@ -5,6 +5,8 @@ const initState = {
     myClasses: [],
     currentClass: {},
     currentClassBasic: {},
+    openClassesInfo: {},
+    filteredClassesInfo: {},
     classMaterial: [],
     allStudentAssignment: [],
     studentAssignmentsByClassId: [],
@@ -14,7 +16,9 @@ const initState = {
     submissionOfCurrentAssignment: {},
     surveyOfCurrentClass: [],
     attendanceRecord: {},
-    absenceRequests: []
+    attendanceDates: [],
+    absenceRequests: [],
+    studentAbsenceRequests: []
 }
 
 const learningReducer = (state = initState, action) => {
@@ -35,19 +39,39 @@ const learningReducer = (state = initState, action) => {
                 ...state,
                 currentClassBasic: action.data || {}
             }
+        case actionTypes.GET_OPEN_CLASSES:
+            return {
+                ...state,
+                openClassesInfo: action.data || {}
+            }
+        case actionTypes.GET_CLASSES_BY_FILTER:
+            return {
+                ...state,
+                filteredClassesInfo: action.data || {}
+            }
         //attendance
         case actionTypes.GET_ATTENDANCE_RECORD:
             return {
                 ...state,
                 attendanceRecord: action.data || {}
             }
+        case actionTypes.GET_ATTENDANCE_DATES:
+            return {
+                ...state,
+                attendanceDates: action.data || []
+            }
 
         //absence
         case actionTypes.GET_ABSENCE_REQUEST:
-            console.log("reducer absence requests: " + JSON.stringify(action.data))
+            // console.log("reducer absence requests: " + JSON.stringify(action.data))
             return {
                 ...state,
                 absenceRequests: action.data || []
+            }
+        case actionTypes.GET_STUDENT_ABSENCE_REQUESTS:
+            return {
+                ...state,
+                studentAbsenceRequests: action.data || []
             }
 
         //assignment
