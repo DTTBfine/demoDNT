@@ -321,7 +321,7 @@ const Message = () => {
             }}>
                 <Icon name='search' color='darkgray' size={20} />
                 <TextInput
-                    style={{ fontSize: 16 }}
+                    style={{ fontSize: 16, height:40 }}
                     placeholder='Tìm kiếm'
                     placeholderTextColor="gray"
                     value={partnerName}

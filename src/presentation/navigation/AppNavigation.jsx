@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import IconI from 'react-native-vector-icons/Ionicons'
 import { Image, Text, View, RefreshControl, ScrollView } from 'react-native';
-
+import LottieView from 'lottie-react-native';
+import { useRoute } from '@react-navigation/native';
 import CustomHeader from '../components/customHeader';
 import CustomTeacherClass from '../components/customTeacherClass';
 
@@ -166,6 +167,39 @@ const Note = ({ refreshTrigger }) => {
 }
 
 const TeacherRoute = ({ refreshTrigger }) => {
+    const route = useRoute();
+    const [showCongrats, setShowCongrats] = useState(route.params?.showCongrats || false);
+
+    useEffect(() => {
+        if (showCongrats) {
+            setTimeout(() => {
+                setShowCongrats(false); // Ẩn animation sau 3 giây
+            }, 3000);
+        }
+    }, [showCongrats]);
+    if (showCongrats) {
+        return (
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'white',
+                width: '100%',
+                height: '100%',
+                alignSelf: 'center',
+            }}>
+                <LottieView
+                    source={require('../../../assets/congratulation.json')}
+                    autoPlay
+                    loop={false}
+                    style={{
+                        width: 300,
+                        height: 300,
+                    }}
+                />
+            </View>
+        );
+    }
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="homepage">{(props) => <TeacherHomepage  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
@@ -296,6 +330,39 @@ const ClassNavigationForTeacher = ({ refreshTrigger }) => {
 }
 
 const StudentRoute = ({ refreshTrigger }) => {
+    const route = useRoute();
+    const [showCongrats, setShowCongrats] = useState(route.params?.showCongrats || false);
+
+    useEffect(() => {
+        if (showCongrats) {
+            setTimeout(() => {
+                setShowCongrats(false); // Ẩn animation sau 3 giây
+            }, 3000);
+        }
+    }, [showCongrats]);
+    if (showCongrats) {
+        return (
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'white',
+                width: '100%',
+                height: '100%',
+                alignSelf: 'center',
+            }}>
+                <LottieView
+                    source={require('../../../assets/congratulation.json')}
+                    autoPlay
+                    loop={false}
+                    style={{
+                        width: 300,
+                        height: 300,
+                    }}
+                />
+            </View>
+        );
+    }
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="homepage">{(props) => <StudentHomepage  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>

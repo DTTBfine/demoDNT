@@ -15,7 +15,7 @@ const SurveyResponse = ({ route }) => {
     const [grade, setGrade] = useState('');
 
     const [showFilter, setShowFilter] = useState(false)
-    const [arrange, setArrange] = useState("newest") //null là lấy hết
+    const [arrange, setArrange] = useState("newest") 
     const [refreshing, setRefreshing] = useState(false)
 
     const [currentPage, setCurrentPage] = useState(1)

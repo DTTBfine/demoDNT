@@ -385,7 +385,8 @@ const Conversation = ({ route }) => {
                         fontSize: 16,
                         borderRadius: 20,
                         paddingHorizontal: 10,
-                        backgroundColor: '#ddd'
+                        backgroundColor: '#ddd',
+                        height:40
                     }}
                     multiline
                     numberOfLines={4}

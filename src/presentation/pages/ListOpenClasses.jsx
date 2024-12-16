@@ -308,7 +308,8 @@ const ListOpenClasses = () => {
                     <Icon name='search' color='darkgray' size={20} />
                     <TextInput
                         style={{
-                            fontSize: 16
+                            fontSize: 16,
+                            height:40
                         }}
                         placeholder='Tìm kiếm theo tên lớp'
                         placeholderTextColor="gray"

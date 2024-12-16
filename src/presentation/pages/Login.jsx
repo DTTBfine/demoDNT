@@ -13,7 +13,7 @@ const { width, height } = windowDimensions;
 const LoginScreen = () => {
     const dispatch = useDispatch();
     const navigate = useNavigation();
-    const [fcm_token, setFcmToken] = useState(null); 
+    const [fcm_token, setFcmToken] = useState(null);
     const [visible, setVisible] = useState(false);
     const [invalidFields, setInvalidFields] = useState([]);
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth);
@@ -50,11 +50,13 @@ const LoginScreen = () => {
             dispatch(actions.getUserInfo({ token, userId }));
             dispatch(actions.getUnreadNotificationCount({ token }));
             dispatch(actions.getClassList({ token, role, account_id: userId }));
-
-            if (role === 'STUDENT') navigate.navigate("student");
-            else navigate.navigate("teacher");
+    
+            // Điều hướng ngay và truyền tham số showCongrats
+            if (role === 'STUDENT') navigate.navigate("student", { showCongrats: true });
+            else navigate.navigate("teacher", { showCongrats: true });
         }
     }, [isLoggedIn]);
+    
 
     useEffect(() => {
         if (msg === 'password is incorrect') {
