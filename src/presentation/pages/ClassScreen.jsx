@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Modal, Pressable, Linking, Alert, FlatList, RefreshControl, TextInput } from 'react-native'
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import React, { act, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import Icon5 from 'react-native-vector-icons/FontAwesome5'
@@ -24,7 +24,7 @@ const ClassScreen = ({ route }) => {
     const { id, name, type, tabName } = route.params
     const [currentTab, setCurrentTab] = useState(tabName)
     const { token, userId, role } = useSelector(state => state.auth)
-    const { currentClass } = useSelector(state => state.learning)
+    const { classInfo } = useSelector(state => state.learning)
     const dispatch = useDispatch()
     const navigate = useNavigation()
     const [loadData, setLoadData] = useState(true)
@@ -33,14 +33,13 @@ const ClassScreen = ({ route }) => {
     const [loadingText, setLoadingText] = useState('Loading...')
 
     const [showAddStudent, setShowAddStudent] = useState(false)
-    console.log("show add student " + showAddStudent)
+    // console.log("show add student " + showAddStudent)
 
     const [currentSurvey, setCurrentSurvey] = useState(null)
     const [showSurveyInfo, setShowSurveyInfo] = useState(false)
 
     const [currentMaterial, setCurrentMaterial] = useState(null)
     const [showMaterialHandle, setShowMaterialHandle] = useState(false)
-
 
     useEffect(() => {
         if (loadData) {
@@ -365,23 +364,61 @@ const ClassScreen = ({ route }) => {
 const About = ({ class_id, class_type }) => {
     const { showAddStudent, setShowAddStudent } = useContext(GlobalContext)
     const dispatch = useDispatch()
+    const [initData, setInitData] = useState(true)
+    const [classInfo, setClassInfo] = useState({})
+    const [loadingTrigger, setLoadingTrigger] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     const { role, token } = useSelector(state => state.auth)
-    const { currentClass, attendanceRecord } = useSelector(state => state.learning)
+    // console.log("role: " + role)
+    const { currentClass, attendanceRecord, currentClassBasic } = useSelector(state => state.learning)
     const [refreshing, setRefreshing] = useState(false)
     const handleRefresh = () => {
         setRefreshing(true)
-        dispatch(actions.getClassInfo({
-            token: token,
-            class_id: class_id
-        }))
-        dispatch(actions.getAttendanceRecord({
-            token: token,
-            class_id: class_id
-        }))
+        setLoadingTrigger(prev => !prev)
         setTimeout(() => {
             setRefreshing(false)
         }, 500);
     }
+
+    useEffect(() => {
+        setIsLoading(true)
+        if (role === 'LECTURER') {
+            dispatch(actions.getClassInfo({
+                token: token,
+                class_id: class_id
+            }))
+           
+        } else {
+            dispatch(actions.getBasicClassInfo({
+                token: token,
+                class_id: class_id
+            }))
+            dispatch(actions.getAttendanceRecord({
+                token: token,
+                class_id: class_id
+            })) 
+        }
+        setIsLoading(false)
+    }, [loadingTrigger])
+
+    useEffect(() => {
+        if (role === 'LECTURER') {
+            setClassInfo(currentClass)
+        } else {
+            setClassInfo(currentClassBasic)
+        }
+    }, [currentClass, attendanceRecord, currentClassBasic])
+
+
+    useEffect(() => {
+        if (initData) {
+            console.log("iniiiiit data")
+            setLoadingTrigger(prev => !prev)
+            setInitData(false)
+        }
+    }, [])
+    // console.log("class info: " + JSON.stringify(classInfo))
+    console.log("attendance record: " + JSON.stringify(attendanceRecord))
 
     return (
         <ScrollView
@@ -392,10 +429,18 @@ const About = ({ class_id, class_type }) => {
                 />
             }
         >
+            <Spinner
+                visible={isLoading}
+                textContent=''
+                textStyle={{
+                    color: '#FFF'
+                }}
+
+            />
             <View style={{ padding: 10, alignItems: 'center' }}>
                 <View style={{ paddingVertical: 10, paddingHorizontal: 15, width: width - 50, backgroundColor: 'white', borderWidth: 1, borderColor: '#BBBBBB', borderRadius: 15 }}>
                     <View style={{}}>
-                        <Text style={{ fontSize: 16, fontWeight: '600', paddingVertical: 10 }}>{currentClass?.class_id} - {currentClass?.class_name}</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '600', paddingVertical: 10 }}>{classInfo?.class_id} - {classInfo?.class_name}</Text>
                     </View>
                     <View style={{ borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#EEEEEE', paddingVertical: 10 }}>
                         <View style={{ flexDirection: 'row' }}>
@@ -411,7 +456,7 @@ const About = ({ class_id, class_type }) => {
                                 <Text style={{ color: 'gray' }}>Loại hình :</Text>
                             </View>
                             <View style={{ flex: 1, paddingVertical: 5 }}>
-                                <Text style={{ color: 'gray' }}>{currentClass?.class_type} </Text>
+                                <Text style={{ color: 'gray' }}>{classInfo?.class_type} </Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
@@ -419,7 +464,7 @@ const About = ({ class_id, class_type }) => {
                                 <Text style={{ color: 'gray' }}>GVHD :</Text>
                             </View>
                             <View style={{ flex: 1, paddingVertical: 5 }}>
-                                <Text style={{ color: 'deepskyblue', textDecorationLine: 'underline' }}>{currentClass?.lecturer_name}</Text>
+                                <Text style={{ color: 'deepskyblue', textDecorationLine: 'underline' }}>{classInfo?.lecturer_name}</Text>
                             </View>
                         </View>
                         {role === 'STUDENT' && <View style={{ flexDirection: 'row' }}>
@@ -427,7 +472,7 @@ const About = ({ class_id, class_type }) => {
                                 <Text style={{ color: 'gray' }}>Số lần vắng :</Text>
                             </View>
                             <View style={{ flex: 1, paddingVertical: 5 }}>
-                                <Text style={{ color: 'gray' }}>{attendanceRecord?.absent_dates?.length} </Text>
+                                <Text style={{ color: 'gray' }}>{attendanceRecord?.absent_dates?.length || 0} </Text>
                             </View>
                         </View>}
                         <View style={{ flexDirection: 'row' }}>
@@ -435,7 +480,7 @@ const About = ({ class_id, class_type }) => {
                                 <Text style={{ color: 'gray' }}>Số sinh viên :</Text>
                             </View>
                             <View style={{ flex: 1, paddingVertical: 5 }}>
-                                <Text style={{ color: 'gray' }}>{currentClass?.student_count} </Text>
+                                <Text style={{ color: 'gray' }}>{classInfo?.student_count} </Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
@@ -451,13 +496,13 @@ const About = ({ class_id, class_type }) => {
                                 <Text style={{ color: 'gray' }}>Trạng thái lớp :</Text>
                             </View>
                             <View style={{ flex: 1, paddingVertical: 5 }}>
-                                <Text style={{ color: 'gray' }}>{currentClass?.status} </Text>
+                                <Text style={{ color: 'gray' }}>{classInfo?.status} </Text>
                             </View>
                         </View>
                     </View>
                     <View style={{ paddingBottom: 10 }}>
                         <Text style={{ fontSize: 16, fontWeight: '600', paddingVertical: 10 }}>Thời khóa biểu</Text>
-                        <Text>Bắt đầu từ {currentClass?.start_date} đến {currentClass?.end_date} </Text>
+                        <Text>Bắt đầu từ {classInfo?.start_date} đến {classInfo?.end_date} </Text>
                     </View>
                 </View>
             </View>
@@ -468,7 +513,7 @@ const About = ({ class_id, class_type }) => {
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <Text style={{ fontSize: 16, fontWeight: '600', paddingVertical: 5, paddingHorizontal: 15 }}>Danh sách lớp ({currentClass?.student_count})</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '600', paddingVertical: 5, paddingHorizontal: 15 }}>Danh sách lớp ({classInfo?.student_count})</Text>
                     {role === 'LECTURER' && <TouchableOpacity onPress={() => { setShowAddStudent(true) }}
                         style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <IconFe name='plus' color='gray' size={16} />
@@ -476,11 +521,12 @@ const About = ({ class_id, class_type }) => {
                     </TouchableOpacity>}
                 </View>
                 <View style={{}}>
-                    {currentClass?.student_count === '0' && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có sinh viên đăng ký</Text>}
-                    {currentClass?.student_count > 0 &&
+                    {role === 'STUDENT' && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Sinh viên không có quyền xem danh sách lớp</Text>}
+                    {role === 'LECTURER' && classInfo?.student_count === '0' && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có sinh viên đăng ký</Text>}
+                    {classInfo?.student_count > 0 &&
                         <View>
                             {
-                                currentClass.student_accounts.map((item, index) => {
+                                classInfo.student_accounts.map((item, index) => {
                                     return (
                                         <View key={index}>
                                             <StudentInfo first_name={item.first_name} last_name={item.last_name} email={item.email} />
@@ -700,7 +746,27 @@ const MaterialList = ({ setIsLoading, dispatch, class_id }) => {
         <View style={{
             marginBottom: 20
         }}>
-            {classMaterial.length === 0 && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Tài liệu lớp trống !</Text>}
+            {classMaterial.length === 0 && 
+            <ScrollView
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={() => {
+                            setRefreshing(false)
+                            dispatch(actions.getMaterialList({
+                                token: token,
+                                class_id: class_id
+                            }))
+                            setTimeout(() => {
+                                setRefreshing(false)
+                            }, 500)
+                        }}
+                    />
+                }
+            >
+                <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Tài liệu lớp trống !</Text>
+            </ScrollView>}
+            
             {classMaterial?.length > 0 && (
                 <FlatList
                     data={[...classMaterial].reverse()}
