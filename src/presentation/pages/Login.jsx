@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../redux/actions';
 import { validateEmail } from '../../utils/validate';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LottieView from 'lottie-react-native';
 
 const windowDimensions = Dimensions.get('window');
 const { width, height } = windowDimensions;
@@ -112,7 +113,26 @@ const LoginScreen = () => {
     };
 
     return (
+
         <View style={styles.container}>
+            <View style={{
+                position: 'absolute', // Đặt Lottie ở trên cùng
+                top: -40,
+                left: 0,
+                right: 0,
+                alignItems: 'center', // Căn giữa ngang
+                zIndex: 10, // Đảm bảo nằm trên các phần khác
+            }}>
+                <LottieView
+                    source={require('../../../assets/Christmaslights.json')}
+                    autoPlay
+                    loop={true}
+                    style={{
+                        width: '100%',
+                        height: 250,
+                    }}
+                />
+            </View>
             {visible && <PulsatingIcon style={{
                 backgroundColor: 'transparent',
                 position: 'absolute',

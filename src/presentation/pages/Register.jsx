@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
 import * as apis from '../../data/api/index'
 import { responseCodes } from '../../utils/constants/responseCodes'
-
+import LottieView from 'lottie-react-native';
 
 const RegisterScreen = () => {
     const navigate = useNavigation();
@@ -116,6 +116,24 @@ const RegisterScreen = () => {
     }
     return (
         <View style={styles.container}>
+            <View style={{
+                position: 'absolute', // Đặt Lottie ở trên cùng
+                top: -40,
+                left: 0,
+                right: 0,
+                alignItems: 'center', // Căn giữa ngang
+                zIndex: 10, // Đảm bảo nằm trên các phần khác
+            }}>
+                <LottieView
+                    source={require('../../../assets/Christmaslights.json')}
+                    autoPlay
+                    loop={true}
+                    style={{
+                        width: '100%',
+                        height: 250,
+                    }}
+                />
+            </View>
             <View style={styles.titleBox}>
                 <Image
                 source={require('../../../assets/logo.png')}
@@ -313,5 +331,3 @@ const styles = StyleSheet.create({
     }
 })
 export default RegisterScreen
-
-//todo: verify input data before requesting to server

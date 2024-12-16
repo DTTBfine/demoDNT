@@ -50,6 +50,51 @@ const Tab = createBottomTabNavigator()
 const AppNavigation = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
+    const [showCongrats, setShowCongrats] = useState(true);
+
+    useEffect(() => {
+        if (showCongrats) {
+            setTimeout(() => {
+                setShowCongrats(false); // Ẩn animation sau 3 giây
+            }, 4000);
+        }
+    }, [showCongrats]);
+    if (showCongrats) {
+        return (
+            <View style={{ flex: 1 }}>
+                {/* Phần background trên màu đỏ */}
+                <View style={{
+                    flex: 1,
+                    backgroundColor: '#c41c2e',
+                }} />
+
+                {/* Phần background dưới màu trắng */}
+                <View style={{
+                    flex: 1,
+                    backgroundColor: 'white',
+                }} />
+
+                {/* Lottie animation giữ nguyên ở giữa màn hình */}
+                <LottieView
+                    source={require('../../../assets/ChristmasReindeer.json')}
+                    autoPlay
+                    loop={false}
+                    style={{
+                        position: 'absolute', // Giữ animation cố định trên màn hình
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        width: '100%',
+                        height: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                />
+            </View>
+
+        );
+    }
 
     return (
         <NavigationContainer>
