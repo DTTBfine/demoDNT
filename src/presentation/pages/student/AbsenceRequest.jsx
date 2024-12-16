@@ -17,8 +17,7 @@ const AbsenceRequest = ({ route }) => {
     const dispatch = useDispatch()
     const navigate = useNavigation()
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
-    const { currentClass } = useSelector(state => state.learning)
-    const [requestAbsenceInfo, setRequestAbsenceInfo] = useState('')
+    const { currentClassBasic } = useSelector(state => state.learning)
     const [isLoading, setIsLoading] = useState(false)
 
     const [invalidFields, setInvalidFields] = useState(new Map())
@@ -30,10 +29,10 @@ const AbsenceRequest = ({ route }) => {
     const invalidFieldDate = 'date'
 
     useEffect(() => {
-        dispatch(actions.getClassInfo({
+        dispatch(actions.getBasicClassInfo({
             token: token,
-            role: role,
-            account_id: userId,
+            // role: role,
+            // account_id: userId,
             class_id: class_id
         }))
     },[])
@@ -78,7 +77,20 @@ const AbsenceRequest = ({ route }) => {
                 return newFields
             })
             check = false
-        } else {
+        } 
+        else {
+            const start = new Date(currentClassBasic?.start_date)
+            const end = new Date(currentClassBasic?.end_date)
+            const dateRequest = new Date(date)
+
+            if (dateRequest <= start || dateRequest >= end) {
+                setInvalidFields(prev => {
+                    const newFields = new Map(prev)
+                    newFields.set(invalidFieldDate, "Thời gian xin nghỉ không hợp lệ")
+                    return newFields
+                })
+                return false
+            }
             setIsLoading(true)
             const response = await apis.apiGetStudentAbsenceRequests({
                 token: token,
@@ -161,13 +173,12 @@ const AbsenceRequest = ({ route }) => {
 
     const handleSubmit = async () => {
         setInvalidFields(new Map())
-        check = await validateInput(payload.title, payload.reason, payload.file, payload.date)
+        check = await validateInput(payloadAR.title, payloadAR.reason, payloadAR.file, payloadAR.date)
         if (!check) {
             return
         }
-        setRequestAbsenceInfo('Đang gửi đơn xin nghỉ học...')
         setIsLoading(true)
-        const response = await apis.apiRequestAbsence(payload)
+        const response = await apis.apiRequestAbsence(payloadAR)
         setIsLoading(false)
         console.log("absence response: " + JSON.stringify(response.data))
         if (response?.data.meta.code !== responseCodes.statusOK) {
@@ -196,13 +207,11 @@ const AbsenceRequest = ({ route }) => {
             console.log('Send notification response:', responseSN);
         } catch (error) {
             console.error('Error in send notification API:', error);
-            setRequestAbsenceInfo("Gửi đơn thành công nhưng không thể gửi thông báo.");
             return;
         }
     
         // Reset input và chuyển hướng nếu mọi thứ thành công
         resetInput();
-        setRequestAbsenceInfo("Gửi xin phép nghỉ học thành công");
         setTimeout(() => {
             navigate.navigate('myClasses');
         }, 300);
@@ -360,16 +369,6 @@ const AbsenceRequest = ({ route }) => {
                     fontSize: 12,
                     textAlign: 'center'
                 }}> {invalidFields.get(invalidFieldSubmit)}
-                </Text>
-            }
-            {
-                requestAbsenceInfo && <Text style={{
-                    paddingHorizontal: 15,
-                    fontStyle: 'italic',
-                    color: 'green',
-                    fontSize: 12,
-                    textAlign: 'center'
-                }}> {requestAbsenceInfo}
                 </Text>
             }
         </View >
