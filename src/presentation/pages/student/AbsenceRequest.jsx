@@ -1,6 +1,6 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native'
-import React, { useState, useCallback } from 'react'
-import { useSelector } from 'react-redux'
+import React, { useState, useCallback, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
 import * as actions from '../../redux/actions'
 import * as apis from '../../../data/api/index'

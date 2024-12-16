@@ -30,7 +30,7 @@ export const getClassInfo = (payload) => async (dispatch) => {
         })
     }
     else {
-        console.log('failed to get class info with status code: ' + response.status)
+        console.log('failed to get class info: ' + JSON.stringify(response?.data))
         dispatch({
             type: actionTypes.GET_CLASS_INFO,
             data: null
@@ -59,8 +59,10 @@ export const getBasicClassInfo = (payload) => async (dispatch) => {
             type: actionTypes.GET_BASIC_CLASS_INFO,
             data: response.data.data
         })
-        return
+     
+    return
     }
+    console.log("get basic class info failed: " + JSON.stringify(response?.data))
     dispatch({
         type: actionTypes.GET_BASIC_CLASS_INFO,
         data: null
@@ -132,6 +134,7 @@ export const getStudentAbsenceRequests = (payload) => async (dispatch) => {
 //attendance
 export const getAttendanceRecord = (payload) => async (dispatch) => {
     const response = await apis.apiGetAttendanceRecord(payload)
+    // console.log("attendance record response: " + JSON.stringify(response.data))
     if (response?.data?.meta?.code !== responseCodes.statusOK) {
         return dispatch({
             type: actionTypes.GET_ATTENDANCE_RECORD,
