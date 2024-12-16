@@ -5,9 +5,11 @@ import * as actions from '../../redux/actions'
 import ClassBasicInfoItem from '../../components/classBasicInfoItem'
 import * as apis from '../../../data/api/index'
 import { responseCodes } from '../../../utils/constants/responseCodes'
+import { useNavigation } from '@react-navigation/native'
 
 const ClassRegister = () => {
     const dispatch = useDispatch()
+    const navigate = useNavigation()
 
     const classIdErrorType = 'class_id_error'
     const registerClassErrorType = 'register_class_error'
@@ -61,7 +63,7 @@ const ClassRegister = () => {
             if (exists) {
                 return prevClassesList
             }
-            return [...prevClassesList, { ...classInfo, register_status: '...' }]
+            return [...prevClassesList, { ...classInfo, register_status: 'INSERT' }]
         });
 
         setClassId('')
@@ -300,13 +302,14 @@ const ClassRegister = () => {
             <View style={{
                 marginTop: 20
             }}>
-                <Text style={{
-                    color: '#BB0000',
-                    textDecorationLine: 'underline',
-                    fontStyle: 'italic',
-                    fontWeight: 'bold',
-                    textAlign: 'center'
-                }}>Thông tin danh sách các lớp mở</Text>
+                <Text onPress={() => navigate.navigate("openClasses")}
+                    style={{
+                        color: '#BB0000',
+                        textDecorationLine: 'underline',
+                        fontStyle: 'italic',
+                        fontWeight: 'bold',
+                        textAlign: 'center'
+                    }}>Thông tin danh sách các lớp mở</Text>
             </View>
 
         </ScrollView>

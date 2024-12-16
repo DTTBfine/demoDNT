@@ -1,10 +1,12 @@
-import axiosConfig from '../../../axiosConfig'
-import uuid from 'react-native-uuid'
+import uuid from 'react-native-uuid';
+import axiosConfig from '../../../axiosConfig';
 
 export const apiLogin = async (payload) => {
     console.log('vào apiLogin')
     const deviceId = uuid.v4()
     console.log('deviceId: ' + deviceId)
+    console.log("base url: " + axiosConfig.defaults.baseURL)
+    
     try {
         const response = await axiosConfig(
             {
@@ -13,25 +15,26 @@ export const apiLogin = async (payload) => {
                 data: {
                     email: payload.email,
                     password: payload.password,
-                    deviceId: deviceId
+                    device_id: deviceId,
+                    fcm_token: payload.fcm_token,
                 }
             });
-        console.log('gọi api xong và có response: ' + response)
+        response.data.data.password = payload.password;
+
         return response;
     } catch (error) {
         if (error.response) {
             // Nếu có response từ server
             if (error.response.status === 401) {
                 console.log("Data from 401 error:", error.response.data);
-
             } else {
                 console.error("Error with response:", error.response);
-
             }
-            return error.response
-        } 
+            return error.response;
+        }
+        
         // Nếu không có response từ server (network error)
-        console.error("Network error or request was not completed:", error.message);    
+        console.error("Network error or request was not completed:", error.message);
     }
 }
 
@@ -56,7 +59,7 @@ export const apiSignUp = async (payload) => {
         }
         return error.response;
     }
-    
+
 }
 
 export const apiCheckVerifyCode = async (payload) => {
@@ -105,7 +108,7 @@ export const apiChangeInfoAfterSignUp = async (payload) => {
         return error.response
     }
 
-    
+
 }
 
 export const apiChangePassword = async (payload) => {

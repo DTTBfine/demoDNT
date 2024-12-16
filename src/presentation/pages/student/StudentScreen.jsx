@@ -1,12 +1,13 @@
-import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity, RefreshControl } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import FuncBox from '../../components/func';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions'
-import { convertVNDate, days, getDaysOfWeek } from '../../../utils/format';
+import { convertVNDate, days, getDaysOfWeek, getDisplayedAvatar } from '../../../utils/format';
 import { useNavigation } from '@react-navigation/native';
+import { assignmentStatus } from '../../../utils/constants/class';
 
 const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
 const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính   
@@ -15,33 +16,62 @@ const StudentScreen = () => {
     const dispatch = useDispatch()
     const navigate = useNavigation()
     const { userInfo } = useSelector(state => state.user)
+    // const avatarUri = getDisplayedAvatar(userInfo.avatar)
+    const [avatarUri, setAvatarUri] = useState('')
     const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const [refreshing, setRefreshing] = useState(false)
 
     if (!userInfo) {
         return <Text>Loading...</Text>;
     }
     const [currentDate, setCurrentDate] = useState(new Date())
     const [showSchedule, setShowSchedule] = useState(true)
-    console.log('day in week: ' + JSON.stringify(getDaysOfWeek(currentDate)))
+
+    useEffect(() => {
+        uri = getDisplayedAvatar(userInfo.avatar)
+        setAvatarUri(uri)
+    }, [userInfo])
+
+    const handleRefresh = () => {
+        setRefreshing(true)
+        dispatch(actions.getUserInfo({
+            token: token,
+            userId: userInfo.id
+        }))
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 500);
+    }
 
     return (
-        <ScrollView>
+        <ScrollView
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                />
+            }
+        >
             <View style={styles.infoBox}>
-                <View style={{ flex: 1 }}>
-                    <Image
-                        source={require('../../../../assets/default-avatar.jpg')}
-                        style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 20,
-                        }}
-                    />
+                <View style={{ flexDirection: 'row', gap: 15 }}>
+                    <View style={{}}>
+                        <Image
+                            source={avatarUri.length > 0 ? { uri: avatarUri } : require('../../../../assets/default-avatar.jpg')}
+                            style={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: 20,
+                                borderWidth: 1,
+                                borderColor: 'gray'
+                            }}
+                        />
+                    </View>
+                    <View style={{}}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text>
+                        <Text style={{ fontSize: 13 }}> Sinh viên </Text>
+                    </View>
                 </View>
-                <View style={{ flex: 4 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{`${userInfo.ho} ${userInfo.ten}`}</Text>
-                    <Text style={{ fontSize: 13 }}> Sinh viên </Text>
-                </View>
-                <View style={{ flex: 1 }}>
+                <View style={{}}>
                     <Icon name='calendar' size={18} color="#BB0000" onPress={() => setShowSchedule(!showSchedule)} />
                 </View>
             </View>
@@ -89,7 +119,7 @@ const StudentScreen = () => {
                     iconName='bar-chart'
                     name='Khảo sát'
                     infor='Khảo sát và form'
-                    routeName='testUI'
+                    routeName='openClasses'
                 />
             </View>
         </ScrollView>
@@ -115,11 +145,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     infoBox: {
-        width: '100%',
         marginHorizontal: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 15
+        marginBottom: 15,
+        justifyContent: 'space-between'
     },
     scheduleBox: {
         backgroundColor: "white",

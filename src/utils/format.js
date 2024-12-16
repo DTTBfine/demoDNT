@@ -27,6 +27,25 @@ export const formatSQLDate = (string_date) => {
     return date + year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day;
 }
 
+export const getHourMinute = (dateStr) => {
+    // Chuyển chuỗi thành đối tượng Date
+    const date = new Date(dateStr);
+    // Lấy giờ và phút từ đối tượng Date
+    let hour = date.getHours();
+    let minute = date.getMinutes();
+
+    const dayInWeek = date.getDay() + 1;
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear()
+
+    // Đảm bảo giờ và phút có 2 chữ số
+    hour = String(hour).padStart(2, '0');
+    minute = String(minute).padStart(2, '0');
+
+    return { hour, minute, dayInWeek, day, month, year };
+}
+
 export const convertVNDate = (string_date) => {
     // Tạo một đối tượng Date từ chuỗi
     var date_object = new Date(string_date);
@@ -159,8 +178,9 @@ export const classNameCode = (fullName) => {
     // Tách tên thành các từ riêng biệt
     var nameParts = fullName.split(" ");
 
+    let len = Math.min(nameParts.length, 2)
     // Lấy chữ cái đầu tiên của mỗi từ và nối lại
-    for (let i = 0; i < nameParts.length; i++) {
+    for (let i = 0; i < len; i++) {
         code += nameParts[i][0];
     }
     // Chuyển đổi chữ cái thành chữ hoa
@@ -195,3 +215,26 @@ export const getColorForId = (id) => {
     return colorMap.get(id);
 };
 
+export const getIconForFileType = (fileType) => {
+    // Tạo một đối tượng ánh xạ giữa định dạng file và icon tương ứng
+    const fileIcons = {
+        'image/png': 'image',
+        'image/jpeg': 'image',
+        'application/pdf': 'file-pdf-o',
+        'text/plain': 'file-text-o',
+        'application/msword': 'file-word-o',
+        'application/vnd.ms-excel': 'file-excel-o',
+        'application/zip': 'file-archive-o',
+    };
+
+    // Trả về icon tương ứng với kiểu file, nếu không có trả về một icon mặc định
+    return fileIcons[fileType] || 'file';
+};
+
+export const getDisplayedAvatar = (driveUrl) => {
+    if (driveUrl?.length > 0 && driveUrl.startsWith("https://drive.google.com")) {
+        const fileId = driveUrl.split('/d/')[1].split('/')[0];
+        return `https://drive.google.com/uc?export=view&id=${fileId}`
+    }
+    return ''
+}

@@ -9,7 +9,7 @@ export const getClassList = (payload) => async (dispatch) => {
     if (response?.data.meta.code === responseCodes.statusOK) {
         dispatch({
             type: actionTypes.GET_CLASS_LIST,
-            data: response.data.data
+            data: response.data.data.page_content
         })
     }
     else {
@@ -30,7 +30,7 @@ export const getClassInfo = (payload) => async (dispatch) => {
         })
     }
     else {
-        console.log('failed to get class info with status code: ' + response.status)
+        console.log('failed to get class info: ' + JSON.stringify(response?.data))
         dispatch({
             type: actionTypes.GET_CLASS_INFO,
             data: null
@@ -40,7 +40,6 @@ export const getClassInfo = (payload) => async (dispatch) => {
 
 export const registerClass = (payload) => async (dispatch) => {
     const response = await apis.apiRegisterClass(payload)
-    console.log("here here: " + response?.data.meta.code)
     if (response?.data.meta.code === responseCodes.statusOK) {
         dispatch({
             type: actionTypes.REGISTER_CLASS_SUCCCESS
@@ -57,22 +56,114 @@ export const getBasicClassInfo = (payload) => async (dispatch) => {
     const response = await apis.apiGetBasicClassInfo(payload)
     if (response?.data.meta.code === responseCodes.statusOK) {
         dispatch({
-            type: actionTypes.GET_BASIC_CLASS_INFO_SUCCESS,
+            type: actionTypes.GET_BASIC_CLASS_INFO,
             data: response.data.data
         })
-        return
+     
+    return
+    }
+    console.log("get basic class info failed: " + JSON.stringify(response?.data))
+    dispatch({
+        type: actionTypes.GET_BASIC_CLASS_INFO,
+        data: null
+    })
+}
+
+export const getOpenClasses = (payload) => async (dispatch) => {
+    const response = await apis.apiGetOpenClasses(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_OPEN_CLASSES,
+            data: response.data.data
+        })
     }
     dispatch({
-        type: actionTypes.GET_BASIC_CLASS_INFO_FAILED,
-        data: response.data.data
+        type: actionTypes.GET_OPEN_CLASSES,
+        data: null
+    })
+}
+
+export const getClassesByFilter = (payload) => async (dispatch) => {
+    const response = await apis.apiGetClassesByFilter(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_CLASSES_BY_FILTER,
+            data: response.data.data
+        })
+    }
+
+    console.log("error getting classes by filter: " + JSON.stringify(response.data))
+    dispatch({
+        type: actionTypes.GET_CLASSES_BY_FILTER,
+        data: null
     })
 }
 
 //absence
+export const getAbsenceRequests = (payload) => async (dispatch) => {
+    const response = await apis.apiGetAbsenceRequests(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_ABSENCE_REQUEST,
+            data: response.data.data.page_content
+        })
+    }
+    dispatch({
+        type: actionTypes.GET_ABSENCE_REQUEST,
+        data: null
+    })
+}
 
+export const getStudentAbsenceRequests = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAbsenceRequests(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_STUDENT_ABSENCE_REQUESTS,
+            data: response.data.data.page_content
+        })
+    }
+    console.log("error getting student absence requests: " + JSON.stringify(response.data))
+
+    dispatch({
+        type: actionTypes.GET_STUDENT_ABSENCE_REQUESTS,
+        data: null
+    })
+}
 
 
 //attendance
+export const getAttendanceRecord = (payload) => async (dispatch) => {
+    const response = await apis.apiGetAttendanceRecord(payload)
+    // console.log("attendance record response: " + JSON.stringify(response.data))
+    if (response?.data?.meta?.code !== responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_ATTENDANCE_RECORD,
+            data: null
+        })
+    }
+
+    dispatch({
+        type: actionTypes.GET_ATTENDANCE_RECORD,
+        data: response?.data?.data
+    })
+
+}
+
+export const getAttendanceDates = (payload) => async (dispatch) => {
+    const response = await apis.apiGetAttendanceDates(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_ATTENDANCE_DATES,
+            data: response?.data?.data
+        })
+    }
+
+    return dispatch({
+        type: actionTypes.GET_ATTENDANCE_DATES,
+        data: null
+    })
+}
+
 
 
 //assignment
@@ -92,6 +183,98 @@ export const getStudentAssignments = (payload) => async (dispatch) => {
             data: null
         })
     }
+}
+
+export const getStudentAssignmentsByClassId = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAssignmentsByClassId(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_STUDENT_ASSIGNMENTS_BY_CLASS_ID,
+            data: response?.data?.data
+        })
+    }
+    else {
+        dispatch({
+            type: actionTypes.GET_STUDENT_ASSIGNMENTS_BY_CLASS_ID,
+            data: null
+        })
+    }
+}
+
+export const getUpcomingAssigments = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAssignments(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_UPCOMING_ASSIGNMENTS,
+            data: response?.data?.data
+        })
+    }
+    else {
+        dispatch({
+            type: actionTypes.GET_UPCOMING_ASSIGNMENTS,
+            data: null
+        })
+    }
+}
+
+//getCompletedAssignments will return grade in each assignment if it's been graded
+export const getCompletedAssigments = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAssignments(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        let assignmentsList = response?.data?.data
+        for (let item of assignmentsList) {
+            const submissionResponse = await apis.apiGetSubmission({
+                token: payload.token,
+                assignment_id: item?.id
+            })
+            if (submissionResponse?.data?.meta?.code === responseCodes.statusOK) {
+                item.grade = submissionResponse?.data?.data?.grade
+            } else {
+                item.grade = null
+            }
+        }
+        dispatch({
+            type: actionTypes.GET_COMPLETED_ASSIGNMENTS,
+            data: assignmentsList
+        })
+    }
+    else {
+        dispatch({
+            type: actionTypes.GET_COMPLETED_ASSIGNMENTS,
+            data: null
+        })
+    }
+}
+
+
+export const getPastDueAssigments = (payload) => async (dispatch) => {
+    const response = await apis.apiGetStudentAssignments(payload)
+    if (response?.data.meta.code === responseCodes.statusOK) {
+        dispatch({
+            type: actionTypes.GET_PAST_DUE_ASSIGNMENTS,
+            data: response?.data?.data
+        })
+    }
+    else {
+        dispatch({
+            type: actionTypes.GET_PAST_DUE_ASSIGNMENTS,
+            data: null
+        })
+    }
+}
+
+export const getSubmission = (payload) => async (dispatch) => {
+    const response = await apis.apiGetSubmission(payload)
+    if (response?.data?.meta?.code === responseCodes.statusOK) {
+        return dispatch({
+            type: actionTypes.GET_SUBMISSION,
+            data: response?.data?.data
+        })
+    }
+    dispatch({
+        type: actionTypes.GET_SUBMISSION,
+        data: null
+    })
 }
 
 export const getAllSurveys = (payload) => async (dispatch) => {

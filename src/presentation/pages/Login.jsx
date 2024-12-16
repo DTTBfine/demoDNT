@@ -1,138 +1,127 @@
-import { View, Text, StyleSheet, TextInput, Button,Image, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { useNavigation } from '@react-navigation/native'
+import { View, Text, StyleSheet, TextInput, Button, Image, TouchableOpacity, Dimensions, Keyboard } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import PulsatingIcon from '../components/PulsatingIcon';
 import { useDispatch, useSelector } from 'react-redux';
-import * as actions from '../redux/actions'
+import * as actions from '../redux/actions';
 import { validateEmail } from '../../utils/validate';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-const windowDimensions = Dimensions.get('window'); // Lấy kích thước của màn hình
-const { width, height } = windowDimensions; // Đảm bảo rằng chúng ta truy cập đúng thuộc tính
+const windowDimensions = Dimensions.get('window');
+const { width, height } = windowDimensions;
 
 const LoginScreen = () => {
-    const dispatch = useDispatch()
-    const navigate = useNavigation()
-    const [visible, setVisible] = useState(false)
-    const [invalidFields, setInvalidFields] = useState([]) //mảng chứa những trường không hợp lệ
-    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth)
+    const dispatch = useDispatch();
+    const navigate = useNavigation();
+    const [fcm_token, setFcmToken] = useState(null); 
+    const [visible, setVisible] = useState(false);
+    const [invalidFields, setInvalidFields] = useState([]);
+    const { isLoggedIn, msg, update, token, role, userId } = useSelector(state => state.auth);
     const [payload, setPayload] = useState({
         email: '',
-        password: ''
-    })
-    const [focusField, setFocusField] = useState('')
+        password: '',
+        fcm_token: '',  
+    });
+    const [focusField, setFocusField] = useState('');
+
+    useEffect(() => {
+        const getFcmToken = async () => {
+            try {
+                const token = await AsyncStorage.getItem('fcm_token');
+                if (token) {
+                    setFcmToken(token); 
+                }
+            } catch (error) {
+                console.error('Error retrieving FCM token:', error);
+            }
+        };
+
+        getFcmToken();
+    }, []);
+
+    useEffect(() => {
+        if (fcm_token) {
+            setPayload(prev => ({ ...prev, fcm_token })); 
+        }
+    }, [fcm_token]);
 
     useEffect(() => {
         if (isLoggedIn) {
-            dispatch(actions.getUserInfo({
-                token,
-                userId
-            }))
-            dispatch(actions.getUnreadNotificationCount({
-                token: token
-            }))
-            dispatch(actions.getClassList({
-                token: token,
-                role: role,
-                account_id: userId
-            }))
-            if (role === 'STUDENT') navigate.navigate("student")
-            else navigate.navigate("teacher")
+            dispatch(actions.getUserInfo({ token, userId }));
+            dispatch(actions.getUnreadNotificationCount({ token }));
+            dispatch(actions.getClassList({ token, role, account_id: userId }));
+
+            if (role === 'STUDENT') navigate.navigate("student");
+            else navigate.navigate("teacher");
         }
-    }, [isLoggedIn])
+    }, [isLoggedIn]);
 
     useEffect(() => {
-        msg === 'password is incorrect' && setInvalidFields(prev => [...prev, {
-            name: 'password',
-            message: msg
-        }])
-        msg === 'email not existed' && setInvalidFields(prev => [...prev, {
-            name: 'email',
-            message: msg
-        }])
-    }, [msg, update])
+        if (msg === 'password is incorrect') {
+            setInvalidFields(prev => [...prev, { name: 'password', message: msg }]);
+        }
+        if (msg === 'email not existed') {
+            setInvalidFields(prev => [...prev, { name: 'email', message: msg }]);
+        }
+    }, [msg, update]);
 
     const handleSubmit = async () => {
-
-        //console.log(payload)
-        let invalids = validate(payload)
+        let invalids = validate(payload);
         if (invalids !== 0) {
             console.log(invalids);
             return;
         }
-        console.log(payload)
-        dispatch(actions.login(payload))
-        Keyboard.dismiss()
-        //setVisible(true);
-    }
-
+        console.log("payload login:", payload);
+        dispatch(actions.login(payload));
+        Keyboard.dismiss();
+    };
 
     const validate = (payload) => {
-        let invalids = 0 //đếm số trường không hợp lệ
-        let fields = Object.entries(payload) //hàm chuyển 1 object thành mảng
-
-        const pattern = /^\d{10}$/;
+        let invalids = 0;
+        let fields = Object.entries(payload);
 
         fields.forEach(item => {
             if (item[1] === '') {
-                setInvalidFields(prev => [...prev, {
-                    name: item[0],
-                    message: 'Không được bỏ trống !'
-                }])
-                invalids++
+                setInvalidFields(prev => [...prev, { name: item[0], message: 'Không được bỏ trống !' }]);
+                invalids++;
             }
-        })
+        });
+
         fields.forEach(item => {
             switch (item[0]) {
                 case 'password':
                     if (item[1].length < 6) {
-                        setInvalidFields(prev => [...prev, {
-                            name: item[0],
-                            message: 'Mật khẩu phải có tối thiểu 6 ký tự !'
-                        }])
-                        invalids++
+                        setInvalidFields(prev => [...prev, { name: item[0], message: 'Mật khẩu phải có tối thiểu 6 ký tự !' }]);
+                        invalids++;
                     }
-                    break
+                    break;
                 case 'email':
                     if (!validateEmail(item[1])) {
-                        setInvalidFields(prev => [...prev, {
-                            name: item[0],
-                            message: 'Email không hợp lệ !'
-                        }])
-                        invalids++
+                        setInvalidFields(prev => [...prev, { name: item[0], message: 'Email không hợp lệ !' }]);
+                        invalids++;
                     }
-                    break
+                    break;
                 default:
-                    break
+                    break;
             }
-        })
+        });
 
-        return invalids
-    }
+        return invalids;
+    };
 
-    const navigation = useNavigation()
     return (
         <View style={styles.container}>
-            {
-                visible && <PulsatingIcon style={{
-                    backgroundColor: 'transparent',
-                    position: 'absolute',
-                    width: 150,
-                    height: 150,
-                    top: height / 2 - 75, // canh giữa theo chiều dọc
-                    left: width / 2 - 75, // canh giữa theo chiều ngang,
-                    zIndex: 100
-                }} />
-            }
+            {visible && <PulsatingIcon style={{
+                backgroundColor: 'transparent',
+                position: 'absolute',
+                width: 150,
+                height: 150,
+                top: height / 2 - 75,
+                left: width / 2 - 75,
+                zIndex: 100
+            }} />}
             <View style={styles.titleBox}>
-                <Image
-                    source={require('../../../assets/logo.png')}
-                    style={{
-                    width: 200,
-                    height: 60,
-                    }}
-                />
-                {/* <Text style={styles.title1}>HUST</Text> */}
+                <Image source={require('../../../assets/logo.png')} style={{ width: 200, height: 60 }} />
                 <Text style={styles.title2}> Đăng nhập với tài khoản QLĐT</Text>
             </View>
             <View style={styles.inputBox}>
@@ -141,57 +130,44 @@ const LoginScreen = () => {
                     placeholder='Email hoặc mã số SV/CB'
                     placeholderTextColor="#CCCCCC"
                     value={payload.email}
-                    onChangeText={(text) => setPayload(prev => ({ ...prev, 'email': text }))}
+                    onChangeText={(text) => setPayload(prev => ({ ...prev, email: text }))}
                     onFocus={() => {
-                        setFocusField('email')
-                        setInvalidFields([])
+                        setFocusField('email');
+                        setInvalidFields([]);
                     }}
                 />
-                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'email') && <Text style={{
-                    paddingHorizontal: 15,
-                    fontStyle: 'italic',
-                    color: 'red',
-                    fontSize: 12
-                }}> {invalidFields.find(i => i.name === 'email')?.message}
-                </Text>}
+                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'email') && (
+                    <Text style={{ paddingHorizontal: 15, fontStyle: 'italic', color: 'red', fontSize: 12 }}>
+                        {invalidFields.find(i => i.name === 'email')?.message}
+                    </Text>
+                )}
                 <TextInput
                     secureTextEntry={true}
                     style={[styles.input, { borderColor: focusField === 'password' ? '#00CCFF' : '#CCCCCC' }]}
                     placeholder='Mật khẩu'
                     placeholderTextColor="#CCCCCC"
                     value={payload.password}
-                    onChangeText={(text) => setPayload(prev => ({ ...prev, 'password': text }))}
+                    onChangeText={(text) => setPayload(prev => ({ ...prev, password: text }))}
                     onFocus={() => {
-                        setFocusField('password')
-                        setInvalidFields([])
+                        setFocusField('password');
+                        setInvalidFields([]);
                     }}
                 />
-                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'password') && <Text style={{
-                    paddingHorizontal: 15,
-                    fontStyle: 'italic',
-                    color: 'red',
-                    fontSize: 12
-                }}> {invalidFields.find(i => i.name === 'password')?.message}
-                </Text>}
-                <View>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={async () => {
-                            await handleSubmit();
-                        }}>
-                        <Text style={{ color: "#AA0000", fontSize: 20, fontWeight: 'bold', alignSelf: 'center', }}>ĐĂNG NHẬP</Text>
-                    </TouchableOpacity>
-                </View>
+                {invalidFields.length > 0 && invalidFields.some(i => i.name === 'password') && (
+                    <Text style={{ paddingHorizontal: 15, fontStyle: 'italic', color: 'red', fontSize: 12 }}>
+                        {invalidFields.find(i => i.name === 'password')?.message}
+                    </Text>
+                )}
+                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                    <Text style={{ color: "#AA0000", fontSize: 20, fontWeight: 'bold', alignSelf: 'center' }}>ĐĂNG NHẬP</Text>
+                </TouchableOpacity>
                 <View style={styles.titleBox}>
-                    <Text style={styles.title2}
-                        onPress={() => {
-                            navigation.navigate("register")
-                        }}>Register</Text>
+                    <Text style={styles.title2} onPress={() => navigate.navigate("register")}>Register</Text>
                 </View>
             </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -234,5 +210,6 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         borderRadius: 40,
     }
-})
-export default LoginScreen
+});
+
+export default LoginScreen;

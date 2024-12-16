@@ -1,17 +1,62 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Linking, Keyboard, Alert, ScrollView } from 'react-native'
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as DocumentPicker from 'expo-document-picker';
+import { convertVNDate } from '../../../utils/format';
+import Spinner from 'react-native-loading-spinner-overlay';
+import * as apis from '../../../data/api'
+import { responseCodes } from '../../../utils/constants/responseCodes';
+import * as actions from '../../redux/actions'
+import { assignmentStatus } from '../../../utils/constants';
 
-const SubmitSurvey = () => {
+
+const SubmitSurvey = ({ route }) => {
+    const dispatch = useDispatch()
+    const { id, title, description, file_url, deadline } = route.params
+    const [isLoading, setIsLoading] = useState(false)
     const { token } = useSelector(state => state.auth)
+    const [invalidFields, setInvalidFields] = useState({
+        'submit': ''
+    })
     const [payload, setPayload] = useState({
-        file: {},
+        file: null,
         token: token,
-        assignmentId: '', //lấy luôn ở route.params
+        assignmentId: id, //lấy luôn ở route.params
         textResponse: ''
     })
-    console.log(payload)
+
+    const validateInput = (file, textResponse) => {
+        const currentDate = new Date()
+        const deadlineDate = new Date(deadline)
+
+        if (currentDate > deadlineDate) {
+            setInvalidFields((prev) => ({
+                ...prev,
+                submit: "Đã quá hạn nộp bài tập"
+            }))
+            return false
+        }
+
+        if (file || textResponse.length > 0) {
+            return true
+        }
+        console.log("input failed")
+        setInvalidFields((prev) => ({
+            ...prev,
+            submit: "Cần phải điền mô tả hoặc tải lên tài liệu"
+        }))
+        return false
+    }
+
+    const resetInput = () => {
+        setPayload({
+            file: null,
+            token: token,
+            assignmentId: id,
+            textResponse: ''
+        })
+        Keyboard.dismiss()
+    }
 
     const handleDocumentSelection = async () => {
         try {
@@ -26,58 +71,99 @@ const SubmitSurvey = () => {
                 return; // Không tiếp tục nếu bị hủy
             }
 
-            console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
-                setPayload(prev => ({ ...prev, 'file': result.assets[0] }))
+                const {mimeType, uri, name} = result.assets[0] 
+                setPayload(prev => ({ ...prev, 'file': {
+                    type: mimeType,
+                    uri: uri,
+                    name: name
+                }}))
             }
         } catch (err) {
             console.error('Error picking document:', err);
         }
     }
 
-    const handleSubmit = () => {
-        setPayload({
-            file: {},
-            token: token,
-            assignmentId: '', //lấy luôn ở route.params
-            textResponse: ''
-        })
+    const handleSubmit = async () => {
+        if (!validateInput(payload.file, payload.textResponse)) {
+            return
+        }
+        setIsLoading(true)
+        const response = await apis.apiSubmitSurvey(payload)
+        setIsLoading(false)
+        if (response.data?.meta?.code !== responseCodes.statusOK) {
+            console.log("submit survey response: " + JSON.stringify(response?.data))
+            Alert.alert("Error", response.data?.meta?.message || "Nộp bài tập không thành công")
+        } else {
+            Alert.alert("Success", response.data?.meta?.message || "Nộp bài tập thành công")
+        }
+
+        resetInput()
+
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
+            <Spinner
+                visible={isLoading}
+                textContent={'Chờ xử lý...'}
+                textStyle={{
+                    color: '#FFF'
+                }}
+            />
             <View style={{
                 gap: 15,
-                padding: 10,
-                marginTop: 20
+                paddingVertical: 10,
             }}>
-                <View style={{ paddingVertical: 15, gap: 15 }}>
-                    <Text style={styles.input}>Title của cái bài tập đó</Text>
-                    <Text style={styles.input}>Mô tả của cái bài tập đó</Text>
-                    <View style={{ alignItems: 'center' }}>
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => { }}>
-                            <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Tên của cái file bài tập</Text>
+                <View style={{ backgroundColor: 'white', padding: 15, gap: 15, borderBottomWidth: 1, borderRightWidth: 1, borderColor: '#CCCCCC', borderRadius: 15, elevation: 5 }}>
+                    <Text style={{
+                        fontSize: 24,
+                        fontWeight: '500',
+                        marginBottom: 10,
+                    }}>{title}</Text>
+                    <Text style={{ textAlign: 'right', fontStyle: 'italic', color: 'gray', fontSize: 13 }}>Hạn nộp: {convertVNDate(deadline)}</Text>
+
+                    <View>
+                        <Text style={{ fontWeight: '500', fontSize: 16 }}>Mô tả yêu cầu:</Text>
+                        {description && <Text style={{ padding: 5 }}>{description}</Text>}
+                    </View>
+                    <View>
+                        <Text style={{ fontWeight: '500', fontSize: 16 }}>File mô tả: </Text>
+                        {file_url && <TouchableOpacity onPress={() => {
+                            Linking.openURL(file_url).catch(err => console.error("Failed to open URL: ", err))
+                        }}
+                            style={{ padding: 5 }}
+                        >
+                            <Text style={{
+                                zIndex: 100,
+                                color: 'dodgerblue',
+                                textDecorationLine: 'underline'
+                            }}
+                            >{file_url}
+                            </Text>
                         </TouchableOpacity>
+                        }
                     </View>
                 </View>
+                <Text style={{ textAlign: 'center', fontWeight: '500', fontSize: 16 }}>Bài làm</Text>
                 <TextInput
                     style={[styles.textArea, { borderColor: '#AA0000' }]}
-                    placeholder="Mô tả"
+                    placeholder="Mô tả bài làm"
                     placeholderTextColor="#888"
                     multiline={true} // Cho phép nhiều dòng
                     numberOfLines={4} // Số dòng mặc định
                     value={payload.textResponse}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, 'textResponse': text }))}
-                    onFocus={() => {
-                        setInvalidFields([])
-                    }}
+                    // onFocus={() => {
+                    //     setInvalidFields({
+                    //         'submit': ''
+                    //     })
+                    // }}
                 />
             </View>
             <View style={{ gap: 10 }}>
                 <Text style={{
-                    marginTop: 10,
+                    marginTop: 5,
                     textAlign: 'center',
                     color: '#AA0000',
                     fontSize: 17,
@@ -99,12 +185,22 @@ const SubmitSurvey = () => {
             </View>
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity
-                    style={[styles.button, { width: 150, borderRadius: 10 }]}
-                    onPress={() => { handleSubmit }}>
+                    style={[styles.button, { width: 150, borderRadius: 10, backgroundColor: (payload.file || payload.textResponse) ? '#AA0000' : '#CCCCCC' }]}
+                    onPress={async () => { 
+                        await handleSubmit() 
+                    }}>
                     <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+            {invalidFields?.submit.length > 0 && <Text style={{
+                paddingHorizontal: 15,
+                fontStyle: 'italic',
+                color: 'red',
+                fontSize: 12,
+                textAlign: 'center'
+            }}> {invalidFields.submit}
+            </Text>}
+        </ScrollView>
     )
 }
 
@@ -113,24 +209,17 @@ const styles = StyleSheet.create({
         padding: 15,
         gap: 10
     },
-    input: {
-        borderWidth: 2,
-        borderRadius: 10,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderColor: '#AA0000',
-        fontSize: 16,
-    },
     textArea: {
         width: '100%',
         height: 150,
         borderColor: '#AA0000',
-        borderWidth: 2,
+        borderWidth: 1,
         borderRadius: 10,
         textAlignVertical: 'top', // Đảm bảo chữ bắt đầu từ đầu TextArea
         padding: 10,
         fontSize: 16,
         color: '#000',
+        backgroundColor: 'white'
     },
     button: {
         backgroundColor: '#AA0000',

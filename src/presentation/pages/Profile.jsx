@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, TextInput } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, TextInput, Modal, ScrollView, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'react-native-vector-icons/AntDesign'
@@ -6,14 +6,76 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as apis from '../../data/api/index'
 import { responseCodes } from '../../utils/constants/responseCodes';
 import * as actions from '../redux/actions'
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
 const ProfileScreen = () => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.user)
-    const [file, setFile] = useState({})
-    console.log('userInfo', userInfo)
-    console.log(file)
+    let originalAvatar = ""
+    if (userInfo.avatar?.length > 0 && userInfo.avatar.startsWith("https://drive.google.com")) {
+        const fileId = userInfo.avatar.split('/d/')[1].split('/')[0];
+        originalAvatar = `https://drive.google.com/uc?export=view&id=${fileId}`
+    }
+    const { isLoggedIn, msg, update, token, role, userId, password } = useSelector(state => state.auth)
+    const originalName = `${userInfo.ho} ${userInfo.ten}`
+    const [file, setFile] = useState(null)
+    const [newPassword, setNewPassword] = useState('')
+    const [name, setName] = useState(originalName)
+    const [isEditable, setIsEditable] = useState(false);
+    const [invalidFields, setInvalidFields] = useState(new Map())
+    const invalidFieldName = 'name'
+    const invalidFieldFile = 'file'
+    const invalidFieldsSubmit = 'submit'
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [submitInfo, setSubmitInfo] = useState('')
+    const [passwordError, setPasswordError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleIconPress = () => {
+        setIsEditable(true); // Enable editing
+    };
+
+    const handleOutsidePress = () => {
+        if (isEditable) {
+            setIsEditable(false); // Disable editing
+            Keyboard.dismiss(); // Close the keyboard
+        }
+    };
+
+    const handleCancelChanges = () => {
+        setInvalidFields(new Map())
+        setSubmitInfo('')
+        setName(originalName)
+        setFile(null)
+        Keyboard.dismiss()
+    }
+
+    const validateInput = (name, file) => {
+        let check = true
+
+        if (name.length === 0) {
+            setInvalidFields(prev => {
+                const newFields = new Map(prev)
+                newFields.set(invalidFieldName, "Tên không được bỏ trống")
+
+                return newFields
+            })
+            check = false
+        }
+
+        if (!file) {
+            setInvalidFields(prev => {
+                const newFields = new Map(prev)
+                newFields.set(invalidFieldFile, "Cần phải chọn 1 file")
+
+                return newFields
+            })
+            check = false
+        }
+        return check
+    }
+
 
     const handleImageSelection = async () => {
         try {
@@ -27,7 +89,6 @@ const ProfileScreen = () => {
                 console.log('User canceled image selection.');
                 return; // Không tiếp tục nếu bị hủy
             }
-            console.log('result ' + JSON.stringify(result))
             if (result?.assets?.length > 0) {
                 const { mimeType, uri, name } = result.assets[0]
                 setFile({
@@ -53,35 +114,45 @@ const ProfileScreen = () => {
             return
         }
 
-
+        setSubmitInfo('Đang chờ thay đổi từ server...')
+        setIsLoading(true)
         const response = await apis.apiChangeInfoAfterSignUp({
             token: token,
             name: name,
             file: file
         })
+        setIsLoading(false)
 
         if (response?.data.code !== responseCodes.statusOK) {
-            setInvalidFields(prev => {
-                const newFields = new Map(prev)
-                newFields.set(invalidFieldsSubmit, "Không thể lưu thay đổi: " + response.data.message)
+            // setInvalidFields(prev => {
+            //     const newFields = new Map(prev)
+            //     newFields.set(invalidFieldsSubmit, "Không thể lưu thay đổi: " + response.data.message)
 
-                return newFields
-            })
-            return
+            //     return newFields
+            // })
+            console.log("error change info: " + JSON.stringify(response?.data))
+            return Alert.alert("Error", "Lưu thay đổi không thành công")
         }
 
+        Alert.alert("Success", "Lưu thay đổi thành công")
         dispatch(actions.getUserInfo({
             token,
             userId
         }))
 
-        setSubmitInfo('Lưu thay đổi thành công')
+        // setSubmitInfo('Lưu thay đổi thành công')
 
     }
-
     return (
         <TouchableWithoutFeedback onPress={handleOutsidePress}>
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
+                <Spinner
+                    visible={isLoading}
+                    textContent={''}
+                    textStyle={{
+                        color: '#FFF'
+                    }}
+                />
                 <View style={{ alignItems: 'center' }}>
                     <View style={{}}>
                         <Image
@@ -177,11 +248,16 @@ const ProfileScreen = () => {
                         <Text style={styles.ItemName}>Vai trò: </Text>
                         <Text style={styles.ItemValue}>{userInfo.role === 'LECTURER' ? 'Giảng viên' : 'Sinh viên'} </Text>
                     </View>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={styles.ItemName}>Khoa/Viện: </Text>
+                        <Text style={styles.ItemValue}>Trường Công nghệ Thông tin và Truyền thông</Text>
+                    </View>
                 </View>
                 <View style={{
                     flexDirection: 'row',
-                    gap: 5,
-                    marginVertical: 10
+                    gap: 15,
+                    marginVertical: 20,
+                    paddingHorizontal: 10
                 }}>
                     <TouchableOpacity
                         style={{
@@ -189,14 +265,13 @@ const ProfileScreen = () => {
                             backgroundColor: "#BB0000",
                             alignItems: 'center',
                             justifyContent: 'center',
-                            borderRadius: 15,
+                            borderRadius: 20,
                             paddingVertical: 10
                         }}
                         onPress={handleCancelChanges}>
                         <Text style={{
                             color: 'white',
                             fontWeight: 'bold',
-                            fontStyle: 'italic',
                             fontSize: 16
                         }}
                         >
@@ -209,7 +284,7 @@ const ProfileScreen = () => {
                             backgroundColor: "#BB0000",
                             alignItems: 'center',
                             justifyContent: 'center',
-                            borderRadius: 15,
+                            borderRadius: 20,
                             paddingVertical: 10
                         }}
                         onPress={async () => {
@@ -218,7 +293,6 @@ const ProfileScreen = () => {
                         <Text style={{
                             color: 'white',
                             fontWeight: 'bold',
-                            fontStyle: 'italic',
                             fontSize: 16
                         }}>
                             Lưu thay đổi
@@ -231,7 +305,7 @@ const ProfileScreen = () => {
                     color: 'green',
                     fontSize: 12
                 }}> {submitInfo}</Text>}
-            </View>
+            </ScrollView>
         </TouchableWithoutFeedback>
 
     )
@@ -252,19 +326,78 @@ const styles = StyleSheet.create({
     ItemName: {
         paddingHorizontal: 10,
         paddingVertical: 15,
-        fontSize: 16,
-        fontWeight: '600',
-        flex: 2
+        fontSize: 13,
+        fontWeight: '400',
+        flex: 1
     },
     ItemValue: {
         paddingHorizontal: 10,
         paddingVertical: 15,
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: '500',
-        fontStyle: 'italic',
-        color: 'gray',
         flex: 3
-    }
+    },
+    changePasswordButton: {
+        backgroundColor: "#BB0000",
+        alignItems: 'center',
+        borderRadius: 20,
+        paddingVertical: 10,
+        maxWidth: 250,
+        marginStart: 60,
+        marginBottom: 15
+    },
+    changePasswordText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16
+    },
+    modalButtonContainer: {
+        flexDirection: 'row',
+        marginTop: 20,
+    },
+    modalButtonReject: {
+        backgroundColor: '#BB0000',
+        padding: 10,
+        borderRadius: 5,
+        marginHorizontal: 5,
+        minWidth: 150,
+        alignItems: 'center'
+    },
+    modalButtonAccept: {
+        backgroundColor: '#4CAF50',
+        padding: 10,
+        borderRadius: 5,
+        marginHorizontal: 5,
+        minWidth: 160,
+        alignItems: 'center'
+    },
+    modalButtonText: {
+        color: 'white',
+        fontSize: 16
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center'
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    modalInput: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        width: '100%',
+        marginTop: 10,
+        borderRadius: 5
+    },
 })
 
 export default ProfileScreen

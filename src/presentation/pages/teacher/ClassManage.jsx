@@ -1,14 +1,30 @@
 import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity, Pressable } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { useSelector } from 'react-redux'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import IconO from 'react-native-vector-icons/Octicons'
+import IconI from 'react-native-vector-icons/Ionicons'
 
 const ClassManage = () => {
     const navigate = useNavigation()
     const { myClasses } = useSelector(state => state.learning)
     const [classList, setClassList] = useState(myClasses)
     const [classId, setClassId] = useState('') //lấy classId của input lọc
+    const [className, setClassName] = useState('')
     const [isChoosed, setIsChoosed] = useState({}) //id lớp để chọn chỉnh sửa
+
+    useEffect(() => {
+        if (classId) {
+            setClassList(myClasses.filter(item => item.class_id.toLowerCase().includes(classId.toLowerCase())))
+        }
+        else if (className) {
+            setClassList(myClasses.filter(item => item.class_name.toLowerCase().includes(className.toLowerCase())))
+        }
+        else {
+            setClassList(myClasses)
+        }
+    }, [classId, className])
 
     const HeaderItem = {
         class_id: 'Mã lớp',
@@ -22,38 +38,60 @@ const ClassManage = () => {
     return (
         <ScrollView style={styles.container}>
             <View style={{
-                flexDirection: 'row',
-                gap: 10,
-                marginBottom: 15
+                marginBottom: 15, gap: 10
             }}>
-                <TextInput
-                    style={{
-                        flex: 7,
-                        borderWidth: 1,
-                        paddingHorizontal: 10,
-                        paddingVertical: 5,
-                        borderColor: '#CC0000',
-                        borderRadius: 5,
-                        backgroundColor: 'white'
-                    }}
-                    placeholder='Mã lớp'
-                    placeholderTextColor="gray"
-                    value={classId}
-                    onChangeText={(text) => setClassId(text)}
-                />
-                <TouchableOpacity
-                    style={{
-                        flex: 5,
-                        backgroundColor: "#BB0000",
+                <Text style={{ marginLeft: 10 }}>
+                    <Icon name='search' size={18} />
+                    <Text style={{ fontSize: 15, fontWeight: '500' }}> Tìm kiếm nhanh</Text>
+                </Text>
+                <View style={{
+                    flexDirection: 'row',
+                    gap: 10
+                }}>
+                    <View style={{
+                        flex: 3,
+                        backgroundColor: 'gainsboro',
+                        flexDirection: 'row',
+                        borderRadius: 20,
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: 15
-                    }}
-                    onPress={() => {
-                        setClassList(myClasses.filter(classItem => classItem.class_id === classId))
+                        paddingHorizontal: 10,
+                        gap: 5
                     }}>
-                    <Text style={{ color: 'white', fontWeight: 'bold', fontStyle: 'italic', fontSize: 16 }}> Tìm kiếm</Text>
-                </TouchableOpacity>
+                        <IconI name='text' color='darkgray' size={18} />
+                        <TextInput
+                            style={{
+                                flex: 1,
+                                fontSize: 16
+                            }}
+                            keyboardType='default'
+                            placeholder='Tên lớp'
+                            placeholderTextColor="gray"
+                            value={className}
+                            onChangeText={(text) => setClassName(text)}
+                        />
+                    </View>
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: 'gainsboro',
+                        flexDirection: 'row',
+                        borderRadius: 20,
+                        alignItems: 'center',
+                        paddingHorizontal: 10,
+                        gap: 5
+                    }}>
+                        <IconO name='number' color='darkgray' size={18} />
+                        <TextInput
+                            style={{
+                                fontSize: 16
+                            }}
+                            keyboardType='numeric'
+                            placeholder='Mã lớp'
+                            placeholderTextColor="gray"
+                            value={classId}
+                            onChangeText={(text) => setClassId(text)}
+                        />
+                    </View>
+                </View>
             </View>
 
             <View>
@@ -145,13 +183,14 @@ const ClassManage = () => {
             <View style={{
                 marginTop: 20
             }}>
-                <Text style={{
-                    color: '#BB0000',
-                    textDecorationLine: 'underline',
-                    fontStyle: 'italic',
-                    fontWeight: 'bold',
-                    textAlign: 'center'
-                }}>Thông tin danh sách các lớp mở</Text>
+                <Text onPress={() => navigate.navigate("openClasses")}
+                    style={{
+                        color: '#BB0000',
+                        textDecorationLine: 'underline',
+                        fontStyle: 'italic',
+                        fontWeight: 'bold',
+                        textAlign: 'center'
+                    }}>Thông tin danh sách các lớp mở</Text>
             </View>
 
         </ScrollView>

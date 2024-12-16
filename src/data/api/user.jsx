@@ -11,5 +11,24 @@ export const apiGetUserInfo = async (payload) => {
                 userId: payload.userId
             }
         });
+    console.log("get user info response: " + JSON.stringify(response.data))
     return response;
+}
+
+export const apiSearchAccount = async (payload) => {
+    try {
+        return await axiosConfig({
+            method: 'post',
+            url: '/it5023e/search_account',
+            data: {
+                search: payload.search,
+                pageable_request: payload.pageable_request
+            }
+        })
+    } catch (error) {
+        if (!error.response) {
+            return console.error("failed to search account: " + error)
+        }
+        return error.response
+    }
 }

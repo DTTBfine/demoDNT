@@ -1,46 +1,43 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
+import { classNameCode, convertVNDate, getColorForId } from '../../utils/format'
 
-const AssignmentItem = ({ }) => {
+const AssignmentItem = ({ item, class_name }) => {
     return (
         <View style={styles.container}>
-            <View style={{
-                flex: 1,
-            }}>
-                <View style={{
-                    width: 30,
-                    height: 30,
-                    backgroundColor: '#009999',
-                    borderRadius: 6,
-                    justifyContent: 'center'
-                }}>
+            <View style={{ flexDirection: 'row', gap: 15, alignItems: 'flex-start' }}>
+                <View style={{}}>
+                    <View style={{
+                        marginTop: 5,
+                        width: 30,
+                        height: 30,
+                        backgroundColor: getColorForId(item.class_id),
+                        borderRadius: 6,
+                        justifyContent: 'center'
+                    }}>
+                        <Text style={{
+                            color: 'white',
+                            textAlign: 'center',
+                        }}>{classNameCode(class_name)}</Text>
+                    </View>
+                </View>
+                <View>
                     <Text style={{
-                        color: 'white',
-                        textAlign: 'center',
-                    }}>ST</Text>
+                        fontSize: 16,
+                        fontWeight: 500
+                    }}>{item?.title}</Text>
+                    <Text style={{
+                        color: 'gray'
+                    }}>{class_name} </Text>
                 </View>
             </View>
-            <View style={{
-                flex: 8
-            }}>
-                <Text style={{
-                    fontSize: 16,
-                    fontWeight: 500
-                }}> Tên bài</Text>
-                <Text style={{
-                    color: 'gray'
-                }}> Đã làm gì lúc </Text>
-                <Text style={{
-                    color: 'gray'
-                }}> Tên lớp</Text>
-            </View>
-            <View style={{
-                flex: 3
-            }}>
+            <View>
                 <Text style={{
                     fontSize: 12,
                     fontWeight: 500
-                }}>10/10 điểm</Text>
+                }}>
+                    {item.grade ? item.grade : "Chưa có điểm"}
+                </Text>
             </View>
         </View>
     )
@@ -56,7 +53,9 @@ const styles = StyleSheet.create({
         elevation: 5,
         borderRadius: 15,
         padding: 15,
-        gap: 15
+        justifyContent: 'space-between',
+        marginVertical: 10,
+        marginHorizontal: 20
     }
 })
 
