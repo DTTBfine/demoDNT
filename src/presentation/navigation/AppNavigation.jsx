@@ -51,12 +51,14 @@ const AppNavigation = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const [showCongrats, setShowCongrats] = useState(true);
+    const [isshow, setisshow] = useState(true)
+    setTimeout(()=> setisshow(false),2000)
 
     useEffect(() => {
         if (showCongrats) {
             setTimeout(() => {
                 setShowCongrats(false); // Ẩn animation sau 3 giây
-            }, 4000);
+            }, 2000);
         }
     }, [showCongrats]);
     if (showCongrats) {
@@ -73,8 +75,6 @@ const AppNavigation = () => {
                     flex: 1,
                     backgroundColor: 'white',
                 }} />
-
-                {/* Lottie animation giữ nguyên ở giữa màn hình */}
                 <LottieView
                     source={require('../../../assets/ChristmasReindeer.json')}
                     autoPlay
@@ -98,6 +98,35 @@ const AppNavigation = () => {
 
     return (
         <NavigationContainer>
+            <View style={{ flex: 1 }}>
+                <View 
+                    pointerEvents="none"
+                    style={{
+                        position: 'absolute', // Đặt animation ở phía dưới của các giao diện khác
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 1,
+                }}>
+                    <LottieView
+                        source={require('../../../assets/Snow.json')}
+                        autoPlay
+                        loop={true}
+                        style={{
+                            position: 'absolute', // Đặt animation ở phía dưới của các giao diện khác
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            width: '100%',
+                            height: '100%',
+                            zIndex: 1,
+                        }}
+                    />
+                </View>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="auth">{(props) => <AuthNavigation {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
                 <Stack.Screen name="student">{(props) => <StudentRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
@@ -107,6 +136,7 @@ const AppNavigation = () => {
                 <Stack.Screen name="openClasses">{(props) => <SearchOpenClasses  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
                 <Stack.Screen name="testUI">{(props) => <TestUI  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             </Stack.Navigator>
+            </View>
         </NavigationContainer>
     )
 }
