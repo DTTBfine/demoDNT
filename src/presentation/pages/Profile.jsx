@@ -219,21 +219,7 @@ const ProfileScreen = () => {
                                 </Text>
                             )}
                         </View>
-                        <Icon
-                            style={{ padding: 15 }}
-                            name='edit'
-                            size={25}
-                            color='#BB0000'
-                            onPress={handleIconPress}
-                        />
                     </View>
-                    {invalidFields.size > 0 && invalidFields.has(invalidFieldName) && <Text style={{
-                        paddingHorizontal: 15,
-                        fontStyle: 'italic',
-                        color: 'red',
-                        fontSize: 12
-                    }}> {invalidFields.get(invalidFieldName)} </Text>}
-
                 </View>
                 <View style={styles.infoItem}>
                     <View style={{ flexDirection: 'row' }}>

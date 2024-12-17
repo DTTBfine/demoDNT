@@ -194,7 +194,7 @@ const SurveyResponse = ({ route }) => {
                 {responses.length > 0 ? (
                     responses.map(item => renderItem(item))
                 ) : (
-                    <Text>Không có bài nộp nào.</Text>
+                    <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Không có bài nộp nào.</Text>
                 )}
             </ScrollView>
 

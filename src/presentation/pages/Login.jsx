@@ -117,40 +117,43 @@ const LoginScreen = () => {
         <View style={styles.container}>
             <View style={{
                 position: 'absolute', // Đặt Lottie ở trên cùng
-                top: -40,
+                top: 0,
                 left: 0,
                 right: 0,
                 alignItems: 'center', // Căn giữa ngang
                 zIndex: 10, // Đảm bảo nằm trên các phần khác
             }}>
                 <LottieView
+                    source={require('../../../assets/ChristmasReindeer.json')}
+                    autoPlay
+                    loop={false}
+                    resizeMode="cover"
+                    style={{
+                        width: '100%',
+                        height: 350,
+                    }}
+                />
+                {/* <LottieView
                     source={require('../../../assets/Christmaslights.json')}
                     autoPlay
                     loop={true}
                     style={{
                         width: '100%',
-                        height: 250,
+                        height: 200,
+                        marginTop:50
                     }}
-                />
+                /> */}
             </View>
-            {visible && <PulsatingIcon style={{
-                backgroundColor: 'transparent',
-                position: 'absolute',
-                width: 150,
-                height: 150,
-                top: height / 2 - 75,
-                left: width / 2 - 75,
-                zIndex: 100
-            }} />}
+            <View style={{marginTop:300}}>
             <View style={styles.titleBox}>
-                <Image source={require('../../../assets/logo.png')} style={{ width: 200, height: 60 }} />
+                <Image resizeMode="cover" source={require('../../../assets/logoRed.png')} style={{ width: 237.5, height: 50 }} />
                 <Text style={styles.title2}> Đăng nhập với tài khoản QLĐT</Text>
             </View>
             <View style={styles.inputBox}>
                 <TextInput
-                    style={[styles.input, { borderColor: focusField === 'email' ? '#00CCFF' : '#CCCCCC' }]}
+                    style={[styles.input, { borderColor: focusField === 'email' ? '#aa0000' : '#CCCCCC' }]}
                     placeholder='Email hoặc mã số SV/CB'
-                    placeholderTextColor="#CCCCCC"
+                    placeholderTextColor="gray"
                     value={payload.email}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, email: text }))}
                     onFocus={() => {
@@ -159,15 +162,15 @@ const LoginScreen = () => {
                     }}
                 />
                 {invalidFields.length > 0 && invalidFields.some(i => i.name === 'email') && (
-                    <Text style={{ paddingHorizontal: 15, fontStyle: 'italic', color: 'red', fontSize: 12 }}>
+                    <Text style={{ paddingHorizontal: 15, color: 'red', fontSize: 12 }}>
                         {invalidFields.find(i => i.name === 'email')?.message}
                     </Text>
                 )}
                 <TextInput
                     secureTextEntry={true}
-                    style={[styles.input, { borderColor: focusField === 'password' ? '#00CCFF' : '#CCCCCC' }]}
+                    style={[styles.input, { borderColor: focusField === 'password' ? '#aa0000' : '#CCCCCC' }]}
                     placeholder='Mật khẩu'
-                    placeholderTextColor="#CCCCCC"
+                    placeholderTextColor="gray"
                     value={payload.password}
                     onChangeText={(text) => setPayload(prev => ({ ...prev, password: text }))}
                     onFocus={() => {
@@ -176,16 +179,36 @@ const LoginScreen = () => {
                     }}
                 />
                 {invalidFields.length > 0 && invalidFields.some(i => i.name === 'password') && (
-                    <Text style={{ paddingHorizontal: 15, fontStyle: 'italic', color: 'red', fontSize: 12 }}>
+                    <Text style={{ paddingHorizontal: 15, color: 'red', fontSize: 12 }}>
                         {invalidFields.find(i => i.name === 'password')?.message}
                     </Text>
                 )}
+
                 <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                    <Text style={{ color: "#AA0000", fontSize: 20, fontWeight: 'bold', alignSelf: 'center' }}>ĐĂNG NHẬP</Text>
+                        <View style={{
+                        position: 'absolute', // Đặt Lottie ở trên cùng
+                        bottom: 15,
+                        left: 220,
+                        right: 0,
+                        alignItems: 'center', // Căn giữa ngang
+                        zIndex: 10, 
+                    }}>
+                        <LottieView
+                            source={require('../../../assets/Main Scene.json')}
+                            autoPlay
+                            loop={false}
+                            style={{
+                                width: '100%',
+                                height: 70,
+                            }}
+                        />
+                    </View>
+                    <Text style={{ color: "white", fontSize: 20, fontWeight: 'bold', alignSelf: 'center' }}>ĐĂNG NHẬP</Text>
                 </TouchableOpacity>
                 <View style={styles.titleBox}>
-                    <Text style={styles.title2} onPress={() => navigate.navigate("register")}>Register</Text>
+                    <Text style={styles.title2} onPress={() => navigate.navigate("register")}>Bạn chưa có tài khoản? <Text style={{textDecorationLine:'underline', color:'#0745b2',fontWeight:'600'}}>Đăng ký</Text></Text>
                 </View>
+            </View>
             </View>
         </View>
     );
@@ -193,12 +216,12 @@ const LoginScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#AA0000',
+        backgroundColor: '#fff',
         flex: 1,
         alignContent: 'center',
         justifyContent: 'center',
-        padding: 20,
-        gap: 20
+        gap: 20,
+        width:windowDimensions.width
     },
     titleBox: {
         alignItems: 'center',
@@ -210,7 +233,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     title2: {
-        color: 'white',
+        color: '#AA0000',
         fontSize: 16,
     },
     inputBox: {
@@ -222,15 +245,15 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        color: 'white'
     },
     button: {
-        backgroundColor: 'white',
+        backgroundColor: '#AA0000',
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderWidth: 1,
         borderColor: 'white',
         borderRadius: 40,
+        marginTop:20
     }
 });
 

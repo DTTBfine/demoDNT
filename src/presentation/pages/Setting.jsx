@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, Modal,TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal,TextInput, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as actions from '../redux/actions'
@@ -12,17 +12,30 @@ const SettingScreen = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [newPassword, setNewPassword] = useState('')
+    const [oldPassword, setOldPassword] = useState('')
     const [passwordError, setPasswordError] = useState('')
     const { userInfo } = useSelector(state => state.user)
     const avatarUri = getDisplayedAvatar(userInfo.avatar)
     const { isLoggedIn, msg, update, token, role, userId,password } = useSelector(state => state.auth)
+    const [invalidFields, setInvalidFields] = useState([]);
+    const [focusField, setFocusField] = useState('');
     const navigate = useNavigation()
 
     const handleChangePassword = async () => {
         setIsModalVisible(true)
+        setNewPassword('');
+        setOldPassword('')
+        setInvalidFields([])
+        setFocusField('')
     }
     
     const handleConfirmChangePassword = async () => {
+        setInvalidFields([]);
+        let invalids = validate({oldPassword,newPassword});
+        if (invalids !== 0) {
+            console.log(invalids);
+            return;
+        }
         if (!newPassword) {
             setPasswordError("Mật khẩu không được để trống")
             return
@@ -31,7 +44,7 @@ const SettingScreen = () => {
         setPasswordError('')
         const response = await apis.apiChangePassword({
             token: token,
-            old_password: password,
+            old_password: oldPassword,
             new_password: newPassword
         })
 
@@ -52,10 +65,45 @@ const SettingScreen = () => {
         setIsModalVisible(false)
         setPasswordError('')
     }
-
+    const validate = ({oldPassword, newPassword}) => {
+        let invalids = 0;
+        // Tạo mảng lỗi mới (xóa lỗi cũ)
+        let fields = Object.entries({oldPassword, newPassword});
+        let newInvalidFields = [];
+    
+        fields.forEach(item => {
+            if (item[1] === '') {
+                newInvalidFields.push({ name: item[0], message: '❗️Không được bỏ trống !' });
+                invalids++;
+            }
+        });
+    
+        fields.forEach(item => {
+            switch (item[0]) {
+                case 'oldPassword':
+                    if (oldPassword !== password) {
+                        newInvalidFields.push({ name: item[0], message: '❗️Mật khẩu cũ không chính xác !' });
+                        invalids++;
+                    }
+                    break;
+                case 'newPassword':
+                    if (item[1].length < 6) {
+                        newInvalidFields.push({ name: item[0], message: '❗️Mật khẩu phải có tối thiểu 6 ký tự !' });
+                        invalids++;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+    
+        // Cập nhật lại mảng lỗi sau khi xác thực
+        setInvalidFields(newInvalidFields);
+        return invalids;
+    };
     const [showHandleChangePassword, setShowHandleChangePassword] = useState(false)
     return (
-        <View style={styles.cotainer}>
+        <ScrollView style={styles.cotainer}>
             {showSuccessMessage && (
                 <View style={styles.toast}>
                     <Text style={styles.toastText}>Thay đổi mật khẩu thành công!</Text>
@@ -111,12 +159,37 @@ const SettingScreen = () => {
                             <View style={styles.modalContent}>
                                 <Text style={styles.modalTitle}>Đổi mật khẩu</Text>
                                 <TextInput
-                                    placeholder="Nhập mật khẩu mới"
-                                    style={styles.modalInput}
-                                    value={newPassword}
-                                    onChangeText={setNewPassword}
+                                    placeholder="Nhập mật khẩu cũ"
+                                    style={[styles.modalInput, { borderColor: focusField === 'oldPassword' ? '#BB0000' : '#CCCCCC' }]}
+                                    value={oldPassword}
+                                    onChangeText={setOldPassword}
+                                    onFocus={()=>{
+                                        setFocusField('oldPassword');
+                                        setInvalidFields([])
+                                    }}
                                     secureTextEntry={true}
                                 />
+                                    {invalidFields.length > 0 && invalidFields.some(i => i.name === 'oldPassword') && (
+                                        <Text style={{ paddingHorizontal: 15,color: 'red', fontSize: 12,marginTop:5 }}>
+                                            {invalidFields.find(i => i.name === 'oldPassword')?.message}
+                                        </Text>
+                                    )}
+                                <TextInput
+                                    placeholder="Nhập mật khẩu mới"
+                                    style={[styles.modalInput, { borderColor: focusField === 'newPassword' ? '#BB0000' : '#CCCCCC' }]}
+                                    value={newPassword}
+                                    onChangeText={setNewPassword}
+                                    onFocus={()=>{
+                                        setInvalidFields([])
+                                        setFocusField('newPassword');
+                                    }}
+                                    secureTextEntry={true}
+                                />
+                                    {invalidFields.length > 0 && invalidFields.some(i => i.name === 'newPassword') && (
+                                        <Text style={{ paddingHorizontal: 15,color: 'red', fontSize: 12, marginTop:5 }}>
+                                            {invalidFields.find(i => i.name === 'newPassword')?.message}
+                                        </Text>
+                                    )}
                                 {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
                                 <View style={styles.modalButtonContainer}>
                                     <TouchableOpacity style={styles.modalButtonAccept} onPress={handleConfirmChangePassword}>
@@ -152,7 +225,7 @@ const SettingScreen = () => {
                         <Text style={{ fontSize: 16, fontWeight: '500', textAlign: 'center' }}>Yahoo</Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={{ borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'gainsboro' }}
+                <TouchableOpacity style={{ borderColor: '#CCCCCC', borderWidth: 1, padding: 10, borderRadius: 8, elevation: 5, backgroundColor: 'gainsboro', marginTop:10 }}
                     onPress={() => {
                         dispatch(actions.logout())
                         navigate.navigate('auth')
@@ -160,7 +233,7 @@ const SettingScreen = () => {
                     <Text style={{ textAlign: 'center', fontWeight: '600', fontSize: 15, color: 'darked' }}>Đăng xuất</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -168,7 +241,7 @@ const styles = StyleSheet.create({
     cotainer: {
         flex: 1,
         padding: 15,
-        gap: 15
+        gap: 15,
     },
     modalButtonContainer: {
         flexDirection: 'row',
@@ -197,25 +270,30 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)'
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        padding:20,
     },
     modalContent: {
         backgroundColor: 'white',
         padding: 20,
         borderRadius: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        minHeight:300,
+        flexDirection:'column',
+        justifyContent:'space-around'
     },
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold'
     },
     modalInput: {
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 10,
-        width: '100%',
-        marginVertical: 10,
-        borderRadius: 5
+        borderWidth: 1.5,
+        borderRadius: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        color: 'white',
+        width:'100%',
+        marginTop:20
     },
     errorText:{
         color:'red',

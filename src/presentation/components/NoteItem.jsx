@@ -31,7 +31,7 @@ const NoteItem = ({ data, onNotificationRead }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container,{backgroundColor:status==='READ'?'gainsboro':'white', opacity:status==='READ'?0.8:1}] }>
             {/* Chấm tròn màu xanh hiển thị khi thông báo chưa đọc */}
             {status === 'UNREAD' && <View style={styles.unreadDot} />}
 
@@ -63,13 +63,12 @@ const NoteItem = ({ data, onNotificationRead }) => {
 
 const styles = StyleSheet.create({
     container: {
-        borderWidth: 1,
-        borderColor: '#CCCCCC',
         borderRadius: 15,
         backgroundColor: 'white',
         paddingHorizontal: 15,
         paddingVertical: 10,
         position: 'relative', 
+        elevation:6
     },
     unreadDot: {
         width: 12,

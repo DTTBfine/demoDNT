@@ -148,9 +148,9 @@ const ClassScreen = ({ route }) => {
                                     <TouchableOpacity onPress={() => {
                                         setShowAddStudent(false)
                                     }}
-                                        style={{ flexDirection: 'row', gap: 5, marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderColor: '#CCCCCC' }}>
+                                        style={{ flexDirection: 'row', gap: 7, marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderColor: '#CCCCCC', alignItems:'center' }}>
                                         <Icon5 name='angle-left' color='gray' size={18} />
-                                        <Text style={{ color: 'gray', fontWeight: '500' }}>Trở lại</Text>
+                                        <Text style={{ fontSize:18, color: 'gray', fontWeight: '500' }}>Trở lại</Text>
                                     </TouchableOpacity>
                                     <AddStudentModal showAddStudent={showAddStudent} setShowAddStudent={setShowAddStudent} class_id={id} />
                                 </View>
@@ -476,7 +476,7 @@ const About = ({ class_id, class_type }) => {
                         <Text style={{ padding: 10, color: 'gray' }}>Thêm sinh viên</Text>
                     </TouchableOpacity>}
                 </View>
-                <View style={{}}>
+                <View style={{marginBottom:60}}>
                     {currentClass?.student_count === '0' && <Text style={{ textAlign: 'center', color: 'gray', paddingTop: 10 }}>Lớp hiện chưa có sinh viên đăng ký</Text>}
                     {currentClass?.student_count > 0 &&
                         <View>

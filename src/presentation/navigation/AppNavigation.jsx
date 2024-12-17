@@ -51,8 +51,6 @@ const AppNavigation = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const [showCongrats, setShowCongrats] = useState(true);
-    const [isshow, setisshow] = useState(true)
-    setTimeout(()=> setisshow(false),2000)
 
     useEffect(() => {
         if (showCongrats) {
@@ -64,27 +62,12 @@ const AppNavigation = () => {
     if (showCongrats) {
         return (
             <View style={{ flex: 1 }}>
-                {/* Phần background trên màu đỏ */}
-                <View style={{
-                    flex: 1,
-                    backgroundColor: '#c41c2e',
-                }} />
 
-                {/* Phần background dưới màu trắng */}
-                <View style={{
-                    flex: 1,
-                    backgroundColor: 'white',
-                }} />
                 <LottieView
-                    source={require('../../../assets/ChristmasReindeer.json')}
+                    source={require('../../../assets/Main.json')}
                     autoPlay
                     loop={false}
                     style={{
-                        position: 'absolute', // Giữ animation cố định trên màn hình
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
                         width: '100%',
                         height: '100%',
                         justifyContent: 'center',
@@ -98,35 +81,6 @@ const AppNavigation = () => {
 
     return (
         <NavigationContainer>
-            <View style={{ flex: 1 }}>
-                <View 
-                    pointerEvents="none"
-                    style={{
-                        position: 'absolute', // Đặt animation ở phía dưới của các giao diện khác
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        width: '100%',
-                        height: '100%',
-                        zIndex: 1,
-                }}>
-                    <LottieView
-                        source={require('../../../assets/Snow.json')}
-                        autoPlay
-                        loop={true}
-                        style={{
-                            position: 'absolute', // Đặt animation ở phía dưới của các giao diện khác
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            width: '100%',
-                            height: '100%',
-                            zIndex: 1,
-                        }}
-                    />
-                </View>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="auth">{(props) => <AuthNavigation {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
                 <Stack.Screen name="student">{(props) => <StudentRoute  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
@@ -136,7 +90,6 @@ const AppNavigation = () => {
                 <Stack.Screen name="openClasses">{(props) => <SearchOpenClasses  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
                 <Stack.Screen name="testUI">{(props) => <TestUI  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             </Stack.Navigator>
-            </View>
         </NavigationContainer>
     )
 }
@@ -244,14 +197,23 @@ const Note = ({ refreshTrigger }) => {
 const TeacherRoute = ({ refreshTrigger }) => {
     const route = useRoute();
     const [showCongrats, setShowCongrats] = useState(route.params?.showCongrats || false);
+    const [snow,setSnow]=useState(false)
 
     useEffect(() => {
         if (showCongrats) {
             setTimeout(() => {
-                setShowCongrats(false); // Ẩn animation sau 3 giây
+                setShowCongrats(false);
+                setSnow(true) // Ẩn animation sau 3 giây
             }, 3000);
         }
     }, [showCongrats]);
+    useEffect(() => {
+        if (snow) {
+            setTimeout(() => {
+                setSnow(false); // Ẩn animation sau 3 giây
+            }, 2000);
+        }
+    }, [snow]);
     if (showCongrats) {
         return (
             <View style={{
@@ -276,11 +238,42 @@ const TeacherRoute = ({ refreshTrigger }) => {
         );
     }
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="homepage">{(props) => <TeacherHomepage  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-            <Stack.Screen name="classNavigationForTeacher">{(props) => <ClassNavigationForTeacher  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-            <Stack.Screen name="teacherClassList">{(props) => <TeacherClassList  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
-        </Stack.Navigator>
+        <View style={{ flex: 1}}>
+            {snow && <View 
+                    pointerEvents="none"
+                    style={{
+                        position: 'absolute', // Đặt animation ở phía dưới của các giao diện khác
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 1,
+                }}>
+                    <LottieView
+                        source={require('../../../assets/Snow.json')}
+                        autoPlay
+                        loop={true}
+                        style={{
+                            position: 'absolute', // Đặt animation ở phía dưới của các giao diện khác
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            width: '100%',
+                            height: '100%',
+                            zIndex: 1,
+                        }}
+                    />
+                </View> 
+            }           
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="homepage">{(props) => <TeacherHomepage  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="classNavigationForTeacher">{(props) => <ClassNavigationForTeacher  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+                <Stack.Screen name="teacherClassList">{(props) => <TeacherClassList  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
+            </Stack.Navigator>
+        </View>
     )
 }
 
@@ -407,14 +400,23 @@ const ClassNavigationForTeacher = ({ refreshTrigger }) => {
 const StudentRoute = ({ refreshTrigger }) => {
     const route = useRoute();
     const [showCongrats, setShowCongrats] = useState(route.params?.showCongrats || false);
+    const [snow,setSnow]=useState(false)
 
     useEffect(() => {
         if (showCongrats) {
             setTimeout(() => {
-                setShowCongrats(false); // Ẩn animation sau 3 giây
+                setShowCongrats(false);
+                setSnow(true) // Ẩn animation sau 3 giây
             }, 3000);
         }
     }, [showCongrats]);
+    useEffect(() => {
+        if (snow) {
+            setTimeout(() => {
+                setSnow(false); // Ẩn animation sau 3 giây
+            }, 2000);
+        }
+    }, [snow]);
     if (showCongrats) {
         return (
             <View style={{
@@ -439,12 +441,45 @@ const StudentRoute = ({ refreshTrigger }) => {
         );
     }
     return (
+        <View style={{
+            flex:1
+        }}>
+            {snow && <View 
+                    pointerEvents="none"
+                    style={{
+                        position: 'absolute', // Đặt animation ở phía dưới của các giao diện khác
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 1,
+                }}>
+                    <LottieView
+                        source={require('../../../assets/Snow.json')}
+                        autoPlay
+                        loop={true}
+                        style={{
+                            position: 'absolute', // Đặt animation ở phía dưới của các giao diện khác
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            width: '100%',
+                            height: '100%',
+                            zIndex: 1,
+                        }}
+                    />
+                </View> 
+            } 
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="homepage">{(props) => <StudentHomepage  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="registerClass">{(props) => <RegisterClass {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="classNavigationForStudent">{(props) => <ClassNavigationForStudent key={refreshTrigger} {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
             <Stack.Screen name="assignment">{(props) => <AssignmentList  {...props} refreshTrigger={refreshTrigger} />}</Stack.Screen>
         </Stack.Navigator>
+        </View>
     )
 }
 

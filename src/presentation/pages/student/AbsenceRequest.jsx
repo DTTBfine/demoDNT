@@ -10,6 +10,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import { responseCodes } from '../../../utils/constants/responseCodes';
 import { useNavigation } from '@react-navigation/native';
 import Spinner from 'react-native-loading-spinner-overlay';
+import Icon6 from 'react-native-vector-icons/FontAwesome6'
 
 const AbsenceRequest = ({ route }) => {
     //Đã xử lý payload đúng định dạng rồi, chỉ cần gửi api thôi, thêm cái Submit
@@ -44,7 +45,7 @@ const AbsenceRequest = ({ route }) => {
         if (title?.length === 0) {
             setInvalidFields(prev => {
                 const newFields = new Map(prev)
-                newFields.set(invalidFieldTitle, "Tiêu đề không được bỏ trống")
+                newFields.set(invalidFieldTitle, "❗️Tiêu đề không được bỏ trống")
 
                 return newFields
             })
@@ -54,7 +55,7 @@ const AbsenceRequest = ({ route }) => {
         if (reason?.length === 0) {
             setInvalidFields(prev => {
                 const newFields = new Map(prev)
-                newFields.set(invalidFieldReason, "Lý do không được bỏ trống")
+                newFields.set(invalidFieldReason, "❗️Lý do không được bỏ trống")
 
                 return newFields
             })
@@ -64,7 +65,7 @@ const AbsenceRequest = ({ route }) => {
         if (!file) {
             setInvalidFields(prev => {
                 const newFields = new Map(prev)
-                newFields.set(invalidFieldFile, "Bạn cần phải tải file minh chứng")
+                newFields.set(invalidFieldFile, "❗️Bạn cần phải tải file minh chứng")
 
                 return newFields
             })
@@ -74,7 +75,7 @@ const AbsenceRequest = ({ route }) => {
         if (!date) {
             setInvalidFields(prev => {
                 const newFields = new Map(prev)
-                newFields.set(invalidFieldDate, "Bạn cần phải chọn ngày xin nghỉ")
+                newFields.set(invalidFieldDate, "❗️Bạn cần phải chọn ngày xin nghỉ")
 
                 return newFields
             })
@@ -241,8 +242,6 @@ const AbsenceRequest = ({ route }) => {
                     }}
                 />
                 {invalidFields.size > 0 && invalidFields.has(invalidFieldTitle) && <Text style={{
-                    paddingHorizontal: 15,
-                    fontStyle: 'italic',
                     color: 'red',
                     fontSize: 12,
                     textAlign: 'center'
@@ -262,8 +261,6 @@ const AbsenceRequest = ({ route }) => {
                     }}
                 />
                 {invalidFields.size > 0 && invalidFields.has(invalidFieldReason) && <Text style={{
-                    paddingHorizontal: 15,
-                    fontStyle: 'italic',
                     color: 'red',
                     fontSize: 12,
                     textAlign: 'center'
@@ -281,14 +278,12 @@ const AbsenceRequest = ({ route }) => {
                 }}>Và</Text>
                 <View style={{ alignItems: 'center' }}>
                     <TouchableOpacity
-                        style={styles.button}
+                        style={[styles.button,{flexDirection:'row',justifyContent:'center',alignItems:'center'}]}
                         onPress={handleDocumentSelection}>
-                        <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Tải minh chứng</Text>
+                        <Text style={{ color: "white", fontSize: 17,fontWeight: 'bold', alignSelf: 'center', }}><Icon6 name='upload' size={16} />   Tải minh chứng</Text>
                     </TouchableOpacity>
                 </View>
                 {invalidFields.size > 0 && invalidFields.has(invalidFieldFile) && <Text style={{
-                    paddingHorizontal: 15,
-                    fontStyle: 'italic',
                     color: 'red',
                     fontSize: 12,
                     textAlign: 'center'
@@ -339,7 +334,6 @@ const AbsenceRequest = ({ route }) => {
                         style={{
                             color: (payload.file && payload.reason && payload.title) ? 'white' : 'gray',
                             fontSize: 17,
-                            fontStyle: 'italic',
                             fontWeight: 'bold',
                             alignSelf: 'center',
                         }}>

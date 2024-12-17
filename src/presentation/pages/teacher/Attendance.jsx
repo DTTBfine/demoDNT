@@ -238,26 +238,27 @@ const Attendance = ({ route }) => {
             </View>
 
             <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ textAlign: 'right', padding: 5, color: 'gray', fontSize: 14, }}>Ngày đã điểm danh</Text>
+                <Text style={{ textAlign: 'right', padding: 5, color: 'gray', fontSize: 16, }}>Ngày đã điểm danh</Text>
                 {/* <View style={{ borderWidth: 1, height: 40, width: 200, borderColor: '#CCCCCC', backgroundColor: 'white', borderRadius: 15 }}>
                 </View> */}
 
                 
             </View>
-            <Picker
-                    // style={styles.picker}
-                    selectedValue={dateAttended}
-                    onValueChange={handleChangeDate}
-                >
-                    <Picker.Item label='Điểm danh hôm nay' value="default"></Picker.Item>
-                {attendanceDates?.length > 0 && attendanceDates.map((date, index) => (
-                    <Picker.Item 
-                        key={index}  // Use index or a unique identifier
-                        label={formatSQLDate(date)} // Text displayed in the picker
-                        value={formatSQLDate(date)} // Value associated with the picker item
-                    />
-                ))}
-                </Picker>
+            <View style={styles.picker}>
+                <Picker
+                        selectedValue={dateAttended}
+                        onValueChange={handleChangeDate}
+                    >
+                        <Picker.Item label='Điểm danh hôm nay' value="default"></Picker.Item>
+                    {attendanceDates?.length > 0 && attendanceDates.map((date, index) => (
+                        <Picker.Item 
+                            key={index}  // Use index or a unique identifier
+                            label={formatSQLDate(date)} // Text displayed in the picker
+                            value={formatSQLDate(date)} // Value associated with the picker item
+                        />
+                    ))}
+                    </Picker>
+            </View>
 
 
             <View style={{ borderColor: '#CCCCCC', borderWidth: 1, backgroundColor: 'white', elevation: 5, borderRadius: 5 }}>
@@ -333,7 +334,7 @@ const Attendance = ({ route }) => {
                     onPress={async () => {
                         await handleSubmit()
                     }}>
-                    <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
+                    <Text style={{ color: "white", fontSize: 17, fontWeight: 'bold', alignSelf: 'center', }}>Submit</Text>
                 </TouchableOpacity>
             </View>
             ) : <View style={{ alignItems: 'center' }}>
@@ -342,7 +343,7 @@ const Attendance = ({ route }) => {
                         onPress={async () => {
                             await handleSetAttendanceStatus()
                         }}>
-                        <Text style={{ color: "white", fontSize: 17, fontStyle: 'italic', fontWeight: 'bold', alignSelf: 'center', }}>Set Status</Text>
+                        <Text style={{ color: "white", fontSize: 17, fontWeight: 'bold', alignSelf: 'center', }}>Set Status</Text>
                     </TouchableOpacity>
                 </View>}
             
@@ -377,7 +378,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 8,
         borderRadius: 15,
-        width: 200
+        width: 200,
+        marginTop:20
     },
     dateText: {
         fontSize: 16,
@@ -399,10 +401,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'snow',
     },
     picker: {
-        borderWidth: 1,
-        borderColor: '#CCCCCC',
-        borderRadius: 20,
-        color: 'white'
+        borderRadius: 100,
+        backgroundColor:'#BBB',
+        color: 'white',
+        marginBottom:20,
+        marginTop:10,
+        paddingHorizontal:10
     },
 })
 

@@ -150,14 +150,14 @@ const AddStudentModal = ({ showAddStudent, setShowAddStudent, class_id }) => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 paddingHorizontal: 10,
-                paddingVertical: 5,
+                paddingVertical: 10,
                 elevation: 5,
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
             }}>
                 <View style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    gap: 10
+                    gap: 10,
                 }}>
                     <Text style={{ fontSize: 16, color: 'gray' }}>Thêm: </Text>
                     <TextInput
